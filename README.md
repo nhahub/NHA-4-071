@@ -125,7 +125,7 @@ To avoid code conflicts and keep the repository clean, please follow these rules
 3. **Branching Strategy:**
    - Never push directly to `main`.
    - Create a feature branch for your task: `git checkout -b feature/your-feature-name` (e.g., `feature/student-login`).
-   - Push your branch and create a Pull Request to merge into `main`.
+   - Push your branch and create a Pull Request to merge into `dev`.
 4. **Commit Messages:** Use clear, descriptive commit messages. 
    - Good: `feat: added student course enrollment API`
    - Bad: `updates`
