@@ -1,45 +1,46 @@
-// src/services/genericFetchService.js
 import axios from 'axios';
 import { ZodError } from 'zod';
+import { installDummyInterceptor } from '../dummyData/dummyApiHandler';
 
-// Create a reusable axios instance
 const apiClient = axios.create({
-  baseURL: 'http://localhost:5000/api', // Your Express backend URL
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api',
+  withCredentials: true,
 });
 
-// Attach JWT token automatically
-apiClient.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token');
-  if (token) config.headers.Authorization = `Bearer ${token}`;
-  return config;
-});
+if (import.meta.env.VITE_USE_DUMMY_DATA === 'true') {
+  console.log('Dummy data mode active — API calls will return mock data');
+  installDummyInterceptor(apiClient);
+}
 
-/**
- * The Generic Fetch Function
- * @param {string} endpoint - API route (e.g., '/students/courses')
- * @param {object} options - Axios config (method, data, etc.)
- * @param {object} schema - Zod schema to validate the RESPONSE
- */
+apiClient.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      window.location.href = '/login';
+    }
+    return Promise.reject(error);
+  }
+);
+
 export const fetchService = async (endpoint, options, schema = null) => {
   try {
     const response = await apiClient(endpoint, options);
-    
-    // If a Zod Response schema is provided, validate the data
+
     if (schema) {
       const validatedData = schema.parse(response.data);
       return { success: true, data: validatedData };
     }
 
     return { success: true, data: response.data };
-    
   } catch (error) {
-    // Handle Zod Validation Errors (Bad data from backend)
     if (error instanceof ZodError) {
-      console.error("Data Validation Failed:", error.errors);
-      return { success: false, error: "Received invalid data from server." };
+      console.error('Data Validation Failed:', error.errors);
+      return { success: false, error: 'Received invalid data from server.' };
     }
-    
-    // Handle Axios/API Errors
-    return { success: false, error: error.response?.data?.message || "Network Error" };
+
+    return {
+      success: false,
+      error: error.response?.data?.message || 'Network Error',
+    };
   }
 };

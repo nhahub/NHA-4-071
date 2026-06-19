@@ -1,20 +1,46 @@
-// src/services/studentService.js
-import { fetchService } from "./genericFetchService";
-import { CourseResponseSchema } from "../Schemas/ResponseSchemas/courseResponseSchema";
-import { EnrollmentRequestSchema } from "../Schemas/RequestSchemas/enrollmentSchemas";
+import { fetchService } from './genericFetchService';
+import { StudentResponseSchema } from '../Schemas/ResponseSchemas/studentResponseSchema';
+import { DashboardResponseSchema } from '../Schemas/ResponseSchemas/dashboardResponseSchema';
+import { CourseResponseSchema } from '../Schemas/ResponseSchemas/courseResponseSchema';
+import { EnrollmentRequestSchema } from '../Schemas/RequestSchemas/enrollmentSchemas';
+import { ComplaintRequestSchema } from '../Schemas/RequestSchemas/complaintSchemas';
 
-export const getAvailableCourses = () => {
-  // We pass the CourseResponseSchema to ensure the data matches what we expect!
-  return fetchService(
-    "/courses/available",
-    { method: "GET" },
-    CourseResponseSchema,
-  );
+export const getStudentProfile = () =>
+  fetchService('/students/profile', { method: 'GET' }, StudentResponseSchema);
+
+export const getStudentDashboard = () =>
+  fetchService('/students/dashboard', { method: 'GET' }, DashboardResponseSchema);
+
+export const getAvailableCourses = () =>
+  fetchService('/courses/available', { method: 'GET' }, CourseResponseSchema);
+
+export const getCourseOfferings = (courseId) =>
+  fetchService(`/courses/${courseId}/offerings`, { method: 'GET' });
+
+export const getMyEnrollments = () =>
+  fetchService('/students/enrollments', { method: 'GET' });
+
+export const enrollInOffering = (offeringId) => {
+  const payload = EnrollmentRequestSchema.parse({ offeringId });
+  return fetchService('/enrollments', { method: 'POST', data: payload });
 };
 
-export const enrollInCourse = (courseId) => {
-  // Validate the request payload first
-  const payload = EnrollmentRequestSchema.parse({ courseId });
+export const dropEnrollment = (enrollmentId) =>
+  fetchService(`/enrollments/${enrollmentId}`, { method: 'DELETE' });
 
-  return fetchService("/enrollments", { method: "POST", data: payload });
+export const getMyComplaints = () =>
+  fetchService('/students/complaints', { method: 'GET' });
+
+export const submitComplaint = (data) => {
+  const payload = ComplaintRequestSchema.parse(data);
+  return fetchService('/complaints', { method: 'POST', data: payload });
 };
+
+export const getMyPayments = () =>
+  fetchService('/students/payments', { method: 'GET' });
+
+export const makePayment = (data) =>
+  fetchService('/payments', { method: 'POST', data });
+
+export const getMyAdvisingSessions = () =>
+  fetchService('/students/advising-sessions', { method: 'GET' });
