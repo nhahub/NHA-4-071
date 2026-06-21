@@ -1,0 +1,55 @@
+export const ROUTES = {
+  ROOT: '/',
+  LOGIN: '/login',
+  FORGOT_PASSWORD: '/forgot-password',
+  FORBIDDEN: '/403',
+
+  STUDENT: {
+    DASHBOARD: '/student/dashboard',
+    ENROLLMENT: '/student/enrollment',
+    SEMESTER_REGISTRATION: '/student/semester-registration',
+    SCHEDULE: '/student/schedule',
+    EXAM_SCHEDULE: '/student/exam-schedule',
+    TRANSCRIPT: '/student/transcript',
+    STUDY_PLAN: '/student/study-plan',
+    ADVISING: '/student/advising',
+    COMPLAINTS: '/student/complaints',
+    PAYMENTS: '/student/payments',
+    ATTENDANCE: '/student/attendance',
+    PROFILE: '/student/profile',
+    NOTIFICATIONS: '/student/notifications',
+  },
+
+  PROFESSOR: {
+    DASHBOARD: '/professor/dashboard',
+    COURSES: '/professor/courses',
+    ASSIGNMENTS: '/professor/assignments',
+    ATTENDANCE: '/professor/attendance',
+    GRADES: '/professor/grades',
+    STUDENTS: '/professor/students',
+    SCHEDULE: '/professor/schedule',
+    NOTIFICATIONS: '/professor/notifications',
+  },
+
+  ADVISOR: {
+    DASHBOARD: '/advisor/dashboard',
+    STUDENTS: '/advisor/students',
+    SESSIONS: '/advisor/sessions',
+    GRADUATION: '/advisor/graduation',
+    ISSUES: '/advisor/issues',
+    STUDENT_PROGRESS: '/advisor/student-progress/:id',
+  },
+
+  ADMIN: {
+    DASHBOARD: '/admin/dashboard',
+    USERS: '/admin/users',
+    COURSES: '/admin/courses',
+    DEPARTMENTS: '/admin/departments',
+    SEMESTERS: '/admin/semesters',
+    COMPLAINTS: '/admin/complaints',
+    REGISTRATION: '/admin/registration',
+    REPORTS: '/admin/reports',
+    POLICIES: '/admin/policies',
+    SETTINGS: '/admin/settings',
+  },
+};
