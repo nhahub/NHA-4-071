@@ -3,10 +3,10 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
-  GraduationCap, Presentation, ClipboardList, Shield,
-  User, Lock, Eye, EyeOff, ArrowRight,
+  GraduationCap, Presentation, ClipboardList,
+  User, Mail, Lock, Eye, EyeOff, ArrowRight,Shield
 } from 'lucide-react';
-import { LoginRequestSchema } from '../../Schemas/RequestSchemas/authSchemas';
+import { RegisterRequestSchema } from '../../Schemas/RequestSchemas/authSchemas';
 import { useAuth } from '../../hooks/useAuth';
 import { ROUTES } from '../../routes/RoutePaths';
 
@@ -14,7 +14,6 @@ const ROLE_OPTIONS = [
   { value: 'student', label: 'Student', icon: GraduationCap },
   { value: 'professor', label: 'Professor', icon: Presentation },
   { value: 'advisor', label: 'Advisor', icon: ClipboardList },
-  { value: 'admin', label: 'Admin', icon: Shield },
 ];
 
 const ROLE_DASHBOARD = {
@@ -24,19 +23,26 @@ const ROLE_DASHBOARD = {
   admin: ROUTES.ADMIN.DASHBOARD,
 };
 
-const LoginPage = () => {
+const RegisterPage = () => {
   const navigate = useNavigate();
-  const { login, loading, error, user, isAuthenticated, clearError } = useAuth();
+  const { register: registerUser, loading, error, user, isAuthenticated, clearError } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
-  const [selectedRole, setSelectedRole] = useState('student');
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const {
     register,
     handleSubmit,
+    setValue,
+    watch,
     formState: { errors },
   } = useForm({
-    resolver: zodResolver(LoginRequestSchema),
+    resolver: zodResolver(RegisterRequestSchema),
+    defaultValues: {
+      role: 'student',
+    },
   });
+
+  const selectedRole = watch('role');
 
   useEffect(() => {
     clearError();
@@ -49,7 +55,7 @@ const LoginPage = () => {
   }, [isAuthenticated, user, navigate]);
 
   const onSubmit = (data) => {
-    login(data);
+    registerUser(data);
   };
 
   return (
@@ -75,7 +81,7 @@ const LoginPage = () => {
             <h1 className="font-['Hanken_Grotesk'] font-bold text-5xl text-white tracking-[-0.96px]">
               Morshed
             </h1>
-            <p className='opacity-50 text-white w-lg'>
+             <p className='opacity-50 text-white w-lg'>
               The next-generation academic portal for high-
               performance learning and collaborative
               research management.
@@ -87,23 +93,22 @@ const LoginPage = () => {
               Your all-in-one academic management platform
             </p>
             <div className="flex items-center gap-2">
-              <Shield className='text-white' size={22}/>
+              <Shield className='text-white' size={22} />
               <span className="font-['IBM_Plex_Sans'] font-semibold text-xs text-white/80 uppercase tracking-[1.2px]">
-                
                 Private &amp; Secure
               </span>
             </div>
           </div>
         </div>
 
-        <div className="flex-1 px-16 py-[50.8px]">
+        <div className="flex-1 px-16 py-[50.8px] overflow-y-auto">
           <div className="max-w-[422px]">
-            <div className="pb-8">
+            <div className="pb-6">
               <h2 className="font-['Hanken_Grotesk'] font-semibold text-3xl text-[#1D1B20]">
-                Welcome Back
+                Create Account
               </h2>
               <p className="font-['Hanken_Grotesk'] text-base text-[#494551] mt-2">
-                Enter your credentials to access your dashboard.
+                Sign up to get started.
               </p>
             </div>
 
@@ -120,7 +125,7 @@ const LoginPage = () => {
                       <button
                         key={role.value}
                         type="button"
-                        onClick={() => setSelectedRole(role.value)}
+                        onClick={() => setValue('role', role.value, { shouldValidate: true })}
                         className={`flex flex-col items-center gap-1 w-[99.5px] py-2 rounded-xl transition-colors ${
                           isSelected
                             ? 'bg-[#4F378A]/5 border-2 border-[#4F378A]'
@@ -142,19 +147,57 @@ const LoginPage = () => {
                     );
                   })}
                 </div>
+                {errors.role && (
+                  <p className="text-red-500 text-xs mt-1">{errors.role.message}</p>
+                )}
               </div>
 
               <div className="space-y-[4.5px]">
                 <label className="font-['IBM_Plex_Sans'] font-semibold text-xs text-[#7A7582] uppercase tracking-[0.6px]">
-                  University ID or Email
+                  Full Name
                 </label>
                 <div className="relative">
                   <User size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#7A7582]" />
                   <input
-                    {...register('universityId')}
+                    {...register('name')}
                     type="text"
+                    placeholder="e.g. John Doe"
+                    className="w-full h-[50px] pl-12 pr-4 border border-[#CBC4D2] rounded-lg font-['Hanken_Grotesk'] text-base text-[#1D1B20] placeholder:text-[#CBC4D2] focus:outline-none focus:border-[#4F378A] transition-colors"
+                  />
+                </div>
+                {errors.name && (
+                  <p className="text-red-500 text-xs mt-1">{errors.name.message}</p>
+                )}
+              </div>
+
+              <div className="space-y-[4.5px]">
+                <label className="font-['IBM_Plex_Sans'] font-semibold text-xs text-[#7A7582] uppercase tracking-[0.6px]">
+                  Email Address
+                </label>
+                <div className="relative">
+                  <Mail size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#7A7582]" />
+                  <input
+                    {...register('email')}
+                    type="email"
                     placeholder="e.g. j.doe@university.edu"
                     className="w-full h-[50px] pl-12 pr-4 border border-[#CBC4D2] rounded-lg font-['Hanken_Grotesk'] text-base text-[#1D1B20] placeholder:text-[#CBC4D2] focus:outline-none focus:border-[#4F378A] transition-colors"
+                  />
+                </div>
+                {errors.email && (
+                  <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>
+                )}
+              </div>
+
+              <div className="space-y-[4.5px]">
+                <label className="font-['IBM_Plex_Sans'] font-semibold text-xs text-[#7A7582] uppercase tracking-[0.6px]">
+                  University ID
+                </label>
+                <div className="relative">
+                  <input
+                    {...register('universityId')}
+                    type="text"
+                    placeholder="e.g. 20210001"
+                    className="w-full h-[50px] pl-4 pr-4 border border-[#CBC4D2] rounded-lg font-['Hanken_Grotesk'] text-base text-[#1D1B20] placeholder:text-[#CBC4D2] focus:outline-none focus:border-[#4F378A] transition-colors"
                   />
                 </div>
                 {errors.universityId && (
@@ -163,23 +206,15 @@ const LoginPage = () => {
               </div>
 
               <div className="space-y-[4px]">
-                <div className="flex justify-between items-center">
-                  <label className="font-['IBM_Plex_Sans'] font-semibold text-xs text-[#7A7582] uppercase tracking-[0.6px]">
-                    Password
-                  </label>
-                  <Link
-                    to={ROUTES.FORGOT_PASSWORD}
-                    className="font-['Hanken_Grotesk'] font-bold text-xs text-[#4F378A]"
-                  >
-                    Forgot Password?
-                  </Link>
-                </div>
+                <label className="font-['IBM_Plex_Sans'] font-semibold text-xs text-[#7A7582] uppercase tracking-[0.6px]">
+                  Password
+                </label>
                 <div className="relative">
                   <Lock size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#7A7582]" />
                   <input
                     {...register('password')}
                     type={showPassword ? 'text' : 'password'}
-                    placeholder="••••••••"
+                    placeholder="Min. 6 characters"
                     className="w-full h-[50px] pl-12 pr-12 border border-[#CBC4D2] rounded-lg font-['Hanken_Grotesk'] text-base text-[#1D1B20] placeholder:text-[#CBC4D2] focus:outline-none focus:border-[#4F378A] transition-colors"
                   />
                   <button
@@ -196,9 +231,35 @@ const LoginPage = () => {
                 )}
               </div>
 
+              <div className="space-y-[4px]">
+                <label className="font-['IBM_Plex_Sans'] font-semibold text-xs text-[#7A7582] uppercase tracking-[0.6px]">
+                  Confirm Password
+                </label>
+                <div className="relative">
+                  <Lock size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#7A7582]" />
+                  <input
+                    {...register('confirmPassword')}
+                    type={showConfirmPassword ? 'text' : 'password'}
+                    placeholder="Re-enter your password"
+                    className="w-full h-[50px] pl-12 pr-12 border border-[#CBC4D2] rounded-lg font-['Hanken_Grotesk'] text-base text-[#1D1B20] placeholder:text-[#CBC4D2] focus:outline-none focus:border-[#4F378A] transition-colors"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-[#7A7582]"
+                    tabIndex={-1}
+                  >
+                    {showConfirmPassword ? <EyeOff size={22} /> : <Eye size={22} />}
+                  </button>
+                </div>
+                {errors.confirmPassword && (
+                  <p className="text-red-500 text-xs mt-1">{errors.confirmPassword.message}</p>
+                )}
+              </div>
+
               {error && (
                 <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg px-4 py-3">
-                  {typeof error === 'string' ? error : error.message || 'Invalid credentials'}
+                  {typeof error === 'string' ? error : error.message || 'Registration failed'}
                 </div>
               )}
 
@@ -211,7 +272,7 @@ const LoginPage = () => {
                   <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
                 ) : (
                   <>
-                    Sign In
+                    Create Account
                     <ArrowRight size={13.33} className="text-white" />
                   </>
                 )}
@@ -220,9 +281,9 @@ const LoginPage = () => {
 
             <div className="pt-8 border-t border-[#E6E0E9]">
               <p className="text-center font-['Hanken_Grotesk'] text-sm text-[#494551]">
-                Don't have an account?{' '}
-                <Link to={ROUTES.REGISTER} className="text-[#4F378A] font-bold hover:underline">
-                  Sign Up
+                Already have an account?{' '}
+                <Link to={ROUTES.LOGIN} className="text-[#4F378A] font-bold hover:underline">
+                  Sign In
                 </Link>
               </p>
             </div>
@@ -233,4 +294,4 @@ const LoginPage = () => {
   );
 };
 
-export default LoginPage;
+export default RegisterPage;

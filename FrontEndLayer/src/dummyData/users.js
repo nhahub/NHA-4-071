@@ -47,4 +47,12 @@ export const users = [
     role: 'admin',
     isActive: true,
   },
+  {
+    _id: 'u007',
+    universityId: 'P005',
+    email: 'Moamen@morshed.edu',
+    password: 'hashed_password',
+    role: 'student',
+    isActive: true,
+  }
 ];

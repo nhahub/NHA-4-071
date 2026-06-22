@@ -14,5 +14,5 @@ export const students = [
     advisorId: 'adv001',
     GPA: 2.89,
     level: 2,
-  },
+  }
 ];

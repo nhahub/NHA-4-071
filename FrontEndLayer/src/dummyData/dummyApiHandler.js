@@ -5,6 +5,13 @@ import {
 } from './index';
 
 const routes = {
+  'POST /auth/forgot-password': (_, __, data) => {
+    const user = users.find((u) => u.email === data.email);
+    return {
+      status: user ? 200 : 200,
+      data: { message: user ? 'Reset link sent to your email' : 'If this email exists, a reset link has been sent' },
+    };
+  },
   'POST /auth/login': (_, __, data) => {
     const user = users.find(
       (u) => u.universityId === data.universityId && u.isActive
@@ -12,6 +19,19 @@ const routes = {
     if (!user) return { status: 401, data: { message: 'Invalid credentials' } };
     const { password, ...safeUser } = user;
     return { status: 200, data: { user: safeUser } };
+  },
+  'POST /auth/register': (_, __, data) => {
+    const existingUser = users.find((u) => u.universityId === data.universityId || u.email === data.email);
+    if (existingUser) return { status: 409, data: { message: 'User already exists with this University ID or email' } };
+    const newUser = {
+      _id: `u${Date.now()}`,
+      universityId: data.universityId,
+      email: data.email,
+      name: data.name,
+      role: data.role,
+      isActive: true,
+    };
+    return { status: 201, data: { user: newUser } };
   },
   'POST /auth/logout': () => ({ status: 200, data: { message: 'Logged out' } }),
   'GET /auth/me': () => {
