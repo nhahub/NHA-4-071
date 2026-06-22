@@ -1,10 +1,28 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import { loginUser, logoutUser, getCurrentUser } from '../../services/authService';
+import { loginUser, registerUser, forgotPassword, logoutUser, getCurrentUser } from '../../services/authService';
 
 export const login = createAsyncThunk(
   'auth/login',
   async (credentials, { rejectWithValue }) => {
     const result = await loginUser(credentials);
+    if (!result.success) return rejectWithValue(result.error);
+    return result.data;
+  }
+);
+
+export const register = createAsyncThunk(
+  'auth/register',
+  async (data, { rejectWithValue }) => {
+    const result = await registerUser(data);
+    if (!result.success) return rejectWithValue(result.error);
+    return result.data;
+  }
+);
+
+export const forgotPasswordAction = createAsyncThunk(
+  'auth/forgotPassword',
+  async (data, { rejectWithValue }) => {
+    const result = await forgotPassword(data);
     if (!result.success) return rejectWithValue(result.error);
     return result.data;
   }

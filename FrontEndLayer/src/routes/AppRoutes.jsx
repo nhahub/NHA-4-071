@@ -8,6 +8,7 @@ import LandingPage from '../pages/Public/LandingPage';
 import NotFoundPage from '../pages/Public/NotFoundPage';
 import ForbiddenPage from '../pages/Public/ForbiddenPage';
 import LoginPage from '../pages/Auth/LoginPage';
+import RegisterPage from '../pages/Auth/RegisterPage';
 import ForgotPasswordPage from '../pages/Auth/ForgotPasswordPage';
 
 import StudentDashboard from '../pages/Student/StudentDashboard';
@@ -59,6 +60,10 @@ export const router = createBrowserRouter([
   {
     path: ROUTES.LOGIN,
     element: <LoginPage />,
+  },
+  {
+    path: ROUTES.REGISTER,
+    element: <RegisterPage />,
   },
   {
     path: ROUTES.FORGOT_PASSWORD,
