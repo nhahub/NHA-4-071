@@ -19,7 +19,9 @@ const advisorSlice = createSlice({
       .addCase(fetchAdvisorProfile.pending, (state) => { state.loading = true; })
       .addCase(fetchAdvisorProfile.fulfilled, (state, action) => { state.loading = false; state.profile = action.payload; })
       .addCase(fetchAdvisorProfile.rejected, (state, action) => { state.loading = false; state.error = action.payload; })
-      .addCase(fetchAssignedStudents.fulfilled, (state, action) => { state.assignedStudents = action.payload; });
+      .addCase(fetchAssignedStudents.pending, (state) => { state.loading = true; state.error = null; })
+      .addCase(fetchAssignedStudents.fulfilled, (state, action) => { state.loading = false; state.assignedStudents = action.payload; })
+      .addCase(fetchAssignedStudents.rejected, (state, action) => { state.loading = false; state.error = action.payload; });
   },
 });
 

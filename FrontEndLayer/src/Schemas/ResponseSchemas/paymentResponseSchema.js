@@ -1,9 +1,13 @@
 import { z } from 'zod';
 
-export const PaymentResponseSchema = z.object({
+const PaymentItemSchema = z.object({
   _id: z.string(),
   studentId: z.string(),
   semesterId: z.string(),
+  semesterName: z.string().optional(),
   amount: z.number(),
   status: z.enum(['pending', 'paid', 'overdue']),
+  createdAt: z.string().optional(),
 });
+
+export const PaymentResponseSchema = z.array(PaymentItemSchema);

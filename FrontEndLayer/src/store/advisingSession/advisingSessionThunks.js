@@ -1,11 +1,10 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import {
-  getAdvisingSessions, createAdvisingSession, updateAdvisingSession,
-} from '../../services/advisorService';
+import { getMyAdvisingSessions, createStudentAdvisingSession } from '../../services/studentService';
+import { updateAdvisingSession } from '../../services/advisorService';
 
 export const fetchAdvisingSessions = createAsyncThunk(
   'advisingSession/fetchAll', async (_, { rejectWithValue }) => {
-    const result = await getAdvisingSessions();
+    const result = await getMyAdvisingSessions();
     if (!result.success) return rejectWithValue(result.error);
     return result.data;
   }
@@ -13,7 +12,7 @@ export const fetchAdvisingSessions = createAsyncThunk(
 
 export const createSession = createAsyncThunk(
   'advisingSession/create', async (sessionData, { rejectWithValue }) => {
-    const result = await createAdvisingSession(sessionData);
+    const result = await createStudentAdvisingSession(sessionData);
     if (!result.success) return rejectWithValue(result.error);
     return result.data;
   }

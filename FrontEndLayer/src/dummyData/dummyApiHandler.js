@@ -2,6 +2,8 @@ import {
   users, departments, students, professors, advisors, admins,
   courses, semesters, courseOfferings, enrollments, payments,
   complaints, advisingSessions, assignments,
+  exams, transcripts, studyPlans, notifications, attendance, scheduleData,
+  studentSettings,
 } from './index';
 
 const routes = {
@@ -38,8 +40,24 @@ const routes = {
     const { password, ...safeUser } = users[0];
     return { status: 200, data: { user: safeUser } };
   },
+  'POST /auth/change-password': () => ({
+    status: 200,
+    data: { message: 'Password changed successfully' },
+  }),
 
   'GET /students/profile': () => ({ status: 200, data: students[0] }),
+  'PATCH /students/profile': (_, __, data) => {
+    Object.assign(students[0], data);
+    return { status: 200, data: students[0] };
+  },
+  'GET /students/settings': () => ({ status: 200, data: { ...studentSettings } }),
+  'PUT /students/settings': (_, __, data) => {
+    const clean = { ...data };
+    delete clean._id;
+    delete clean.studentId;
+    Object.assign(studentSettings, clean);
+    return { status: 200, data: { ...studentSettings } };
+  },
   'GET /students/dashboard': () => ({
     status: 200,
     data: {
@@ -48,6 +66,22 @@ const routes = {
       enrolledCourses: enrollments.filter((e) => e.studentId === 'stu001' && e.status === 'enrolled').length,
       pendingPayments: payments.filter((p) => p.studentId === 'stu001' && p.status === 'pending').length,
       openComplaints: complaints.filter((c) => c.studentId === 'stu001' && c.status === 'pending').length,
+      gpaTrend: [
+        { semester: 'FA22', gpa: 3.2 }, { semester: 'SP23', gpa: 3.4 },
+        { semester: 'SU23', gpa: 3.5 }, { semester: 'FA23', gpa: 3.6 },
+        { semester: 'SP24', gpa: 3.7 }, { semester: 'SU24', gpa: 3.8 },
+      ],
+      currentCourses: [
+        { code: 'CS301', name: 'Data Structures', credits: 3, grade: 'A' },
+        { code: 'CS302', name: 'Algorithms', credits: 3, grade: 'B+' },
+        { code: 'CS303', name: 'Software Engineering', credits: 3, grade: 'A' },
+        { code: 'MATH201', name: 'Linear Algebra', credits: 3, grade: 'A-' },
+      ],
+      courseProgress: [
+        { code: 'CS301', name: 'Data Structures', percent: 88, grade: 'A' },
+        { code: 'CS302', name: 'Algorithms', percent: 72, grade: 'B+' },
+        { code: 'CS303', name: 'Software Engineering', percent: 95, grade: 'A' },
+      ],
     },
   }),
   'GET /students/enrollments': () => ({
@@ -66,6 +100,51 @@ const routes = {
     status: 200,
     data: advisingSessions.filter((s) => s.studentId === 'stu001'),
   }),
+  'PATCH /students/advising-sessions/:id': (_, url, data) => {
+    const id = url.split('/').pop();
+    const session = advisingSessions.find((s) => s._id === id);
+    return { status: 200, data: { ...session, ...data } };
+  },
+  'POST /students/advising-sessions': (_, __, data) => {
+    const newSession = {
+      _id: `as${Date.now()}`,
+      studentId: 'stu001',
+      ...data,
+      status: 'pending',
+      createdAt: new Date().toISOString(),
+    };
+    advisingSessions.push(newSession);
+    return { status: 201, data: newSession };
+  },
+  'GET /students/notifications': () => ({
+    status: 200,
+    data: notifications.filter((n) => n.userId === users[0]._id),
+  }),
+  'PATCH /notifications/:id/read': (_, url) => {
+    const id = url.split('/').pop();
+    const notif = notifications.find((n) => n._id === id);
+    return { status: 200, data: { ...notif, read: true } };
+  },
+  'GET /students/attendance': () => ({
+    status: 200,
+    data: attendance.find((a) => a.studentId === 'stu001') || attendance[0],
+  }),
+  'GET /students/schedule': () => ({
+    status: 200,
+    data: scheduleData,
+  }),
+  'GET /students/exams': () => ({
+    status: 200,
+    data: exams.filter((e) => e.studentId === 'stu001'),
+  }),
+  'GET /students/transcript': () => ({
+    status: 200,
+    data: transcripts.find((t) => t.studentId === 'stu001') || transcripts[0],
+  }),
+  'GET /students/study-plan': () => ({
+    status: 200,
+    data: studyPlans.find((sp) => sp.studentId === 'stu001') || studyPlans[0],
+  }),
 
   'GET /courses/available': () => ({ status: 200, data: courses }),
   'GET /courses/:id/offerings': (_, url) => {
@@ -80,15 +159,18 @@ const routes = {
     const newEnrollment = {
       _id: `enr${Date.now()}`,
       studentId: 'stu001',
-      offeringId: data.offeringId,
+      courseId: data.courseId,
+      offeringId: data.offeringId || data.courseId,
       status: 'enrolled',
       grade: null,
+      createdAt: new Date().toISOString(),
     };
+    enrollments.push(newEnrollment);
     return { status: 201, data: newEnrollment };
   },
   'DELETE /enrollments/:id': (_, url) => {
     const id = url.split('/').pop();
-    return { status: 200, data: { _id: id } };
+    return { status: 200, data: id };
   },
 
   'POST /complaints': (_, __, data) => {
@@ -99,25 +181,51 @@ const routes = {
       subject: data.subject,
       description: data.description,
       status: 'pending',
+      createdAt: new Date().toISOString(),
     };
+    complaints.push(newComplaint);
     return { status: 201, data: newComplaint };
   },
 
   'POST /payments': (_, __, data) => {
+    const paidAmount = data.amount || 0;
     const newPayment = {
       _id: `pay${Date.now()}`,
       studentId: 'stu001',
       semesterId: data.semesterId,
-      amount: data.amount,
+      amount: paidAmount,
       status: 'paid',
+      createdAt: new Date().toISOString(),
     };
+    payments.push(newPayment);
+    let remaining = paidAmount;
+    for (const p of payments) {
+      if (p.studentId === 'stu001' && (p.status === 'pending' || p.status === 'overdue') && remaining > 0) {
+        if (p.amount <= remaining) {
+          remaining -= p.amount;
+          p.status = 'paid';
+        } else {
+          p.amount -= remaining;
+          remaining = 0;
+        }
+      }
+    }
     return { status: 201, data: newPayment };
   },
+
+  'POST /gpa-calculations': (_, __, data) => ({
+    status: 201,
+    data: { _id: `gpa${Date.now()}`, ...data, savedAt: new Date().toISOString() },
+  }),
 
   'GET /semesters': () => ({ status: 200, data: semesters }),
   'GET /semesters/current': () => ({
     status: 200,
     data: semesters.find((s) => s.registrationStatus === 'open') || semesters[0],
+  }),
+  'POST /semester-registration': () => ({
+    status: 201,
+    data: { message: 'Registration submitted successfully', submittedAt: new Date().toISOString() },
   }),
 
   'GET /professors/profile': () => ({ status: 200, data: professors[0] }),

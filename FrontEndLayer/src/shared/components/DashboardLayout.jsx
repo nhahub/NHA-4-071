@@ -1,44 +1,25 @@
-import { Outlet } from 'react-router-dom';
-import DashboardHeader from './DashboardHeader';
-import DashboardSidebar from './DashboardSidebar';
-import { useAuth } from '../../hooks/useAuth';
-
-const layoutStyle = {
-  display: 'flex',
-  flexDirection: 'column',
-  height: '100vh',
-};
-
-const bodyStyle = {
-  display: 'flex',
-  flex: 1,
-  overflow: 'hidden',
-};
-
-const mainStyle = {
-  flex: 1,
-  padding: 24,
-  overflowY: 'auto',
-  backgroundColor: '#fafafa',
-};
+import { Outlet } from "react-router-dom";
+import DashboardHeader from "./DashboardHeader";
+import DashboardSidebar from "./DashboardSidebar";
+import { useAuth } from "../../hooks/useAuth";
 
 const DashboardLayout = () => {
   const { loading } = useAuth();
 
   if (loading) {
     return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+      <div className="flex justify-center items-center h-screen font-heading text-primary">
         Loading...
       </div>
     );
   }
 
   return (
-    <div style={layoutStyle}>
+    <div className="flex flex-col min-h-screen">
       <DashboardHeader />
-      <div style={bodyStyle}>
+      <div className="flex flex-1 pt-16">
         <DashboardSidebar />
-        <main style={mainStyle}>
+        <main className="flex-1 ml-[255px] px-8 pt-[85px] pb-[61px] min-h-[calc(100vh-64px)] bg-bg-page">
           <Outlet />
         </main>
       </div>

@@ -24,6 +24,8 @@ import PaymentPage from '../pages/Student/PaymentPage';
 import StudentAttendancePage from '../pages/Student/StudentAttendancePage';
 import StudentProfilePage from '../pages/Student/StudentProfilePage';
 import StudentNotifications from '../pages/Student/StudentNotifications';
+import GpaCalculatorPage from '../pages/Student/GpaCalculatorPage';
+import SettingsPage from '../pages/Student/SettingsPage';
 
 import ProfessorDashboard from '../pages/Professor/ProfessorDashboard';
 import MyCoursesPage from '../pages/Professor/MyCoursesPage';
@@ -92,6 +94,8 @@ export const router = createBrowserRouter([
           { path: ROUTES.STUDENT.ATTENDANCE, element: <StudentAttendancePage /> },
           { path: ROUTES.STUDENT.PROFILE, element: <StudentProfilePage /> },
           { path: ROUTES.STUDENT.NOTIFICATIONS, element: <StudentNotifications /> },
+          { path: ROUTES.STUDENT.GPA_CALCULATOR, element: <GpaCalculatorPage /> },
+          { path: ROUTES.STUDENT.SETTINGS, element: <SettingsPage /> },
         ],
       },
       {

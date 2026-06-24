@@ -19,6 +19,8 @@ export const ROUTES = {
     ATTENDANCE: '/student/attendance',
     PROFILE: '/student/profile',
     NOTIFICATIONS: '/student/notifications',
+    GPA_CALCULATOR: '/student/gpa-calculator',
+    SETTINGS: '/student/settings',
   },
 
   PROFESSOR: {
