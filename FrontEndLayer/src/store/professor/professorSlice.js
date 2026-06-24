@@ -19,8 +19,12 @@ const professorSlice = createSlice({
       .addCase(fetchProfessorProfile.pending, (state) => { state.loading = true; })
       .addCase(fetchProfessorProfile.fulfilled, (state, action) => { state.loading = false; state.profile = action.payload; })
       .addCase(fetchProfessorProfile.rejected, (state, action) => { state.loading = false; state.error = action.payload; })
-      .addCase(fetchMyOfferings.fulfilled, (state, action) => { state.offerings = action.payload; })
-      .addCase(submitGrade.rejected, (state, action) => { state.error = action.payload; });
+      .addCase(fetchMyOfferings.pending, (state) => { state.loading = true; state.error = null; })
+      .addCase(fetchMyOfferings.fulfilled, (state, action) => { state.loading = false; state.offerings = action.payload; })
+      .addCase(fetchMyOfferings.rejected, (state, action) => { state.loading = false; state.error = action.payload; })
+      .addCase(submitGrade.pending, (state) => { state.loading = true; state.error = null; })
+      .addCase(submitGrade.fulfilled, (state, action) => { state.loading = false; })
+      .addCase(submitGrade.rejected, (state, action) => { state.loading = false; state.error = action.payload; });
   },
 });
 

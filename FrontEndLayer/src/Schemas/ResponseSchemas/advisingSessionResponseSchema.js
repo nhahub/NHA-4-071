@@ -1,10 +1,13 @@
 import { z } from 'zod';
 
-export const AdvisingSessionResponseSchema = z.object({
+const AdvisingSessionItemSchema = z.object({
   _id: z.string(),
   studentId: z.string(),
-  advisorId: z.string(),
-  semesterId: z.string(),
-  notes: z.string(),
-  status: z.enum(['scheduled', 'completed', 'cancelled']),
+  advisorId: z.string().optional(),
+  semesterId: z.string().optional(),
+  notes: z.string().optional(),
+  status: z.enum(['scheduled', 'completed', 'cancelled', 'pending']),
+  createdAt: z.string().optional(),
 });
+
+export const AdvisingSessionResponseSchema = z.array(AdvisingSessionItemSchema);

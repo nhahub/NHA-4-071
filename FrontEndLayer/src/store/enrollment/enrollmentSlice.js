@@ -21,9 +21,12 @@ const enrollmentSlice = createSlice({
       .addCase(enrollCourse.pending, (state) => { state.loading = true; })
       .addCase(enrollCourse.fulfilled, (state, action) => { state.loading = false; state.enrollments.push(action.payload); })
       .addCase(enrollCourse.rejected, (state, action) => { state.loading = false; state.error = action.payload; })
+      .addCase(dropCourse.pending, (state) => { state.loading = true; })
       .addCase(dropCourse.fulfilled, (state, action) => {
+        state.loading = false;
         state.enrollments = state.enrollments.filter((e) => e._id !== action.payload);
-      });
+      })
+      .addCase(dropCourse.rejected, (state, action) => { state.loading = false; state.error = action.payload; });
   },
 });
 
