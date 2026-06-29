@@ -254,6 +254,71 @@ const routes = {
     return { status: 201, data: newAssignment };
   },
 
+  'GET /advisors/dashboard': () => {
+    const myStudents = students.filter((s) => s.advisorId === 'adv001');
+    const totalAdvisees = myStudents.length;
+    const atRisk = myStudents.filter((s) => s.GPA < 2.5);
+    const completedSessions = advisingSessions.filter((s) => s.advisorId === 'adv001' && s.status === 'completed');
+    const auditDone = completedSessions.length;
+    const totalExpected = totalAdvisees * 2;
+    const auditPercent = totalExpected > 0 ? Math.round((auditDone / totalExpected) * 100) : 0;
+    const avgResponseHours = 4.2;
+
+    const today = '2026-06-29';
+    const todaysSessions = advisingSessions
+      .filter((s) => s.advisorId === 'adv001' && s.date === today)
+      .map((s) => {
+        const student = myStudents.find((st) => st._id === s.studentId);
+        return { ...s, studentName: student?.name || 'Unknown' };
+      });
+
+    const alertList = notifications.filter((n) => n.userId === 'u005');
+
+    return {
+      status: 200,
+      data: {
+        metrics: {
+          totalAdvisees,
+          atRiskCount: atRisk.length,
+          auditCompletionPercent: auditPercent,
+          avgResponseHours,
+          atRiskChange: 12,
+          totalChange: 8,
+          responseChange: 18,
+        },
+        atRiskStudents: atRisk.map((s) => {
+          const session = advisingSessions
+            .filter((as) => as.studentId === s._id)
+            .sort((a, b) => new Date(b.date) - new Date(a.date))[0];
+          return {
+            _id: s._id,
+            name: s.name,
+            universityId: s.universityId,
+            GPA: s.GPA,
+            level: s.level,
+            program: s.program,
+            status: s.GPA < 2.0 ? 'critical' : 'warning',
+            lastSession: session?.date || 'N/A',
+            departmentName: s.departmentName,
+          };
+        }),
+        todaysSessions,
+        alerts: alertList.map((n) => ({
+          _id: n._id,
+          title: n.title,
+          message: n.message,
+          date: n.date,
+          type: n.type === 'urgent' ? 'urgent' : 'info',
+        })),
+        insights: {
+          cohortName: 'Cohort 2024',
+          registrationPercent: 92,
+          remainingStudents: 18,
+          description: 'Registration is 92% complete for your primary advisee pool. 18 students remaining.',
+        },
+      },
+    };
+  },
   'GET /advisors/profile': () => ({ status: 200, data: advisors[0] }),
   'GET /advisors/students': () => ({
     status: 200,
