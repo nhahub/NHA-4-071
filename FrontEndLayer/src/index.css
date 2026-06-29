@@ -19,8 +19,23 @@
   --color-white: #FFFFFF;
   --color-header-bg: #FDF7FF;
   --color-danger: #BA1A1A;
+  --color-dashboard-bg: #121415;
+  --color-dashboard-card: #1E2021;
+  --color-dashboard-sidebar: #1A1C1D;
+  --color-dashboard-border: rgba(77, 70, 55, 0.1);
+  --color-gold: #E7C365;
+  --color-gold-dark: #C9A74D;
+  --color-gold-bg: rgba(231, 195, 101, 0.1);
+  --color-gold-text: #503D00;
+  --color-red-accent: #FFB4AB;
+  --color-red-bg: rgba(255, 180, 171, 0.1);
+  --color-text-dashboard: #E2E2E3;
+  --color-text-dashboard-secondary: #D0C5B2;
+  --color-text-dashboard-muted: rgba(208, 197, 178, 0.6);
   --font-heading: Hanken Grotesk, sans-serif;
   --font-body: IBM Plex Sans, sans-serif;
+  --font-mono: JetBrains Mono, monospace;
+  --font-inter: Inter, sans-serif;
 }
 
 body {
