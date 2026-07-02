@@ -63,13 +63,12 @@ export const roleNavConfig = {
   admin: [
     { to: ROUTES.ADMIN.DASHBOARD, label: "Dashboard", icon: LayoutDashboard },
     { to: ROUTES.ADMIN.USERS, label: "User Management", icon: Users },
-    { to: ROUTES.ADMIN.COURSES, label: "Course Management", icon: BookMarked },
-    { to: ROUTES.ADMIN.DEPARTMENTS, label: "Departments", icon: Building2 },
-    { to: ROUTES.ADMIN.SEMESTERS, label: "Semesters", icon: Calendar },
-    { to: ROUTES.ADMIN.COMPLAINTS, label: "Complaints", icon: MessageSquare },
+    { to: ROUTES.ADMIN.DEPARTMENTS, label: "Department Management", icon: Building2 },
+    { to: ROUTES.ADMIN.SEMESTERS, label: "Semester Configuration", icon: Calendar },
     { to: ROUTES.ADMIN.REGISTRATION, label: "Registration Control", icon: ShieldCheck },
+    { to: ROUTES.ADMIN.COMPLAINTS, label: "Complaint Management", icon: MessageSquare },
     { to: ROUTES.ADMIN.REPORTS, label: "Reports & Analytics", icon: BarChart3 },
-    { to: ROUTES.ADMIN.POLICIES, label: "Academic Policies", icon: FileText },
-    { to: ROUTES.ADMIN.SETTINGS, label: "Settings", icon: Settings },
+    { to: ROUTES.ADMIN.SETTINGS, label: "System Settings", icon: Settings },
   ],
 };
+

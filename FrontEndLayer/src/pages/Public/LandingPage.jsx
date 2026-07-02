@@ -1,10 +1,8 @@
+import { Navigate } from 'react-router-dom';
+
 const LandingPage = () => {
-  return (
-    <div>
-      <h1>Welcome to Morshed University System</h1>
-      <p>Your academic management portal</p>
-    </div>
-  );
+  return <Navigate to="/login" replace />;
 };
 
 export default LandingPage;
+

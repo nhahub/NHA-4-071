@@ -3,7 +3,7 @@ import {
   courses, semesters, courseOfferings, enrollments, payments,
   complaints, advisingSessions, assignments,
   exams, transcripts, studyPlans, notifications, attendance, scheduleData,
-  studentSettings,
+  studentSettings, adminDashboardData,
 } from './index';
 
 const routes = {
@@ -343,6 +343,7 @@ const routes = {
     return { status: 200, data: { ...session, ...data } };
   },
 
+  'GET /admin/dashboard': () => ({ status: 200, data: adminDashboardData }),
   'GET /admin/users': () => {
     return { status: 200, data: users.map(({ password, ...u }) => u) };
   },

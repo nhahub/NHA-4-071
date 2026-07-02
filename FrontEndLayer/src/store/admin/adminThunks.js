@@ -1,5 +1,5 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import { getAllUsers, getAllComplaints, updateComplaintStatus, createSemester } from '../../services/adminService';
+import { getAllUsers, getAllComplaints, updateComplaintStatus, createSemester, getAdminDashboard } from '../../services/adminService';
 
 export const fetchAllUsers = createAsyncThunk(
   'admin/fetchUsers', async (_, { rejectWithValue }) => {
@@ -32,3 +32,12 @@ export const addSemester = createAsyncThunk(
     return result.data;
   }
 );
+
+export const fetchAdminDashboard = createAsyncThunk(
+  'admin/fetchDashboard', async (_, { rejectWithValue }) => {
+    const result = await getAdminDashboard();
+    if (!result.success) return rejectWithValue(result.error);
+    return result.data;
+  }
+);
+
