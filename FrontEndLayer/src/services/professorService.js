@@ -22,3 +22,6 @@ export const createAssignment = (data) => {
   const payload = AssignmentRequestSchema.parse(data);
   return fetchService('/professors/assignments', { method: 'POST', data: payload });
 };
+
+export const getOfferingStudents = (offeringId) =>
+  fetchService(`/professors/offerings/${offeringId}/students`, { method: 'GET' });
