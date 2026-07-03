@@ -14,7 +14,9 @@ const ROLE_OPTIONS = [
   { value: 'student', label: 'Student', icon: GraduationCap },
   { value: 'professor', label: 'Professor', icon: Presentation },
   { value: 'advisor', label: 'Advisor', icon: ClipboardList },
+  { value: 'admin', label: 'Admin', icon: Shield },
 ];
+
 
 const ROLE_DASHBOARD = {
   student: ROUTES.STUDENT.DASHBOARD,

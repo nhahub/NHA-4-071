@@ -1,9 +1,10 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { fetchAllUsers, fetchAllComplaints, resolveComplaint, addSemester } from './adminThunks';
+import { fetchAllUsers, fetchAllComplaints, resolveComplaint, addSemester, fetchAdminDashboard } from './adminThunks';
 
 const initialState = {
   users: [],
   complaints: [],
+  dashboardData: null,
   loading: false,
   error: null,
 };
@@ -31,7 +32,10 @@ const adminSlice = createSlice({
       .addCase(resolveComplaint.rejected, (state, action) => { state.loading = false; state.error = action.payload; })
       .addCase(addSemester.pending, (state) => { state.loading = true; state.error = null; })
       .addCase(addSemester.fulfilled, (state, action) => { state.loading = false; })
-      .addCase(addSemester.rejected, (state, action) => { state.loading = false; state.error = action.payload; });
+      .addCase(addSemester.rejected, (state, action) => { state.loading = false; state.error = action.payload; })
+      .addCase(fetchAdminDashboard.pending, (state) => { state.loading = true; state.error = null; })
+      .addCase(fetchAdminDashboard.fulfilled, (state, action) => { state.loading = false; state.dashboardData = action.payload; })
+      .addCase(fetchAdminDashboard.rejected, (state, action) => { state.loading = false; state.error = action.payload; });
   },
 });
 

@@ -4,7 +4,8 @@ import DashboardSidebar from "./DashboardSidebar";
 import { useAuth } from "../../hooks/useAuth";
 
 const DashboardLayout = () => {
-  const { loading } = useAuth();
+  const { user, loading } = useAuth();
+  const role = user?.role || "student";
 
   if (loading) {
     return (
@@ -15,11 +16,11 @@ const DashboardLayout = () => {
   }
 
   return (
-    <div className="flex flex-col min-h-screen">
-      <DashboardHeader />
-      <div className="flex flex-1 pt-16">
-        <DashboardSidebar />
-        <main className="flex-1 ml-[255px] px-8 pt-[85px] pb-[61px] min-h-[calc(100vh-64px)] bg-bg-page">
+    <div data-theme={role} className="flex flex-row items-start min-h-screen">
+      <DashboardSidebar />
+      <div className="flex flex-col flex-1 ml-[240px] min-h-screen">
+        <DashboardHeader />
+        <main className="flex-1 p-8 bg-bg-page overflow-y-auto">
           <Outlet />
         </main>
       </div>

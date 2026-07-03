@@ -23,3 +23,8 @@ export const createSemester = (data) =>
 
 export const getDepartments = () =>
   fetchService('/departments', { method: 'GET' }, DepartmentsResponseSchema);
+
+export const getAdminDashboard = () =>
+  fetchService('/admin/dashboard', { method: 'GET' });
+
+

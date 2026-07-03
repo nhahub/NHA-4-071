@@ -36,6 +36,43 @@
   --font-body: IBM Plex Sans, sans-serif;
   --font-mono: JetBrains Mono, monospace;
   --font-inter: Inter, sans-serif;
+  --font-courier: 'Courier Prime', monospace;
+
+  /* Admin-only tokens (available globally, used in admin components) */
+  --color-admin-bg: #101415;
+  --color-admin-card: #1D2022;
+  --color-admin-card-active: #272A2C;
+  --color-admin-input: #0B0F10;
+  --color-admin-border: #424754;
+  --color-admin-text: #E0E3E5;
+  --color-admin-text-muted: #C2C6D6;
+  --color-admin-placeholder: #6B7280;
+  --color-admin-accent: #ADC6FF;
+  --color-admin-green: #4ADE80;
+  --color-admin-green-dot: #22C55E;
+  --color-admin-red: #FFB4AB;
+  --color-admin-cyan: #4CD7F6;
+  --color-admin-blue-avatar: #4D8EFF;
+  --color-admin-muted-blue: #BCC7DE;
+  --color-admin-overlay: rgba(39, 42, 44, 0.5);
+}
+
+/* Admin dark theme — overrides shared CSS variables when data-theme="admin" */
+[data-theme="admin"] {
+  --color-sidebar-bg: #101415;
+  --color-sidebar-text: #C2C6D6;
+  --color-sidebar-active: #ADC6FF;
+  --color-sidebar-hover: rgba(255, 255, 255, 0.05);
+  --color-bg-page: #101415;
+  --color-header-bg: #1D2022;
+  --color-text-primary: #E0E3E5;
+  --color-text-secondary: #C2C6D6;
+  --color-text-muted: #6B7280;
+  --color-border: #424754;
+  --color-bg-light: #272A2C;
+  --color-primary: #ADC6FF;
+  --color-danger: #FFB4AB;
+  --color-white: #1D2022;
 }
 
 body {
@@ -50,4 +87,3 @@ body {
 * {
   box-sizing: border-box;
 }
-

@@ -1,6 +1,7 @@
 export { users } from './users';
-export { departments } from './departments';
+export { departments, pendingAllocations } from './departments';
 export { students } from './students';
+
 export { professors } from './professors';
 export { advisors } from './advisors';
 export { admins } from './admins';
@@ -19,3 +20,7 @@ export { notifications } from './notifications';
 export { attendance } from './attendance';
 export { scheduleData } from './schedule';
 export { studentSettings } from './settings';
+export { adminDashboardData } from './adminDashboard';
+export { initialOverrides, registrationStats } from './registrationOverrides';
+
+
