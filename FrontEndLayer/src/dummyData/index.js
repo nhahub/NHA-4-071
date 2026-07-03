@@ -19,8 +19,11 @@ export { studyPlans } from './studyPlans';
 export { notifications } from './notifications';
 export { attendance } from './attendance';
 export { scheduleData } from './schedule';
-export { studentSettings } from './settings';
+export { studentSettings, systemSettingsData } from './settings';
+
 export { adminDashboardData } from './adminDashboard';
 export { initialOverrides, registrationStats } from './registrationOverrides';
+export { reportsData } from './reportsData';
+
 
 
