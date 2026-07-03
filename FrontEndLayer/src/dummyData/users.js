@@ -52,7 +52,7 @@ export const users = [
     password: 'hashed_password',
     role: 'advisor',
     department: 'Mathematics',
-    isActive: false, // Suspended
+    isActive: true, 
   },
   {
     _id: 'u006',
