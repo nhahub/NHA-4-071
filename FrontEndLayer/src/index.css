@@ -1,0 +1,89 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #4F378A;
+  --color-primary-light: #6750A4;
+  --color-primary-bg: rgba(103, 80, 164, 0.1);
+  --color-sidebar-bg: #322F35;
+  --color-sidebar-text: #E6E0E9;
+  --color-sidebar-active: #E9DDFF;
+  --color-sidebar-hover: rgba(75, 66, 99, 0.1);
+  --color-text-primary: #1D1B20;
+  --color-text-secondary: #494551;
+  --color-text-muted: #7A7582;
+  --color-border: #CBC4D2;
+  --color-bg-light: #F2ECF4;
+  --color-bg-page: #FAFAFF;
+  --color-warning: #765B00;
+  --color-warning-bg: rgba(201, 167, 77, 0.2);
+  --color-white: #FFFFFF;
+  --color-header-bg: #FDF7FF;
+  --color-danger: #BA1A1A;
+  --color-dashboard-bg: #121415;
+  --color-dashboard-card: #1E2021;
+  --color-dashboard-sidebar: #1A1C1D;
+  --color-dashboard-border: rgba(77, 70, 55, 0.1);
+  --color-gold: #E7C365;
+  --color-gold-dark: #C9A74D;
+  --color-gold-bg: rgba(231, 195, 101, 0.1);
+  --color-gold-text: #503D00;
+  --color-red-accent: #FFB4AB;
+  --color-red-bg: rgba(255, 180, 171, 0.1);
+  --color-text-dashboard: #E2E2E3;
+  --color-text-dashboard-secondary: #D0C5B2;
+  --color-text-dashboard-muted: rgba(208, 197, 178, 0.6);
+  --font-heading: Hanken Grotesk, sans-serif;
+  --font-body: IBM Plex Sans, sans-serif;
+  --font-mono: JetBrains Mono, monospace;
+  --font-inter: Inter, sans-serif;
+  --font-courier: 'Courier Prime', monospace;
+
+  /* Admin-only tokens (available globally, used in admin components) */
+  --color-admin-bg: #101415;
+  --color-admin-card: #1D2022;
+  --color-admin-card-active: #272A2C;
+  --color-admin-input: #0B0F10;
+  --color-admin-border: #424754;
+  --color-admin-text: #E0E3E5;
+  --color-admin-text-muted: #C2C6D6;
+  --color-admin-placeholder: #6B7280;
+  --color-admin-accent: #ADC6FF;
+  --color-admin-green: #4ADE80;
+  --color-admin-green-dot: #22C55E;
+  --color-admin-red: #FFB4AB;
+  --color-admin-cyan: #4CD7F6;
+  --color-admin-blue-avatar: #4D8EFF;
+  --color-admin-muted-blue: #BCC7DE;
+  --color-admin-overlay: rgba(39, 42, 44, 0.5);
+}
+
+/* Admin dark theme — overrides shared CSS variables when data-theme="admin" */
+[data-theme="admin"] {
+  --color-sidebar-bg: #101415;
+  --color-sidebar-text: #C2C6D6;
+  --color-sidebar-active: #ADC6FF;
+  --color-sidebar-hover: rgba(255, 255, 255, 0.05);
+  --color-bg-page: #101415;
+  --color-header-bg: #1D2022;
+  --color-text-primary: #E0E3E5;
+  --color-text-secondary: #C2C6D6;
+  --color-text-muted: #6B7280;
+  --color-border: #424754;
+  --color-bg-light: #272A2C;
+  --color-primary: #ADC6FF;
+  --color-danger: #FFB4AB;
+  --color-white: #1D2022;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-heading);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: var(--color-bg-page);
+  color: var(--color-text-primary);
+}
+
+* {
+  box-sizing: border-box;
+}
