@@ -33,6 +33,11 @@ const studentSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
+    // 🛡️ EMBEDDED SETTINGS (Matches Frontend SettingsResponseSchema)
+    settings: {
+      showGpa: { type: Boolean, default: true },
+      preferredLanguage: { type: String, default: "en" },
+    },
   },
   { timestamps: true },
 );
