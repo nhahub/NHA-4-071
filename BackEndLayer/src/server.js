@@ -32,10 +32,12 @@ const authLimiter = rateLimit({
 const authRoutes = require("./routes/authRoutes");
 const universityRoutes = require("./routes/universityRoutes");
 const enrollmentRoutes = require("./routes/enrollmentRoutes");
+const studentRoutes = require("./routes/studentRoutes");
 
 app.use("/api/auth", authLimiter, authRoutes);
 app.use("/api", universityRoutes); // (Mounts at /api/departments, /api/courses, etc.)
 app.use("/api/enrollments", enrollmentRoutes); // POST /api/enrollments
+app.use("/api/students", studentRoutes); // Maps to /api/students/profile, etc.
 
 // Health check
 app.get("/api/health", (req, res) => {
