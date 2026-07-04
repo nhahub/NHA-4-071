@@ -1,34 +1,33 @@
 const mongoose = require("mongoose");
 
-const semesterSchema = new mongoose.Schema(
+const courseSchema = new mongoose.Schema(
   {
-    name: {
-      type: String,
-      required: [true, "Semester name is required"],
-      trim: true,
-      // e.g., "Fall 2024"
-    },
     code: {
       type: String,
-      required: [true, "Semester code is required"],
+      required: [true, "Course code is required"],
       unique: true,
       uppercase: true,
       trim: true,
-      // e.g., "F24"
+      // e.g., "CS101"
     },
-    registrationStatus: {
+    name: {
       type: String,
-      enum: ["upcoming", "open", "closed", "ongoing", "ended"],
-      default: "upcoming",
+      required: [true, "Course name is required"],
+      trim: true,
     },
-    startDate: {
-      type: Date,
+    credits: {
+      type: Number,
+      required: [true, "Credits are required"],
+      min: 1,
+      max: 6,
     },
-    endDate: {
-      type: Date,
+    departmentId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Department",
+      required: [true, "Department is required"],
     },
   },
   { timestamps: true },
 );
 
-module.exports = mongoose.model("Semester", semesterSchema);
+module.exports = mongoose.model("Course", courseSchema);

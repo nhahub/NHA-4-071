@@ -30,7 +30,10 @@ const authLimiter = rateLimit({
 
 // Routes (We will create these next)
 const authRoutes = require("./routes/authRoutes");
-app.use("/api/auth", authLimiter, authRoutes); // Apply rate limiter specifically to auth
+const universityRoutes = require("./routes/universityRoutes");
+
+app.use("/api/auth", authLimiter, authRoutes);
+app.use("/api", universityRoutes); // (Mounts at /api/departments, /api/courses, etc.)
 
 // Health check
 app.get("/api/health", (req, res) => {
