@@ -35,3 +35,12 @@ exports.updateSettings = async (req, res) => {
     res.status(400).json({ success: false, message: error.message });
   }
 };
+
+exports.getDashboard = async (req, res) => {
+  try {
+    const dashboardData = await studentService.getDashboard(req.user.id);
+    res.status(200).json({ success: true, data: dashboardData });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
