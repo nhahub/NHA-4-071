@@ -1,5 +1,6 @@
 const Advisor = require("../models/Advisor");
 const Student = require("../models/Student");
+const AdvisingSession = require("../models/AdvisingSession");
 
 exports.getProfile = async (advisorUserId) => {
   const advisor = await Advisor.findOne({ userId: advisorUserId })
@@ -63,4 +64,57 @@ exports.getStudents = async (advisorUserId, page = 1, limit = 20) => {
       pages: Math.ceil(total / limit),
     },
   };
+};
+
+exports.createSession = async (advisorUserId, sessionData) => {
+  const { studentId, semesterId, notes } = sessionData;
+
+  const advisor = await Advisor.findOne({ userId: advisorUserId });
+  if (!advisor) throw new Error("Advisor profile not found");
+
+  const session = await AdvisingSession.create({
+    studentId,
+    advisorId: advisor._id,
+    semesterId,
+    notes: notes || "",
+    status: "scheduled",
+  });
+
+  return session;
+};
+
+exports.getSessions = async (advisorUserId, query = {}) => {
+  const advisor = await Advisor.findOne({ userId: advisorUserId });
+  if (!advisor) throw new Error("Advisor profile not found");
+
+  const filter = { advisorId: advisor._id };
+
+  if (query.studentId) {
+    filter.studentId = query.studentId;
+  }
+
+  const sessions = await AdvisingSession.find(filter)
+    .populate("studentId", "userId")
+    .populate("semesterId", "name code")
+    .sort({ createdAt: -1 });
+
+  return sessions;
+};
+
+exports.updateSession = async (advisorUserId, sessionId, updateData) => {
+  const advisor = await Advisor.findOne({ userId: advisorUserId });
+  if (!advisor) throw new Error("Advisor profile not found");
+
+  const session = await AdvisingSession.findOne({
+    _id: sessionId,
+    advisorId: advisor._id,
+  });
+
+  if (!session) throw new Error("Session not found or not authorized");
+
+  if (updateData.notes !== undefined) session.notes = updateData.notes;
+  if (updateData.status !== undefined) session.status = updateData.status;
+
+  await session.save();
+  return session;
 };

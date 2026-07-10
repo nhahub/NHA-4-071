@@ -28,3 +28,34 @@ exports.getStudents = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
+exports.createSession = async (req, res) => {
+  try {
+    const session = await advisorService.createSession(req.user.id, req.body);
+    res.status(201).json({ success: true, data: session });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+};
+
+exports.getSessions = async (req, res) => {
+  try {
+    const sessions = await advisorService.getSessions(req.user.id, req.query);
+    res.status(200).json({ success: true, data: sessions });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+exports.updateSession = async (req, res) => {
+  try {
+    const session = await advisorService.updateSession(
+      req.user.id,
+      req.params.sessionId,
+      req.body,
+    );
+    res.status(200).json({ success: true, data: session });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+};

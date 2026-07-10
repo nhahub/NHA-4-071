@@ -806,6 +806,69 @@
                         },
                         "description": "Advisor Only. Paginated list of assigned students."
                     }
+                },
+                {
+                    "name": "Create Advising Session",
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"studentId\": \"<STUDENT_PROFILE_ID>\",\n  \"semesterId\": \"<SEMESTER_ID>\",\n  \"notes\": \"Initial advising meeting\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/advisors/sessions",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["advisors", "sessions"]
+                        },
+                        "description": "Advisor Only. Create a new advising session."
+                    }
+                },
+                {
+                    "name": "Get Advising Sessions",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/advisors/sessions",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["advisors", "sessions"]
+                        },
+                        "description": "Advisor Only. List sessions, optional ?studentId= filter."
+                    }
+                },
+                {
+                    "name": "Update Advising Session",
+                    "request": {
+                        "method": "PATCH",
+                        "header": [],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"status\": \"completed\",\n  \"notes\": \"Session completed successfully\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/advisors/sessions/:sessionId",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["advisors", "sessions", ":sessionId"],
+                            "variable": [
+                                {
+                                    "key": "sessionId",
+                                    "value": "<SESSION_ID>"
+                                }
+                            ]
+                        },
+                        "description": "Advisor Only. Update session status or notes."
+                    }
                 }
             ],
             "description": "Endpoints for Academic Advisors. Requires Advisor Bearer Token."
