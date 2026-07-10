@@ -869,6 +869,85 @@
                         },
                         "description": "Advisor Only. Update session status or notes."
                     }
+                },
+                {
+                    "name": "Get Student Progress",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/advisors/student-progress/:studentId",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["advisors", "student-progress", ":studentId"],
+                            "variable": [
+                                {
+                                    "key": "studentId",
+                                    "value": "<STUDENT_PROFILE_ID>"
+                                }
+                            ]
+                        },
+                        "description": "Advisor Only. Returns enrollments, grades, attendance for a student."
+                    }
+                },
+                {
+                    "name": "Get Graduation Audit",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/advisors/graduation/:studentId",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["advisors", "graduation", ":studentId"],
+                            "variable": [
+                                {
+                                    "key": "studentId",
+                                    "value": "<STUDENT_PROFILE_ID>"
+                                }
+                            ]
+                        },
+                        "description": "Advisor Only. Compares completed courses against department requirements."
+                    }
+                },
+                {
+                    "name": "Get Issues (Complaints)",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/advisors/issues?page=1&limit=20",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["advisors", "issues"]
+                        },
+                        "description": "Advisor Only. Paginated list of complaints assigned to this advisor."
+                    }
+                },
+                {
+                    "name": "Update Issue Status",
+                    "request": {
+                        "method": "PATCH",
+                        "header": [],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"status\": \"in_progress\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/advisors/issues/:issueId",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["advisors", "issues", ":issueId"],
+                            "variable": [
+                                {
+                                    "key": "issueId",
+                                    "value": "<COMPLAINT_ID>"
+                                }
+                            ]
+                        },
+                        "description": "Advisor Only. Update complaint status."
+                    }
                 }
             ],
             "description": "Endpoints for Academic Advisors. Requires Advisor Bearer Token."

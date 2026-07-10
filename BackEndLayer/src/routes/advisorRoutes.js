@@ -26,4 +26,10 @@ router.patch(
   advisorController.updateSession,
 );
 
+router.get("/student-progress/:studentId", advisorController.getStudentProgress);
+router.get("/graduation/:studentId", advisorController.getGraduationAudit);
+
+router.get("/issues", advisorController.getIssues);
+router.patch("/issues/:issueId", advisorController.updateIssue);
+
 module.exports = router;

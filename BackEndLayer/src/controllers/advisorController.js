@@ -59,3 +59,51 @@ exports.updateSession = async (req, res) => {
     res.status(400).json({ success: false, message: error.message });
   }
 };
+
+exports.getStudentProgress = async (req, res) => {
+  try {
+    const progress = await advisorService.getStudentProgress(
+      req.user.id,
+      req.params.studentId,
+    );
+    res.status(200).json({ success: true, data: progress });
+  } catch (error) {
+    res.status(403).json({ success: false, message: error.message });
+  }
+};
+
+exports.getGraduationAudit = async (req, res) => {
+  try {
+    const audit = await advisorService.getGraduationAudit(
+      req.user.id,
+      req.params.studentId,
+    );
+    res.status(200).json({ success: true, data: audit });
+  } catch (error) {
+    res.status(403).json({ success: false, message: error.message });
+  }
+};
+
+exports.getIssues = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 20;
+    const result = await advisorService.getIssues(req.user.id, page, limit);
+    res.status(200).json({ success: true, data: result });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+exports.updateIssue = async (req, res) => {
+  try {
+    const complaint = await advisorService.updateIssue(
+      req.user.id,
+      req.params.issueId,
+      req.body,
+    );
+    res.status(200).json({ success: true, data: complaint });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+};
