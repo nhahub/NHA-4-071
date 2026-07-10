@@ -92,3 +92,12 @@ exports.getAttendance = async (req, res) => {
     res.status(403).json({ success: false, message: error.message });
   }
 };
+
+exports.getSchedule = async (req, res) => {
+  try {
+    const schedule = await professorService.getSchedule(req.user.id);
+    res.status(200).json({ success: true, data: schedule });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};

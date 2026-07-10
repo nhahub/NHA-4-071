@@ -13,6 +13,7 @@ const professorController = require("../controllers/professorController");
 router.use(protect, authorize("professor"));
 
 router.get("/profile", professorController.getProfile);
+router.get("/schedule", professorController.getSchedule); // My Schedule
 router.get("/offerings", professorController.getMyOfferings); // My Courses
 router.get(
   "/offerings/:offeringId/students",

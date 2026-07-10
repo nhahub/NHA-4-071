@@ -578,6 +578,19 @@
                     }
                 },
                 {
+                    "name": "Get My Schedule",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/professors/schedule",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["professors", "schedule"]
+                        },
+                        "description": "Professor Only. Returns teaching schedule for the current semester."
+                    }
+                },
+                {
                     "name": "Get My Courses (Offerings)",
                     "request": {
                         "method": "GET",
@@ -741,6 +754,48 @@
                 }
             ],
             "description": "Endpoints for Professors to manage courses, assignments, attendance and grades. Requires Professor Bearer Token."
+        },
+        {
+            "name": "Advisor Portal",
+            "auth": {
+                "type": "bearer",
+                "bearer": [
+                    {
+                        "key": "token",
+                        "value": "{{token}}",
+                        "type": "string"
+                    }
+                ]
+            },
+            "item": [
+                {
+                    "name": "Get My Profile",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/advisors/profile",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["advisors", "profile"]
+                        },
+                        "description": "Advisor Only. Returns advisor profile."
+                    }
+                },
+                {
+                    "name": "Get Dashboard",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/advisors/dashboard",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["advisors", "dashboard"]
+                        },
+                        "description": "Advisor Only. Returns counts of advisees and at-risk students."
+                    }
+                }
+            ],
+            "description": "Endpoints for Academic Advisors. Requires Advisor Bearer Token."
         }
     ],
     "variable": [

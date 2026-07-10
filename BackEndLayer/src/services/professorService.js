@@ -3,6 +3,7 @@ const CourseOffering = require("../models/CourseOffering");
 const Enrollment = require("../models/Enrollment");
 const Assignment = require("../models/Assignment");
 const Attendance = require("../models/Attendance");
+const Semester = require("../models/Semester");
 const mongoose = require("mongoose");
 
 // 1. Get Professor Profile (Aggregating User + Professor data)
@@ -201,4 +202,60 @@ exports.getAttendance = async (professorUserId, offeringId) => {
     .populate("records.studentId", "userId");
 
   return attendanceRecords;
+};
+
+// 9. Get Professor Schedule (for the current semester)
+exports.getSchedule = async (professorUserId) => {
+  const professor = await Professor.findOne({ userId: professorUserId });
+  if (!professor) throw new Error("Professor profile not found");
+
+  // Find current semester (prefer "ongoing" or "open")
+  const currentSemester = await Semester.findOne({
+    registrationStatus: { $in: ["ongoing", "open"] },
+  }).sort({ startDate: -1 });
+
+  if (!currentSemester) {
+    return [];
+  }
+
+  // Find offerings for this professor in the current semester
+  const offerings = await CourseOffering.find({
+    professorId: professor._id,
+    semesterId: currentSemester._id,
+  })
+    .populate("courseId", "code name credits")
+    .populate("semesterId", "name code");
+
+  // Format into schedule items
+  const scheduleItems = offerings.map((offering) => {
+    // Parse the schedule string (e.g., "Mon/Wed 10:00-11:30")
+    let day = "";
+    let start = "";
+    let end = "";
+    if (offering.schedule) {
+      const parts = offering.schedule.split(" ");
+      if (parts.length >= 2) {
+        day = parts[0];
+        const timeParts = parts[1].split("-");
+        if (timeParts.length >= 2) {
+          start = timeParts[0];
+          end = timeParts[1];
+        }
+      } else {
+        day = offering.schedule;
+      }
+    }
+
+    return {
+      day,
+      start,
+      end,
+      code: offering.courseId?.code || "",
+      name: offering.courseId?.name || "",
+      room: offering.classroom || "",
+      semester: offering.semesterId?.name || "",
+    };
+  });
+
+  return scheduleItems;
 };
