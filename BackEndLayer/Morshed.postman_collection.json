@@ -615,6 +615,52 @@
                     }
                 },
                 {
+                    "name": "Get Assignments for Offering",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/professors/offerings/:offeringId/assignments",
+                            "host": ["{{baseUrl}}"],
+                            "path": [
+                                "professors",
+                                "offerings",
+                                ":offeringId",
+                                "assignments"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "offeringId",
+                                    "value": "<OFFERING_ID>"
+                                }
+                            ]
+                        },
+                        "description": "Professor Only. Returns assignments for this offering."
+                    }
+                },
+                {
+                    "name": "Create Assignment",
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"offeringId\": \"<OFFERING_ID>\",\n  \"title\": \"Midterm Exam\",\n  \"dueDate\": \"2024-12-15T23:59:59Z\",\n  \"maxScore\": 100\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/professors/assignments",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["professors", "assignments"]
+                        },
+                        "description": "Professor Only. Create a new assignment for an offering."
+                    }
+                },
+                {
                     "name": "Submit Grade",
                     "request": {
                         "method": "POST",
@@ -637,7 +683,7 @@
                     }
                 }
             ],
-            "description": "Endpoints for Professors to manage courses and grades. Requires Professor Bearer Token."
+            "description": "Endpoints for Professors to manage courses, assignments and grades. Requires Professor Bearer Token."
         }
     ],
     "variable": [

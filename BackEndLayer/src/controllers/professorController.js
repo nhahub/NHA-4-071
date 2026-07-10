@@ -43,3 +43,27 @@ exports.submitGrade = async (req, res) => {
     res.status(400).json({ success: false, message: error.message });
   }
 };
+
+exports.createAssignment = async (req, res) => {
+  try {
+    const assignment = await professorService.createAssignment(
+      req.user.id,
+      req.body,
+    );
+    res.status(201).json({ success: true, data: assignment });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+};
+
+exports.getAssignments = async (req, res) => {
+  try {
+    const assignments = await professorService.getAssignments(
+      req.user.id,
+      req.params.offeringId,
+    );
+    res.status(200).json({ success: true, data: assignments });
+  } catch (error) {
+    res.status(403).json({ success: false, message: error.message });
+  }
+};

@@ -1,6 +1,7 @@
 const Professor = require("../models/Professor");
 const CourseOffering = require("../models/CourseOffering");
 const Enrollment = require("../models/Enrollment");
+const Assignment = require("../models/Assignment");
 const mongoose = require("mongoose");
 
 // 1. Get Professor Profile (Aggregating User + Professor data)
@@ -97,4 +98,47 @@ exports.submitGrade = async (professorUserId, enrollmentId, grade) => {
   await enrollment.save();
 
   return enrollment;
+};
+
+// 5. Create Assignment
+exports.createAssignment = async (professorUserId, assignmentData) => {
+  const { offeringId, title, dueDate, maxScore } = assignmentData;
+
+  const professor = await Professor.findOne({ userId: professorUserId });
+  if (!professor) throw new Error("Professor profile not found");
+
+  // Security Check: Ensure this professor owns the offering
+  const offering = await CourseOffering.findOne({
+    _id: offeringId,
+    professorId: professor._id,
+  });
+  if (!offering)
+    throw new Error("You are not authorized to create assignments for this offering");
+
+  const assignment = await Assignment.create({
+    offeringId,
+    title,
+    dueDate: new Date(dueDate),
+    maxScore,
+  });
+
+  return assignment;
+};
+
+// 6. Get Assignments for an Offering
+exports.getAssignments = async (professorUserId, offeringId) => {
+  const professor = await Professor.findOne({ userId: professorUserId });
+  if (!professor) throw new Error("Professor profile not found");
+
+  // Security Check: Ensure this professor owns the offering
+  const offering = await CourseOffering.findOne({
+    _id: offeringId,
+    professorId: professor._id,
+  });
+  if (!offering)
+    throw new Error("You are not authorized to view assignments for this offering");
+
+  const assignments = await Assignment.find({ offeringId }).sort({ dueDate: 1 });
+
+  return assignments;
 };
