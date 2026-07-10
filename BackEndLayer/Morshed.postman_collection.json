@@ -793,6 +793,19 @@
                         },
                         "description": "Advisor Only. Returns counts of advisees and at-risk students."
                     }
+                },
+                {
+                    "name": "Get My Students (Advisees)",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/advisors/students?page=1&limit=20",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["advisors", "students"]
+                        },
+                        "description": "Advisor Only. Paginated list of assigned students."
+                    }
                 }
             ],
             "description": "Endpoints for Academic Advisors. Requires Advisor Bearer Token."

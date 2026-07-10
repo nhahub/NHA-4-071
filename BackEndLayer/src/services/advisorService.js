@@ -38,3 +38,29 @@ exports.getDashboard = async (advisorUserId) => {
     atRiskAdvisees,
   };
 };
+
+exports.getStudents = async (advisorUserId, page = 1, limit = 20) => {
+  const advisor = await Advisor.findOne({ userId: advisorUserId });
+  if (!advisor) throw new Error("Advisor profile not found");
+
+  const skip = (page - 1) * limit;
+
+  const [students, total] = await Promise.all([
+    Student.find({ advisorId: advisor._id })
+      .populate("userId", "name universityId email")
+      .skip(skip)
+      .limit(limit)
+      .sort({ createdAt: -1 }),
+    Student.countDocuments({ advisorId: advisor._id }),
+  ]);
+
+  return {
+    students,
+    pagination: {
+      page,
+      limit,
+      total,
+      pages: Math.ceil(total / limit),
+    },
+  };
+};
