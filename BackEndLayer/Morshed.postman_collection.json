@@ -951,6 +951,202 @@
                 }
             ],
             "description": "Endpoints for Academic Advisors. Requires Advisor Bearer Token."
+        },
+        {
+            "name": "Admin Portal",
+            "auth": {
+                "type": "bearer",
+                "bearer": [
+                    {
+                        "key": "token",
+                        "value": "{{token}}",
+                        "type": "string"
+                    }
+                ]
+            },
+            "item": [
+                {
+                    "name": "Get Dashboard",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/admin/dashboard",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["admin", "dashboard"]
+                        },
+                        "description": "Admin Only. Returns user counts by role and open complaints."
+                    }
+                },
+                {
+                    "name": "Get Users",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/admin/users?page=1&limit=20",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["admin", "users"]
+                        },
+                        "description": "Admin Only. Paginated user list. Optional ?role=student filter."
+                    }
+                },
+                {
+                    "name": "Update User",
+                    "request": {
+                        "method": "PATCH",
+                        "header": [],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"isActive\": false\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/admin/users/:id",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["admin", "users", ":id"],
+                            "variable": [
+                                {
+                                    "key": "id",
+                                    "value": "<USER_ID>"
+                                }
+                            ]
+                        },
+                        "description": "Admin Only. Update isActive or role."
+                    }
+                },
+                {
+                    "name": "Get All Complaints",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/admin/complaints?page=1&limit=20",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["admin", "complaints"]
+                        },
+                        "description": "Admin Only. Paginated list of all complaints."
+                    }
+                },
+                {
+                    "name": "Update Complaint",
+                    "request": {
+                        "method": "PATCH",
+                        "header": [],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"status\": \"resolved\",\n  \"adminId\": \"<ADMIN_USER_ID>\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/admin/complaints/:complaintId",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["admin", "complaints", ":complaintId"],
+                            "variable": [
+                                {
+                                    "key": "complaintId",
+                                    "value": "<COMPLAINT_ID>"
+                                }
+                            ]
+                        },
+                        "description": "Admin Only. Update complaint status or assign admin."
+                    }
+                },
+                {
+                    "name": "Update Semester",
+                    "request": {
+                        "method": "PATCH",
+                        "header": [],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"registrationStatus\": \"closed\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/admin/semesters/:id",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["admin", "semesters", ":id"],
+                            "variable": [
+                                {
+                                    "key": "id",
+                                    "value": "<SEMESTER_ID>"
+                                }
+                            ]
+                        },
+                        "description": "Admin Only. Update semester registration status."
+                    }
+                },
+                {
+                    "name": "Manual Semester Registration",
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"studentUserId\": \"<STUDENT_USER_ID>\",\n  \"offeringId\": \"<OFFERING_ID>\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/admin/semester-registration",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["admin", "semester-registration"]
+                        },
+                        "description": "Admin Only. Manually enroll a student bypassing capacity limits."
+                    }
+                },
+                {
+                    "name": "Get Settings",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/admin/settings",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["admin", "settings"]
+                        },
+                        "description": "Admin Only. Get system settings."
+                    }
+                },
+                {
+                    "name": "Update Settings",
+                    "request": {
+                        "method": "PUT",
+                        "header": [],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"academicYear\": \"2024-2025\",\n  \"maxCoursesPerSemester\": 7\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/admin/settings",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["admin", "settings"]
+                        },
+                        "description": "Admin Only. Update system settings."
+                    }
+                }
+            ],
+            "description": "Endpoints for System Administrators. Requires Admin Bearer Token."
         }
     ],
     "variable": [
