@@ -93,3 +93,64 @@ exports.logout = async (req, res, next) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
+/**
+ * FORGOT PASSWORD
+ * Public route. Accepts email, generates reset token.
+ */
+exports.forgotPassword = async (req, res, next) => {
+  try {
+    const { email } = req.body;
+    const { resetToken } = await authService.forgotPassword(email);
+
+    res.status(200).json({
+      success: true,
+      data: {
+        message: "Reset token generated",
+        token: resetToken,
+      },
+    });
+  } catch (error) {
+    res.status(404).json({ success: false, message: error.message });
+  }
+};
+
+/**
+ * RESET PASSWORD
+ * Public route. Accepts token and newPassword.
+ */
+exports.resetPassword = async (req, res, next) => {
+  try {
+    const { token, newPassword } = req.body;
+    const result = await authService.resetPassword(token, newPassword);
+
+    res.status(200).json({
+      success: true,
+      data: { message: result.message },
+    });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+};
+
+/**
+ * CHANGE PASSWORD
+ * Protected route. Accepts currentPassword, newPassword, confirmPassword.
+ */
+exports.changePassword = async (req, res, next) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    const result = await authService.changePassword(
+      req.user._id,
+      currentPassword,
+      newPassword,
+    );
+
+    res.status(200).json({
+      success: true,
+      data: { message: result.message },
+    });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+};
