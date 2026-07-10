@@ -5,6 +5,7 @@ const validate = require("../middlewares/validateMiddleware");
 const {
   gradeSchema,
   assignmentSchema,
+  attendanceSchema,
 } = require("../validations/professorValidation");
 const professorController = require("../controllers/professorController");
 
@@ -26,6 +27,15 @@ router.post(
   validate(assignmentSchema),
   professorController.createAssignment,
 ); // Create Assignment
+router.post(
+  "/offerings/:offeringId/attendance",
+  validate(attendanceSchema),
+  professorController.markAttendance,
+); // Mark Attendance
+router.get(
+  "/offerings/:offeringId/attendance",
+  professorController.getAttendance,
+); // View Attendance
 router.post("/grades", validate(gradeSchema), professorController.submitGrade); // Submit Grade
 
 module.exports = router;

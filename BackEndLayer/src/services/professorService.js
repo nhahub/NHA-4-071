@@ -2,6 +2,7 @@ const Professor = require("../models/Professor");
 const CourseOffering = require("../models/CourseOffering");
 const Enrollment = require("../models/Enrollment");
 const Assignment = require("../models/Assignment");
+const Attendance = require("../models/Attendance");
 const mongoose = require("mongoose");
 
 // 1. Get Professor Profile (Aggregating User + Professor data)
@@ -141,4 +142,63 @@ exports.getAssignments = async (professorUserId, offeringId) => {
   const assignments = await Assignment.find({ offeringId }).sort({ dueDate: 1 });
 
   return assignments;
+};
+
+// 7. Mark Attendance (Create or Update for a specific date)
+exports.markAttendance = async (professorUserId, offeringId, attendanceData) => {
+  const { date, records } = attendanceData;
+
+  const professor = await Professor.findOne({ userId: professorUserId });
+  if (!professor) throw new Error("Professor profile not found");
+
+  // Security Check: Ensure this professor owns the offering
+  const offering = await CourseOffering.findOne({
+    _id: offeringId,
+    professorId: professor._id,
+  });
+  if (!offering)
+    throw new Error("You are not authorized to mark attendance for this offering");
+
+  const attendanceDate = new Date(date);
+
+  // Upsert: Find existing attendance record for this offering+date, or create new one
+  let attendance = await Attendance.findOne({
+    offeringId,
+    date: attendanceDate,
+  });
+
+  if (attendance) {
+    // Update existing records
+    attendance.records = records;
+  } else {
+    // Create new attendance record
+    attendance = new Attendance({
+      offeringId,
+      date: attendanceDate,
+      records,
+    });
+  }
+
+  await attendance.save();
+  return attendance;
+};
+
+// 8. Get Attendance History for an Offering
+exports.getAttendance = async (professorUserId, offeringId) => {
+  const professor = await Professor.findOne({ userId: professorUserId });
+  if (!professor) throw new Error("Professor profile not found");
+
+  // Security Check: Ensure this professor owns the offering
+  const offering = await CourseOffering.findOne({
+    _id: offeringId,
+    professorId: professor._id,
+  });
+  if (!offering)
+    throw new Error("You are not authorized to view attendance for this offering");
+
+  const attendanceRecords = await Attendance.find({ offeringId })
+    .sort({ date: -1 })
+    .populate("records.studentId", "userId");
+
+  return attendanceRecords;
 };

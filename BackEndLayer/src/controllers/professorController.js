@@ -67,3 +67,28 @@ exports.getAssignments = async (req, res) => {
     res.status(403).json({ success: false, message: error.message });
   }
 };
+
+exports.markAttendance = async (req, res) => {
+  try {
+    const attendance = await professorService.markAttendance(
+      req.user.id,
+      req.params.offeringId,
+      req.body,
+    );
+    res.status(200).json({ success: true, data: attendance });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+};
+
+exports.getAttendance = async (req, res) => {
+  try {
+    const attendance = await professorService.getAttendance(
+      req.user.id,
+      req.params.offeringId,
+    );
+    res.status(200).json({ success: true, data: attendance });
+  } catch (error) {
+    res.status(403).json({ success: false, message: error.message });
+  }
+};

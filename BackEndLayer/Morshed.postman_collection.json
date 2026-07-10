@@ -661,6 +661,63 @@
                     }
                 },
                 {
+                    "name": "Mark Attendance",
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"date\": \"2024-12-01\",\n  \"records\": [\n    {\n      \"studentId\": \"<STUDENT_PROFILE_ID>\",\n      \"status\": \"present\"\n    },\n    {\n      \"studentId\": \"<ANOTHER_STUDENT_ID>\",\n      \"status\": \"absent\"\n    }\n  ]\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/professors/offerings/:offeringId/attendance",
+                            "host": ["{{baseUrl}}"],
+                            "path": [
+                                "professors",
+                                "offerings",
+                                ":offeringId",
+                                "attendance"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "offeringId",
+                                    "value": "<OFFERING_ID>"
+                                }
+                            ]
+                        },
+                        "description": "Professor Only. Create or update attendance for a specific date."
+                    }
+                },
+                {
+                    "name": "Get Attendance",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/professors/offerings/:offeringId/attendance",
+                            "host": ["{{baseUrl}}"],
+                            "path": [
+                                "professors",
+                                "offerings",
+                                ":offeringId",
+                                "attendance"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "offeringId",
+                                    "value": "<OFFERING_ID>"
+                                }
+                            ]
+                        },
+                        "description": "Professor Only. Returns attendance history for this offering."
+                    }
+                },
+                {
                     "name": "Submit Grade",
                     "request": {
                         "method": "POST",
@@ -683,7 +740,7 @@
                     }
                 }
             ],
-            "description": "Endpoints for Professors to manage courses, assignments and grades. Requires Professor Bearer Token."
+            "description": "Endpoints for Professors to manage courses, assignments, attendance and grades. Requires Professor Bearer Token."
         }
     ],
     "variable": [
