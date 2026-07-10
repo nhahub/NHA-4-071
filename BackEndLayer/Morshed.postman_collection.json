@@ -1,0 +1,583 @@
+{
+    "info": {
+        "_postman_id": "morshed-api-collection-v2",
+        "name": "Morshed API",
+        "description": "Backend API collection for the Morshed University Platform.\n\n**Setup:**\n1. Create an environment with `baseUrl` = `http://localhost:5000/api`\n2. Create an environment variable `token` (leave value empty).\n3. Login using the Auth folder. The script will auto-save your token!",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "auth": {
+        "type": "bearer",
+        "bearer": [
+            {
+                "key": "token",
+                "value": "{{token}}",
+                "type": "string"
+            }
+        ]
+    },
+    "item": [
+        {
+            "name": "Auth",
+            "auth": {
+                "type": "noauth"
+            },
+            "item": [
+                {
+                    "name": "Register User",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"name\": \"Omar\",\n  \"email\": \"omar@morshed.com\",\n  \"universityId\": \"STD001\",\n  \"password\": \"password123\",\n  \"role\": \"student\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/auth/register",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["auth", "register"]
+                        }
+                    }
+                },
+                {
+                    "name": "Login",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "const response = pm.response.json();",
+                                    "",
+                                    "if (response.success && response.data && response.data.token) {",
+                                    "    pm.environment.set('token', response.data.token);",
+                                    "    console.log('Token saved successfully!');",
+                                    "} else {",
+                                    "    console.log('Login failed or no token returned.');",
+                                    "}"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"universityId\": \"STD001\",\n  \"password\": \"password123\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/auth/login",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["auth", "login"]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Current User (Me)",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/auth/me",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["auth", "me"]
+                        },
+                        "description": "Protected Route. Requires Bearer Token."
+                    }
+                },
+                {
+                    "name": "Logout",
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/auth/logout",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["auth", "logout"]
+                        },
+                        "description": "Protected Route. Requires Bearer Token."
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Admin - University Setup",
+            "item": [
+                {
+                    "name": "Create Department",
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"name\": \"Computer Science\",\n  \"code\": \"CS\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/departments",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["departments"]
+                        },
+                        "description": "Admin Only. Requires Admin Bearer Token."
+                    }
+                },
+                {
+                    "name": "Get All Departments",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/departments",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["departments"]
+                        }
+                    }
+                },
+                {
+                    "name": "Create Semester",
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"name\": \"Fall 2024\",\n  \"code\": \"F24\",\n  \"registrationStatus\": \"open\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/semesters",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["semesters"]
+                        },
+                        "description": "Admin Only."
+                    }
+                },
+                {
+                    "name": "Get All Semesters",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/semesters",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["semesters"]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Current Semester",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/semesters/current",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["semesters", "current"]
+                        }
+                    }
+                },
+                {
+                    "name": "Create Course",
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"code\": \"CS101\",\n  \"name\": \"Intro to Programming\",\n  \"credits\": 3,\n  \"departmentId\": \"<DEPT_ID_FROM_GET_DEPT>\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/courses",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["courses"]
+                        },
+                        "description": "Admin Only."
+                    }
+                },
+                {
+                    "name": "Get Available Courses",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/courses/available",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["courses", "available"]
+                        }
+                    }
+                },
+                {
+                    "name": "Create Course Offering",
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"courseId\": \"<COURSE_ID>\",\n  \"semesterId\": \"<SEMESTER_ID>\",\n  \"schedule\": \"Mon/Wed 10:00\",\n  \"classroom\": \"Hall A\",\n  \"capacity\": 30\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/offerings",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["offerings"]
+                        },
+                        "description": "Admin Only."
+                    }
+                },
+                {
+                    "name": "Get Offerings for Course",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/courses/:courseId/offerings",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["courses", ":courseId", "offerings"],
+                            "variable": [
+                                {
+                                    "key": "courseId",
+                                    "value": "<COURSE_ID>"
+                                }
+                            ]
+                        }
+                    }
+                }
+            ],
+            "description": "Endpoints for setting up the university structure. Most require Admin Role."
+        },
+        {
+            "name": "Student Portal",
+            "item": [
+                {
+                    "name": "Enrollment",
+                    "item": [
+                        {
+                            "name": "Enroll in Course",
+                            "request": {
+                                "method": "POST",
+                                "header": [],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n  \"courseId\": \"<COURSE_ID_FROM_GET_COURSES>\"\n}",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                },
+                                "url": {
+                                    "raw": "{{baseUrl}}/enrollments",
+                                    "host": ["{{baseUrl}}"],
+                                    "path": ["enrollments"]
+                                },
+                                "description": "Student Only. Send courseId (MongoDB _id)."
+                            }
+                        },
+                        {
+                            "name": "Get My Enrollments",
+                            "request": {
+                                "method": "GET",
+                                "header": [],
+                                "url": {
+                                    "raw": "{{baseUrl}}/enrollments/my",
+                                    "host": ["{{baseUrl}}"],
+                                    "path": ["enrollments", "my"]
+                                },
+                                "description": "Student Only."
+                            }
+                        },
+                        {
+                            "name": "Drop Course",
+                            "request": {
+                                "method": "DELETE",
+                                "header": [],
+                                "url": {
+                                    "raw": "{{baseUrl}}/enrollments/:id",
+                                    "host": ["{{baseUrl}}"],
+                                    "path": ["enrollments", ":id"],
+                                    "variable": [
+                                        {
+                                            "key": "id",
+                                            "value": "<ENROLLMENT_ID>"
+                                        }
+                                    ]
+                                },
+                                "description": "Student Only. Pass Enrollment ID."
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "Profile & Dashboard",
+                    "item": [
+                        {
+                            "name": "Get Student Dashboard",
+                            "request": {
+                                "method": "GET",
+                                "header": [],
+                                "url": {
+                                    "raw": "{{baseUrl}}/students/dashboard",
+                                    "host": ["{{baseUrl}}"],
+                                    "path": ["students", "dashboard"]
+                                },
+                                "description": "Student Only. Returns GPA, Counts, Current Courses."
+                            }
+                        },
+                        {
+                            "name": "Get My Profile",
+                            "request": {
+                                "method": "GET",
+                                "header": [],
+                                "url": {
+                                    "raw": "{{baseUrl}}/students/profile",
+                                    "host": ["{{baseUrl}}"],
+                                    "path": ["students", "profile"]
+                                }
+                            }
+                        },
+                        {
+                            "name": "Update Profile",
+                            "request": {
+                                "method": "PATCH",
+                                "header": [],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n  \"program\": \"General Computer Science\"\n}",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                },
+                                "url": {
+                                    "raw": "{{baseUrl}}/students/profile",
+                                    "host": ["{{baseUrl}}"],
+                                    "path": ["students", "profile"]
+                                }
+                            }
+                        },
+                        {
+                            "name": "Get Settings",
+                            "request": {
+                                "method": "GET",
+                                "header": [],
+                                "url": {
+                                    "raw": "{{baseUrl}}/students/settings",
+                                    "host": ["{{baseUrl}}"],
+                                    "path": ["students", "settings"]
+                                }
+                            }
+                        },
+                        {
+                            "name": "Update Settings",
+                            "request": {
+                                "method": "PUT",
+                                "header": [],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n  \"showGpa\": true,\n  \"preferredLanguage\": \"en\"\n}",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                },
+                                "url": {
+                                    "raw": "{{baseUrl}}/students/settings",
+                                    "host": ["{{baseUrl}}"],
+                                    "path": ["students", "settings"]
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "Complaints",
+                    "item": [
+                        {
+                            "name": "Create Complaint",
+                            "request": {
+                                "method": "POST",
+                                "header": [],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n  \"subject\": \"Schedule Conflict\",\n  \"description\": \"My CS101 and MATH101 classes overlap.\"\n}",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                },
+                                "url": {
+                                    "raw": "{{baseUrl}}/complaints",
+                                    "host": ["{{baseUrl}}"],
+                                    "path": ["complaints"]
+                                }
+                            }
+                        },
+                        {
+                            "name": "Get My Complaints",
+                            "request": {
+                                "method": "GET",
+                                "header": [],
+                                "url": {
+                                    "raw": "{{baseUrl}}/complaints",
+                                    "host": ["{{baseUrl}}"],
+                                    "path": ["complaints"]
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "Payments",
+                    "item": [
+                        {
+                            "name": "Make Payment",
+                            "request": {
+                                "method": "POST",
+                                "header": [],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n  \"semesterId\": \"<SEMESTER_ID>\",\n  \"amount\": 5000\n}",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                },
+                                "url": {
+                                    "raw": "{{baseUrl}}/payments",
+                                    "host": ["{{baseUrl}}"],
+                                    "path": ["payments"]
+                                }
+                            }
+                        },
+                        {
+                            "name": "Get My Payments",
+                            "request": {
+                                "method": "GET",
+                                "header": [],
+                                "url": {
+                                    "raw": "{{baseUrl}}/payments",
+                                    "host": ["{{baseUrl}}"],
+                                    "path": ["payments"]
+                                }
+                            }
+                        }
+                    ]
+                }
+            ],
+            "description": "Endpoints accessible by the Student Role. Requires Student Bearer Token."
+        },
+        {
+            "name": "Professor Portal",
+            "item": [
+                {
+                    "name": "Get My Profile",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/professors/profile",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["professors", "profile"]
+                        },
+                        "description": "Professor Only."
+                    }
+                },
+                {
+                    "name": "Get My Courses (Offerings)",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/professors/offerings",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["professors", "offerings"]
+                        },
+                        "description": "Professor Only. Returns courses assigned to this professor."
+                    }
+                },
+                {
+                    "name": "Get Students in Offering",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/professors/offerings/:offeringId/students",
+                            "host": ["{{baseUrl}}"],
+                            "path": [
+                                "professors",
+                                "offerings",
+                                ":offeringId",
+                                "students"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "offeringId",
+                                    "value": "<OFFERING_ID>"
+                                }
+                            ]
+                        },
+                        "description": "Professor Only. Returns list of students enrolled in this specific offering."
+                    }
+                },
+                {
+                    "name": "Submit Grade",
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"enrollmentId\": \"<ENROLLMENT_ID_FROM_STUDENT_LIST>\",\n  \"grade\": \"A\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/professors/grades",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["professors", "grades"]
+                        },
+                        "description": "Professor Only. Updates the grade for a specific enrollment."
+                    }
+                }
+            ],
+            "description": "Endpoints for Professors to manage courses and grades. Requires Professor Bearer Token."
+        }
+    ],
+    "variable": [
+        {
+            "key": "baseUrl",
+            "value": "http://localhost:5000/api"
+        }
+    ]
+}

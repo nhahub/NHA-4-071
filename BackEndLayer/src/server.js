@@ -35,6 +35,7 @@ const enrollmentRoutes = require("./routes/enrollmentRoutes");
 const studentRoutes = require("./routes/studentRoutes");
 const complaintRoutes = require("./routes/complaintRoutes");
 const paymentRoutes = require("./routes/paymentRoutes");
+const professorRoutes = require("./routes/professorRoutes");
 
 app.use("/api/auth", authLimiter, authRoutes);
 app.use("/api", universityRoutes); // (Mounts at /api/departments, /api/courses, etc.)
@@ -42,6 +43,7 @@ app.use("/api/enrollments", enrollmentRoutes); // POST /api/enrollments
 app.use("/api/students", studentRoutes); // Maps to /api/students/profile, etc.
 app.use("/api/complaints", complaintRoutes);
 app.use("/api/payments", paymentRoutes);
+app.use("/api/professors", professorRoutes);
 
 // Health check
 app.get("/api/health", (req, res) => {
