@@ -483,6 +483,63 @@
                     ]
                 },
                 {
+                    "name": "Courses & Schedule",
+                    "item": [
+                        {
+                            "name": "Get Course Catalog",
+                            "request": {
+                                "method": "GET",
+                                "header": [],
+                                "url": {
+                                    "raw": "{{baseUrl}}/students/courses",
+                                    "host": ["{{baseUrl}}"],
+                                    "path": ["students", "courses"]
+                                },
+                                "description": "Student Only. Lists available course offerings for the current semester."
+                            }
+                        },
+                        {
+                            "name": "Get My Schedule",
+                            "request": {
+                                "method": "GET",
+                                "header": [],
+                                "url": {
+                                    "raw": "{{baseUrl}}/students/schedule",
+                                    "host": ["{{baseUrl}}"],
+                                    "path": ["students", "schedule"]
+                                },
+                                "description": "Student Only. Timetable of enrolled courses."
+                            }
+                        },
+                        {
+                            "name": "Get My Grades",
+                            "request": {
+                                "method": "GET",
+                                "header": [],
+                                "url": {
+                                    "raw": "{{baseUrl}}/students/grades",
+                                    "host": ["{{baseUrl}}"],
+                                    "path": ["students", "grades"]
+                                },
+                                "description": "Student Only. Returns GPA and grade list."
+                            }
+                        },
+                        {
+                            "name": "Get My Payments",
+                            "request": {
+                                "method": "GET",
+                                "header": [],
+                                "url": {
+                                    "raw": "{{baseUrl}}/students/payments",
+                                    "host": ["{{baseUrl}}"],
+                                    "path": ["students", "payments"]
+                                },
+                                "description": "Student Only. Payment history."
+                            }
+                        }
+                    ]
+                },
+                {
                     "name": "Complaints",
                     "item": [
                         {
@@ -560,6 +617,63 @@
                 }
             ],
             "description": "Endpoints accessible by the Student Role. Requires Student Bearer Token."
+        },
+        {
+            "name": "Courses",
+            "item": [
+                {
+                    "name": "Get All Courses",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/courses",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["courses"]
+                        },
+                        "description": "Any authenticated user. Lists all courses."
+                    }
+                },
+                {
+                    "name": "Get Course By ID",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/courses/:id",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["courses", ":id"],
+                            "variable": [
+                                {
+                                    "key": "id",
+                                    "value": "<COURSE_ID>"
+                                }
+                            ]
+                        },
+                        "description": "Any authenticated user. Get course details."
+                    }
+                },
+                {
+                    "name": "Get Course Offerings",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/courses/:id/offerings",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["courses", ":id", "offerings"],
+                            "variable": [
+                                {
+                                    "key": "id",
+                                    "value": "<COURSE_ID>"
+                                }
+                            ]
+                        },
+                        "description": "Any authenticated user. Get offerings for a course with professor, schedule, capacity."
+                    }
+                }
+            ],
+            "description": "Course browsing. Any authenticated user."
         },
         {
             "name": "Professor Portal",

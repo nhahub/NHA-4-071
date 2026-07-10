@@ -16,4 +16,9 @@ router.patch("/profile", studentController.updateProfile);
 router.get("/settings", studentController.getSettings);
 router.put("/settings", studentController.updateSettings);
 
+router.get("/courses", studentController.getCourseCatalog);
+router.get("/schedule", studentController.getSchedule);
+router.get("/grades", studentController.getGrades);
+router.get("/payments", studentController.getPayments);
+
 module.exports = router;

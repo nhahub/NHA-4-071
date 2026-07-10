@@ -3,6 +3,7 @@ const User = require("../models/User");
 const Enrollment = require("../models/Enrollment");
 const Complaint = require("../models/Complaint");
 const Payment = require("../models/Payment");
+const CourseOffering = require("../models/CourseOffering");
 const universityService = require("./universityService");
 
 /**
@@ -146,7 +147,93 @@ exports.getDashboard = async (studentUserId) => {
     pendingPayments: pendingPaymentsCount,
     openComplaints: openComplaintsCount,
     currentCourses: currentCourses,
-    // Mocking the trend for now (Frontend schema allows optional)
     gpaTrend: [],
   };
+};
+
+exports.getCourseCatalog = async (studentUserId) => {
+  const currentSemester = await universityService.getCurrentSemester();
+  if (!currentSemester) throw new Error("No active semester");
+
+  const offerings = await CourseOffering.find({
+    semesterId: currentSemester._id,
+  })
+    .populate("courseId", "code name credits")
+    .populate("professorId", "name");
+
+  return offerings.map((o) => ({
+    _id: o._id,
+    courseCode: o.courseId?.code,
+    courseName: o.courseId?.name,
+    credits: o.courseId?.credits,
+    professor: o.professorId?.name || "TBA",
+    schedule: o.schedule,
+    classroom: o.classroom,
+    capacity: o.capacity,
+    enrolledCount: o.enrolledCount,
+    seatsAvailable: o.capacity - o.enrolledCount,
+  }));
+};
+
+exports.getSchedule = async (studentUserId) => {
+  const student = await Student.findOne({ userId: studentUserId });
+  if (!student) throw new Error("Student profile not found");
+
+  const enrollments = await Enrollment.find({
+    studentId: student._id,
+    status: "enrolled",
+  })
+    .populate("courseId", "code name credits")
+    .populate("offeringId", "schedule classroom");
+
+  return enrollments.map((e) => ({
+    _id: e._id,
+    courseCode: e.courseId?.code,
+    courseName: e.courseId?.name,
+    credits: e.courseId?.credits,
+    schedule: e.offeringId?.schedule,
+    classroom: e.offeringId?.classroom,
+  }));
+};
+
+exports.getGrades = async (studentUserId) => {
+  const student = await Student.findOne({ userId: studentUserId });
+  if (!student) throw new Error("Student profile not found");
+
+  const enrollments = await Enrollment.find({
+    studentId: student._id,
+    status: { $in: ["enrolled", "completed"] },
+  })
+    .populate("courseId", "code name credits");
+
+  const grades = enrollments
+    .filter((e) => e.grade)
+    .map((e) => ({
+      courseCode: e.courseId?.code,
+      courseName: e.courseId?.name,
+      credits: e.courseId?.credits,
+      grade: e.grade,
+    }));
+
+  return {
+    GPA: student.GPA,
+    grades,
+  };
+};
+
+exports.getPayments = async (studentUserId) => {
+  const student = await Student.findOne({ userId: studentUserId });
+  if (!student) throw new Error("Student profile not found");
+
+  const payments = await Payment.find({ studentId: student._id }).sort({
+    createdAt: -1,
+  });
+
+  return payments.map((p) => ({
+    _id: p._id,
+    amount: p.amount,
+    status: p.status,
+    semesterId: p.semesterId,
+    createdAt: p.createdAt,
+  }));
 };
