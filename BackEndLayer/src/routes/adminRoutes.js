@@ -9,11 +9,18 @@ const {
   manualEnrollSchema,
   updateSettingsSchema,
 } = require("../validations/adminValidation");
+const {
+  semesterSchema,
+  courseSchema,
+} = require("../validations/universityValidation");
 const adminController = require("../controllers/adminController");
 
 router.use(protect, authorize("admin"));
 
 router.get("/dashboard", adminController.getDashboard);
+
+router.post("/semesters", validate(semesterSchema), adminController.createSemester);
+router.post("/courses", validate(courseSchema), adminController.createCourse);
 
 router.get("/users", adminController.getUsers);
 router.patch(

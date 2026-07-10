@@ -614,6 +614,191 @@
                             }
                         }
                     ]
+                },
+                {
+                    "name": "More Student Endpoints",
+                    "item": [
+                        {
+                            "name": "Get My Enrollments",
+                            "request": {
+                                "method": "GET",
+                                "header": [],
+                                "url": {
+                                    "raw": "{{baseUrl}}/students/enrollments",
+                                    "host": ["{{baseUrl}}"],
+                                    "path": ["students", "enrollments"]
+                                },
+                                "description": "Student Only. Convenience alias for /enrollments/my."
+                            }
+                        },
+                        {
+                            "name": "Get My Complaints",
+                            "request": {
+                                "method": "GET",
+                                "header": [],
+                                "url": {
+                                    "raw": "{{baseUrl}}/students/complaints",
+                                    "host": ["{{baseUrl}}"],
+                                    "path": ["students", "complaints"]
+                                },
+                                "description": "Student Only. Convenience alias for /complaints."
+                            }
+                        },
+                        {
+                            "name": "Get Advising Sessions",
+                            "request": {
+                                "method": "GET",
+                                "header": [],
+                                "url": {
+                                    "raw": "{{baseUrl}}/students/advising-sessions",
+                                    "host": ["{{baseUrl}}"],
+                                    "path": ["students", "advising-sessions"]
+                                },
+                                "description": "Student Only. Get my advising sessions."
+                            }
+                        },
+                        {
+                            "name": "Create Advising Session",
+                            "request": {
+                                "method": "POST",
+                                "header": [],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n  \"semesterId\": \"<SEMESTER_ID>\",\n  \"notes\": \"Need help with course selection\"\n}",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                },
+                                "url": {
+                                    "raw": "{{baseUrl}}/students/advising-sessions",
+                                    "host": ["{{baseUrl}}"],
+                                    "path": ["students", "advising-sessions"]
+                                },
+                                "description": "Student Only. Request a new advising session."
+                            }
+                        },
+                        {
+                            "name": "Get Notifications",
+                            "request": {
+                                "method": "GET",
+                                "header": [],
+                                "url": {
+                                    "raw": "{{baseUrl}}/students/notifications",
+                                    "host": ["{{baseUrl}}"],
+                                    "path": ["students", "notifications"]
+                                },
+                                "description": "Student Only. Get all notifications."
+                            }
+                        },
+                        {
+                            "name": "Mark Notification Read",
+                            "request": {
+                                "method": "PATCH",
+                                "header": [],
+                                "url": {
+                                    "raw": "{{baseUrl}}/notifications/:notificationId/read",
+                                    "host": ["{{baseUrl}}"],
+                                    "path": ["notifications", ":notificationId", "read"],
+                                    "variable": [
+                                        {
+                                            "key": "notificationId",
+                                            "value": "<NOTIFICATION_ID>"
+                                        }
+                                    ]
+                                },
+                                "description": "Any auth user. Mark a notification as read."
+                            }
+                        },
+                        {
+                            "name": "Get Attendance",
+                            "request": {
+                                "method": "GET",
+                                "header": [],
+                                "url": {
+                                    "raw": "{{baseUrl}}/students/attendance",
+                                    "host": ["{{baseUrl}}"],
+                                    "path": ["students", "attendance"]
+                                },
+                                "description": "Student Only. Attendance summary per course."
+                            }
+                        },
+                        {
+                            "name": "Get Exams",
+                            "request": {
+                                "method": "GET",
+                                "header": [],
+                                "url": {
+                                    "raw": "{{baseUrl}}/students/exams",
+                                    "host": ["{{baseUrl}}"],
+                                    "path": ["students", "exams"]
+                                },
+                                "description": "Student Only. Get exam schedule."
+                            }
+                        },
+                        {
+                            "name": "Get Transcript",
+                            "request": {
+                                "method": "GET",
+                                "header": [],
+                                "url": {
+                                    "raw": "{{baseUrl}}/students/transcript",
+                                    "host": ["{{baseUrl}}"],
+                                    "path": ["students", "transcript"]
+                                },
+                                "description": "Student Only. Full academic transcript."
+                            }
+                        },
+                        {
+                            "name": "Get Study Plan",
+                            "request": {
+                                "method": "GET",
+                                "header": [],
+                                "url": {
+                                    "raw": "{{baseUrl}}/students/study-plan",
+                                    "host": ["{{baseUrl}}"],
+                                    "path": ["students", "study-plan"]
+                                },
+                                "description": "Student Only. Degree study plan."
+                            }
+                        },
+                        {
+                            "name": "Submit Semester Registration",
+                            "request": {
+                                "method": "POST",
+                                "header": [],
+                                "url": {
+                                    "raw": "{{baseUrl}}/students/semester-registration",
+                                    "host": ["{{baseUrl}}"],
+                                    "path": ["students", "semester-registration"]
+                                },
+                                "description": "Student Only. Submit semester registration."
+                            }
+                        },
+                        {
+                            "name": "Save GPA Calculation",
+                            "request": {
+                                "method": "POST",
+                                "header": [],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n  \"courses\": [\n    { \"code\": \"CS101\", \"credits\": 3, \"grade\": \"A\" }\n  ]\n}",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                },
+                                "url": {
+                                    "raw": "{{baseUrl}}/students/gpa-calculations",
+                                    "host": ["{{baseUrl}}"],
+                                    "path": ["students", "gpa-calculations"]
+                                },
+                                "description": "Student Only. Save GPA calculation result."
+                            }
+                        }
+                    ]
                 }
             ],
             "description": "Endpoints accessible by the Student Role. Requires Student Bearer Token."
@@ -1257,6 +1442,50 @@
                             "path": ["admin", "settings"]
                         },
                         "description": "Admin Only. Update system settings."
+                    }
+                },
+                {
+                    "name": "Create Semester",
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"name\": \"Spring 2025\",\n  \"code\": \"S25\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/admin/semesters",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["admin", "semesters"]
+                        },
+                        "description": "Admin Only. Create a new semester."
+                    }
+                },
+                {
+                    "name": "Create Course",
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"code\": \"CS200\",\n  \"name\": \"Data Structures\",\n  \"credits\": 3,\n  \"departmentId\": \"<DEPARTMENT_ID>\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/admin/courses",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["admin", "courses"]
+                        },
+                        "description": "Admin Only. Create a new course."
                     }
                 }
             ],

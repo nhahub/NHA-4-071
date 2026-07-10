@@ -1,4 +1,5 @@
 const Professor = require("../models/Professor");
+const Student = require("../models/Student");
 const CourseOffering = require("../models/CourseOffering");
 const Enrollment = require("../models/Enrollment");
 const Assignment = require("../models/Assignment");
@@ -58,17 +59,16 @@ exports.getOfferingStudents = async (professorUserId, offeringId) => {
     .populate("studentId", "userId") // We need the student's user ID to get their name
     .populate("courseId", "code name");
 
-  // We need to manually populate the student's name from the User model
-  // (In a perfect world we'd use deep populate, but let's keep it simple for now)
   const User = require("../models/User");
   const studentsWithData = await Promise.all(
     enrollments.map(async (enrollment) => {
       const user = await User.findById(enrollment.studentId.userId);
+      const student = await Student.findById(enrollment.studentId._id);
       return {
-        enrollmentId: enrollment._id,
-        studentId: enrollment.studentId._id,
-        studentName: user.name,
-        studentUniversityId: user.universityId,
+        _id: enrollment.studentId._id,
+        userId: { name: user.name, universityId: user.universityId },
+        GPA: student?.GPA || 0,
+        level: student?.level || 1,
         grade: enrollment.grade,
         courseCode: enrollment.courseId?.code,
       };

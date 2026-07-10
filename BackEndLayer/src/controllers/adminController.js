@@ -1,4 +1,5 @@
 const adminService = require("../services/adminService");
+const universityService = require("../services/universityService");
 
 exports.getDashboard = async (req, res) => {
   try {
@@ -65,6 +66,24 @@ exports.updateSemester = async (req, res) => {
       req.body,
     );
     res.status(200).json({ success: true, data: semester });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+};
+
+exports.createSemester = async (req, res) => {
+  try {
+    const semester = await universityService.createSemester(req.body);
+    res.status(201).json({ success: true, data: semester });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+};
+
+exports.createCourse = async (req, res) => {
+  try {
+    const course = await universityService.createCourse(req.body);
+    res.status(201).json({ success: true, data: course });
   } catch (error) {
     res.status(400).json({ success: false, message: error.message });
   }

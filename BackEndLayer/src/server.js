@@ -32,6 +32,7 @@ const authLimiter = rateLimit({
 const authRoutes = require("./routes/authRoutes");
 const universityRoutes = require("./routes/universityRoutes");
 const courseRoutes = require("./routes/courseRoutes");
+const notificationRoutes = require("./routes/notificationRoutes");
 const enrollmentRoutes = require("./routes/enrollmentRoutes");
 const studentRoutes = require("./routes/studentRoutes");
 const complaintRoutes = require("./routes/complaintRoutes");
@@ -43,6 +44,7 @@ const adminRoutes = require("./routes/adminRoutes");
 app.use("/api/auth", authLimiter, authRoutes);
 app.use("/api", universityRoutes); // (Mounts at /api/departments, /api/courses, etc.)
 app.use("/api/courses", courseRoutes);
+app.use("/api/notifications", notificationRoutes);
 app.use("/api/enrollments", enrollmentRoutes); // POST /api/enrollments
 app.use("/api/students", studentRoutes); // Maps to /api/students/profile, etc.
 app.use("/api/complaints", complaintRoutes);
