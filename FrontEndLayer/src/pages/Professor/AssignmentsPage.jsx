@@ -1,15 +1,16 @@
+
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchGlobalAssignments } from "../../store/professor/professorThunks";
-import { 
-  Plus, Calendar, Clock, Users, CheckCircle, Search, 
+import {
+  Plus, Calendar, Clock, Users, CheckCircle, Search,
   Filter, Download, Edit3, Paperclip, Eye, AlertCircle, Save
 } from "lucide-react";
 
 const AssignmentsPage = () => {
   const dispatch = useDispatch();
   const { assignments, loading } = useSelector((state) => state.professor);
-  
+
   const [activeTab, setActiveTab] = useState('All Assignments');
   const tabs = ['All Assignments', 'Active', 'Drafts', 'Archived'];
 
@@ -26,14 +27,14 @@ const AssignmentsPage = () => {
 
   return (
     <div className="flex flex-col gap-6 w-full max-w-7xl mx-auto text-text-primary relative pb-20">
-      
+
       {/* Header */}
       <div className="flex flex-row justify-between items-start">
         <div className="flex flex-col">
           <h1 className="font-heading font-bold text-[32px] m-0 text-white leading-tight">Global Assignments</h1>
           <p className="font-heading text-sm text-text-secondary mt-1">Manage and review all student submissions across your active courses.</p>
         </div>
-        
+
         <button className="flex items-center gap-2 px-5 py-2.5 bg-primary text-bg-page font-bold border-none rounded hover:opacity-90 cursor-pointer transition-opacity shadow-lg shadow-[rgba(52,211,153,0.2)]">
           <Plus size={18} /> Create New Assignment
         </button>
@@ -88,20 +89,19 @@ const AssignmentsPage = () => {
       <div className="flex flex-col md:flex-row justify-between items-end gap-4 border-b border-border pb-4 mt-2">
         <div className="flex gap-6">
           {tabs.map((tab) => (
-            <button 
+            <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`bg-transparent border-none cursor-pointer pb-4 -mb-4 font-heading font-bold text-sm transition-colors ${
-                activeTab === tab 
-                ? 'text-primary border-b-2 border-primary' 
+              className={`bg-transparent border-none cursor-pointer pb-4 -mb-4 font-heading font-bold text-sm transition-colors ${activeTab === tab
+                ? 'text-primary border-b-2 border-primary'
                 : 'text-text-secondary hover:text-white'
-              }`}
+                }`}
             >
               {tab}
             </button>
           ))}
         </div>
-        
+
         <div className="flex gap-4">
           <select className="bg-bg-light border border-border text-text-secondary text-sm rounded px-3 py-2 w-48 outline-none">
             <option>All Courses</option>
@@ -130,7 +130,7 @@ const AssignmentsPage = () => {
         {/* Table Rows */}
         {list.map((assignment, idx) => (
           <div key={assignment.id} className="grid grid-cols-12 gap-4 p-4 mb-3 bg-bg-light border border-border rounded-lg items-center relative overflow-hidden group">
-            
+
             {/* Active row indicator */}
             {idx === 1 && <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary"></div>}
 
@@ -141,14 +141,14 @@ const AssignmentsPage = () => {
                 <span className={assignment.attachment.includes('Overdue') ? 'text-danger italic' : ''}>{assignment.attachment}</span>
               </span>
             </div>
-            
+
             <div className="col-span-2 flex flex-col gap-1 items-start">
               <span className="px-2 py-0.5 bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] rounded text-[10px] font-mono text-primary font-bold">
                 {assignment.courseId}
               </span>
               <span className="text-xs text-text-secondary">{assignment.courseName}</span>
             </div>
-            
+
             <div className="col-span-2 flex flex-col gap-1">
               <span className="text-sm text-white flex items-center gap-1.5">
                 <Calendar size={14} className="text-text-secondary" /> {assignment.dueDate}
@@ -159,7 +159,7 @@ const AssignmentsPage = () => {
                 </span>
               )}
             </div>
-            
+
             <div className="col-span-2 flex flex-col gap-1.5">
               <div className="flex justify-between items-end">
                 <div className="flex items-baseline gap-1 text-xs">
@@ -185,18 +185,18 @@ const AssignmentsPage = () => {
                 )}
               </div>
               <div className="w-full bg-[#121620] h-1.5 rounded-full overflow-hidden">
-                <div 
-                  className={`h-full rounded-full ${assignment.percentage === 100 ? 'bg-primary' : assignment.percentage > 40 ? 'bg-primary' : 'bg-danger'}`} 
+                <div
+                  className={`h-full rounded-full ${assignment.percentage === 100 ? 'bg-primary' : assignment.percentage > 40 ? 'bg-primary' : 'bg-danger'}`}
                   style={{ width: `${assignment.percentage}%` }}
                 ></div>
               </div>
             </div>
-            
+
             <div className="col-span-2 flex justify-end items-center gap-4">
               <button className="bg-transparent border-none text-text-secondary hover:text-white cursor-pointer transition-colors">
                 {assignment.status === 'report' ? <Eye size={16} /> : <Edit3 size={16} />}
               </button>
-              
+
               {assignment.status === 'grade' && (
                 <button className="bg-primary text-bg-page font-bold text-xs uppercase tracking-wider px-4 py-1.5 rounded cursor-pointer border-none hover:opacity-90">Grade</button>
               )}
@@ -231,20 +231,192 @@ const AssignmentsPage = () => {
         <Save size={20} />
       </button>
 
-    </div>
+=======
+import {useEffect, useState} from "react";
+      import {useProfessor} from "../../hooks/useProfessor";
+      import PageHeader from "../../shared/components/PageHeader";
+      import LoadingSkeleton from "../../shared/components/LoadingSkeleton";
+      import {Plus, FileText} from "lucide-react";
+
+      const btnPrimary = "flex flex-row items-center px-4 py-[9px] gap-2 bg-primary shadow-sm rounded-lg border-none text-white font-body font-normal text-base leading-normal cursor-pointer hover:opacity-90";
+
+const AssignmentsPage = () => {
+  const {offerings, assignments, loading, error, loadOfferings, loadAssignments, createAssignment} = useProfessor();
+      const [selectedOffering, setSelectedOffering] = useState("");
+      const [showForm, setShowForm] = useState(false);
+      const [newAssignment, setNewAssignment] = useState({title: "", description: "", dueDate: "", totalPoints: "" });
+
+  useEffect(() => {
+        loadOfferings();
+  }, [loadOfferings]);
+
+  useEffect(() => {
+    if (offerings && offerings.length > 0 && !selectedOffering) {
+        setSelectedOffering(offerings[0]._id);
+    }
+  }, [offerings, selectedOffering]);
+
+  useEffect(() => {
+    if (selectedOffering) {
+        loadAssignments(selectedOffering);
+      setShowForm(false);
+    }
+  }, [selectedOffering, loadAssignments]);
+
+  const handleCreate = async (e) => {
+        e.preventDefault();
+      if (!selectedOffering) return;
+
+      await createAssignment({
+        offeringId: selectedOffering,
+      title: newAssignment.title,
+      description: newAssignment.description,
+      dueDate: newAssignment.dueDate,
+      totalPoints: Number(newAssignment.totalPoints)
+    });
+
+      setShowForm(false);
+      setNewAssignment({title: "", description: "", dueDate: "", totalPoints: "" });
+  };
+
+      return (
+      <div className="flex flex-col gap-[44px] max-w-[960px] mx-auto">
+        <PageHeader
+          title="Assignments"
+          subtitle="Manage assignments and create new ones for your courses."
+        >
+          <button className={btnPrimary} onClick={() => setShowForm(!showForm)}>
+            <Plus size={16} />
+            {showForm ? "Cancel" : "Create Assignment"}
+          </button>
+        </PageHeader>
+
+        {error && (
+          <div className="p-4 bg-danger/10 border border-danger rounded-lg text-danger font-heading text-sm">
+            {error}
+          </div>
+        )}
+
+        <div className="flex items-center gap-4">
+          <label className="font-heading font-semibold text-text-primary">Select Course Offering:</label>
+          <select
+            className="px-4 py-2 border border-border rounded-lg font-body text-base outline-none min-w-[200px]"
+            value={selectedOffering}
+            onChange={(e) => setSelectedOffering(e.target.value)}
+          >
+            {offerings?.map(o => (
+              <option key={o._id} value={o._id}>{o.courseId?.name || "Course"} - {o.schedule}</option>
+            ))}
+          </select>
+        </div>
+
+        {showForm && (
+          <form onSubmit={handleCreate} className="flex flex-col gap-4 p-6 bg-white border border-border rounded-xl shadow-sm">
+            <h3 className="font-heading font-semibold text-lg text-text-primary m-0">Create New Assignment</h3>
+            <div className="flex gap-4">
+              <div className="flex-1 flex flex-col gap-2">
+                <label className="font-heading text-sm font-semibold">Title</label>
+                <input required type="text" className="px-3 py-2 border border-border rounded-lg outline-none font-body" value={newAssignment.title} onChange={(e) => setNewAssignment({ ...newAssignment, title: e.target.value })} />
+              </div>
+              <div className="flex-1 flex flex-col gap-2">
+                <label className="font-heading text-sm font-semibold">Due Date</label>
+                <input required type="date" className="px-3 py-2 border border-border rounded-lg outline-none font-body" value={newAssignment.dueDate} onChange={(e) => setNewAssignment({ ...newAssignment, dueDate: e.target.value })} />
+              </div>
+              <div className="flex-1 flex flex-col gap-2">
+                <label className="font-heading text-sm font-semibold">Total Points</label>
+                <input required type="number" className="px-3 py-2 border border-border rounded-lg outline-none font-body" value={newAssignment.totalPoints} onChange={(e) => setNewAssignment({ ...newAssignment, totalPoints: e.target.value })} />
+              </div>
+            </div>
+            <div className="flex flex-col gap-2">
+              <label className="font-heading text-sm font-semibold">Description</label>
+              <textarea required rows="3" className="px-3 py-2 border border-border rounded-lg outline-none font-body" value={newAssignment.description} onChange={(e) => setNewAssignment({ ...newAssignment, description: e.target.value })} />
+            </div>
+            <div className="flex justify-end mt-2">
+              <button type="submit" className={btnPrimary}>Save Assignment</button>
+            </div>
+          </form>
+        )}
+
+        <div className="bg-white border border-border rounded-xl overflow-hidden shadow-sm">
+          {loading && !assignments?.length ? (
+            <LoadingSkeleton type="table" count={5} />
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse">
+                <thead>
+                  <tr className="border-b border-border bg-bg-light">
+                    <th className="text-left px-8 py-4 font-heading font-semibold text-xs tracking-wider uppercase text-text-secondary">
+                      Title
+                    </th>
+                    <th className="text-left px-8 py-4 font-heading font-semibold text-xs tracking-wider uppercase text-text-secondary">
+                      Due Date
+                    </th>
+                    <th className="text-left px-8 py-4 font-heading font-semibold text-xs tracking-wider uppercase text-text-secondary">
+                      Points
+                    </th>
+                    <th className="text-left px-8 py-4 font-heading font-semibold text-xs tracking-wider uppercase text-text-secondary">
+                      Status
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {!assignments || assignments.length === 0 ? (
+                    <tr>
+                      <td colSpan={4} className="px-8 py-8 text-center font-heading text-text-muted">
+                        <div className="flex flex-col items-center justify-center gap-2">
+                          <FileText size={32} className="text-text-muted opacity-50" />
+                          <span>No assignments found for this offering.</span>
+                        </div>
+                      </td>
+                    </tr>
+                  ) : (
+                    assignments.map((assign, i) => (
+                      <tr key={assign._id} className={i > 0 ? "border-t border-border hover:bg-gray-50" : "hover:bg-gray-50"}>
+                        <td className="px-8 py-[18.5px]">
+                          <div className="flex flex-col">
+                            <span className="font-heading font-bold text-base text-text-primary">
+                              {assign.title}
+                            </span>
+                            <span className="font-body font-normal text-sm text-text-secondary">
+                              {assign.description?.substring(0, 50) || "No description"}...
+                            </span>
+                          </div>
+                        </td>
+                        <td className="px-8 py-4 font-body font-normal text-base text-text-primary">
+                          {new Date(assign.dueDate).toLocaleDateString()}
+                        </td>
+                        <td className="px-8 py-4 font-heading font-normal text-base text-text-primary">
+                          {assign.totalPoints}
+                        </td>
+                        <td className="px-8 py-4 font-heading font-normal text-base text-text-primary">
+                          <span className="px-3 py-1 bg-success/10 text-success rounded-full text-xs font-semibold">Active</span>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+>>>>>>> de3871c4c1963791cfa8cd922b32bab3ec2c33cc
+      </div>
   );
 };
 
-// SVG Icon Helper
-const ClipboardListIcon = ({ size }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
-    <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
-    <path d="M12 11h4"></path>
-    <path d="M12 16h4"></path>
-    <path d="M8 11h.01"></path>
-    <path d="M8 16h.01"></path>
-  </svg>
-);
+<<<<<<< HEAD
+  // SVG Icon Helper
+  const ClipboardListIcon = ({ size }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+      <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+      <path d="M12 11h4"></path>
+      <path d="M12 16h4"></path>
+      <path d="M8 11h.01"></path>
+      <path d="M8 16h.01"></path>
+    </svg>
+  );
 
-export default AssignmentsPage;
+=======
+>>>>>>> de3871c4c1963791cfa8cd922b32bab3ec2c33cc
+  export default AssignmentsPage;

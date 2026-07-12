@@ -11,7 +11,7 @@ const studentSchema = new mongoose.Schema(
     departmentId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Department",
-      required: true,
+      //   required: true,
     },
     advisorId: {
       type: mongoose.Schema.Types.ObjectId,
@@ -32,6 +32,11 @@ const studentSchema = new mongoose.Schema(
     program: {
       type: String,
       trim: true,
+    },
+    // 🛡️ EMBEDDED SETTINGS (Matches Frontend SettingsResponseSchema)
+    settings: {
+      showGpa: { type: Boolean, default: true },
+      preferredLanguage: { type: String, default: "en" },
     },
   },
   { timestamps: true },
