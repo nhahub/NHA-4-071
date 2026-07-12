@@ -6,34 +6,63 @@ import { ROUTES } from "../../routes/RoutePaths";
 import PageHeader from "../../shared/components/PageHeader";
 import StatusBadge from "../../shared/components/StatusBadge";
 import LoadingSkeleton from "../../shared/components/LoadingSkeleton";
-import { Plus, X, Check, BookOpen } from "lucide-react";
+import { Plus, X, Check, BookOpen, AlertTriangle } from "lucide-react";
 
-const btnPrimary = "flex flex-row items-center px-4 py-[9px] gap-2 bg-primary shadow-sm rounded-lg border-none text-white font-body font-normal text-base cursor-pointer";
+const ENROLLMENT_ERRORS = {
+  "Course section is full": "This course section has reached its capacity. Please contact your advisor to be added to a waitlist or try another section.",
+  "No active semester for registration right now": "Registration is not open at this time. Please check back later or contact your advisor.",
+  "This course is not offered in the current semester": "This course is not available for the current semester.",
+  "Already enrolled in this course": "You are already enrolled in this course.",
+  "You have already completed this course": "You have already completed this course and cannot re-enroll.",
+  "Student profile not found": "Could not find your student profile. Please contact the registrar.",
+};
 
-const btnOutline = "flex flex-row items-center px-4 py-2 gap-2 border border-text-muted rounded-lg bg-transparent text-primary font-body font-normal text-base cursor-pointer";
+const btnPrimary = "flex flex-row items-center px-4 py-[9px] gap-2 bg-primary shadow-sm rounded-lg border-none text-white font-body font-normal text-sm sm:text-base cursor-pointer";
+
+const btnOutline = "flex flex-row items-center px-4 py-2 gap-2 border border-text-muted rounded-lg bg-transparent text-primary font-body font-normal text-sm sm:text-base cursor-pointer";
 
 const CourseEnrollmentPage = () => {
   const navigate = useNavigate();
   const { availableCourses, loadCourses, loading, error: courseError } = useCourse();
   const { enrollments, loadEnrollments, enroll, drop, error: enrollError } = useEnrollment();
   const [selected, setSelected] = useState([]);
+  const [localError, setLocalError] = useState(null);
 
   useEffect(() => {
     loadCourses();
     loadEnrollments();
   }, []);
 
-  const isEnrolled = (courseId) => enrollments?.some((e) => e.courseId === courseId);
+  const isEnrolled = (courseId) => enrollments?.some((e) => (e.courseId?._id || e.courseId) === courseId);
   const isSelected = (courseId) => selected.includes(courseId);
 
   const toggleSelect = (courseId) => {
+    setLocalError(null);
     setSelected((prev) =>
       prev.includes(courseId) ? prev.filter((id) => id !== courseId) : [...prev, courseId]
     );
   };
 
   const handleEnroll = async (courseId) => {
-    await enroll(courseId);
+    const result = await enroll(courseId);
+    if (result.meta?.requestStatus === 'fulfilled') {
+      loadEnrollments();
+    }
+  };
+
+  const handleEnrollAll = async () => {
+    setLocalError(null);
+    for (const id of selected) {
+      try {
+        await enroll(id).unwrap();
+      } catch (err) {
+        const course = availableCourses?.find((c) => c._id === id);
+        setLocalError({ message: err, course: course?.code || "Unknown" });
+        loadEnrollments();
+        return;
+      }
+    }
+    setSelected([]);
     loadEnrollments();
   };
 
@@ -45,23 +74,33 @@ const CourseEnrollmentPage = () => {
   if (loading) return <LoadingSkeleton count={3} />;
 
   return (
-    <div className="flex flex-col gap-8 max-w-[960px] mx-auto">
+    <div className="flex flex-col gap-6 md:gap-8 max-w-[960px] mx-auto">
       <PageHeader title="Course Enrollment" subtitle="Browse available courses and manage your enrollments">
         <button className={btnOutline} onClick={() => navigate(ROUTES.STUDENT.SCHEDULE)}>
           <BookOpen size={16} color="#4F378A" />
-          My Schedule
+          <span className="hidden sm:inline">My Schedule</span>
         </button>
       </PageHeader>
 
-      {(courseError || enrollError) && (
-        <div className="p-4 bg-danger/10 border border-danger rounded-lg text-danger font-heading text-sm">
-          {courseError || enrollError}
+      {(localError || courseError || enrollError) && (
+        <div className="flex items-start gap-3 p-4 bg-danger/10 border border-danger/30 rounded-lg">
+          <AlertTriangle size={18} color="#BA1A1A" className="mt-0.5 shrink-0" />
+          <div className="font-heading text-sm text-danger">
+            {localError ? (
+              <>
+                <span className="font-semibold">{localError.course}:</span>{" "}
+                {ENROLLMENT_ERRORS[localError.message] || localError.message}
+              </>
+            ) : (
+              ENROLLMENT_ERRORS[courseError || enrollError] || courseError || enrollError
+            )}
+          </div>
         </div>
       )}
 
-      <div className="flex gap-6">
-        <div className="flex-[2] flex flex-col gap-4">
-          <h3 className="font-heading font-semibold text-xl m-0 text-text-primary">
+      <div className="flex flex-col lg:flex-row gap-4 md:gap-6">
+        <div className="flex-[2] flex flex-col gap-3 md:gap-4">
+          <h3 className="font-heading font-semibold text-lg md:text-xl m-0 text-text-primary">
             Available Courses
           </h3>
 
@@ -73,12 +112,12 @@ const CourseEnrollmentPage = () => {
             availableCourses.map((course) => (
               <div
                 key={course._id}
-                className={`bg-white ${isSelected(course._id) ? "border-primary" : "border-border"} rounded-xl p-6 shadow-sm`}
+                className={`bg-white ${isSelected(course._id) ? "border-primary" : "border-border"} rounded-xl p-4 sm:p-6 shadow-sm`}
                 style={{ borderWidth: 1, borderStyle: "solid" }}
               >
-                <div className="flex justify-between items-start">
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3">
                   <div>
-                    <h4 className="font-heading font-semibold text-lg m-0 text-text-primary">
+                    <h4 className="font-heading font-semibold text-base sm:text-lg m-0 text-text-primary">
                       {course.code} - {course.name}
                     </h4>
                     <p className="font-heading font-normal text-sm mt-1 mb-0 text-text-secondary">
@@ -104,8 +143,8 @@ const CourseEnrollmentPage = () => {
           )}
         </div>
 
-        <div className="flex-1 bg-white border border-border rounded-xl p-6 shadow-sm self-start sticky top-[100px]">
-          <h4 className="font-heading font-semibold text-base m-0 mb-4 text-text-primary">
+        <div className="flex-1 bg-white border border-border rounded-xl p-4 sm:p-6 shadow-sm lg:self-start lg:sticky lg:top-[100px]">
+          <h4 className="font-heading font-semibold text-sm sm:text-base m-0 mb-4 text-text-primary">
             Selected Courses ({selected.length})
           </h4>
 
@@ -131,7 +170,7 @@ const CourseEnrollmentPage = () => {
 
           {selected.length > 0 && (
             <button
-              onClick={() => selected.forEach((id) => handleEnroll(id))}
+              onClick={handleEnrollAll}
               className={`${btnPrimary} w-full mt-4 justify-center`}
             >
               <Check size={16} />
@@ -139,7 +178,7 @@ const CourseEnrollmentPage = () => {
             </button>
           )}
 
-          <h4 className="font-heading font-semibold text-base mt-6 mb-4 text-text-primary">
+          <h4 className="font-heading font-semibold text-sm sm:text-base mt-6 mb-4 text-text-primary">
             My Enrollments
           </h4>
           {(!enrollments || enrollments.length === 0) ? (
@@ -152,7 +191,7 @@ const CourseEnrollmentPage = () => {
                 <div key={enr._id} className="flex justify-between items-center py-2 border-b border-bg-light">
                   <div>
                     <span className="font-heading text-sm text-text-primary">
-                      {enr.courseName || availableCourses?.find((c) => c._id === enr.courseId)?.code || enr.offeringId}
+                      {enr.courseId?.code || enr.courseId?.name || enr.courseId?._id || "Unknown"}
                     </span>
                     <div className="mt-1">
                       <StatusBadge status={enr.status} />

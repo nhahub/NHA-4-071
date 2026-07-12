@@ -1,149 +1,247 @@
-import { useEffect, useState } from "react";
-import { useProfessor } from "../../hooks/useProfessor";
-import PageHeader from "../../shared/components/PageHeader";
-import LoadingSkeleton from "../../shared/components/LoadingSkeleton";
-import { CheckCircle } from "lucide-react";
-
-const btnPrimary = "px-4 py-2 bg-primary text-white font-heading font-semibold text-sm rounded-lg hover:opacity-90";
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchGradeBook } from "../../store/professor/professorThunks";
+import { 
+  Download, UploadCloud, ChevronDown, Filter, MoreVertical, 
+  CheckCircle, Clock, Edit3, Info 
+} from "lucide-react";
 
 const GradeManagement = () => {
-  const { offerings, students, loading, error, loadOfferings, loadOfferingStudents, submitGrade } = useProfessor();
-  const [selectedOffering, setSelectedOffering] = useState("");
-  const [grades, setGrades] = useState({});
-  const [submitStatus, setSubmitStatus] = useState("");
+  const dispatch = useDispatch();
+  const { gradeBook, loading } = useSelector((state) => state.professor);
 
   useEffect(() => {
-    loadOfferings();
-  }, [loadOfferings]);
+    dispatch(fetchGradeBook());
+  }, [dispatch]);
 
-  useEffect(() => {
-    if (offerings && offerings.length > 0 && !selectedOffering) {
-      setSelectedOffering(offerings[0]._id);
-    }
-  }, [offerings, selectedOffering]);
+  if (loading || !gradeBook) {
+    return <div className="p-8 text-white font-heading font-bold text-xl flex items-center justify-center h-full">Loading gradebook...</div>;
+  }
 
-  useEffect(() => {
-    if (selectedOffering) {
-      loadOfferingStudents(selectedOffering);
-      setGrades({});
-      setSubmitStatus("");
-    }
-  }, [selectedOffering, loadOfferingStudents]);
-
-  const handleGradeChange = (studentId, grade) => {
-    setGrades(prev => ({ ...prev, [studentId]: grade }));
-  };
-
-  const handleSubmit = async (studentId) => {
-    if (!grades[studentId]) return;
-    try {
-      await submitGrade({ offeringId: selectedOffering, studentId, grade: grades[studentId] });
-      setSubmitStatus(`Grade submitted successfully for student ${studentId}`);
-      setTimeout(() => setSubmitStatus(""), 3000);
-    } catch (err) {
-      setSubmitStatus("Failed to submit grade");
-    }
-  };
+  const metrics = gradeBook.metrics || {};
+  const students = gradeBook.students || [];
 
   return (
-    <div className="flex flex-col gap-[44px] max-w-[960px] mx-auto">
-      <PageHeader 
-        title="Grade Management" 
-        subtitle="Input and publish grades for your students."
-      />
-
-      {(error || submitStatus) && (
-        <div className={`p-4 rounded-lg font-heading text-sm ${error || submitStatus.includes("Failed") ? "bg-danger/10 border-danger text-danger" : "bg-success/10 border-success text-success"}`}>
-          {error || submitStatus}
+    <div className="flex flex-col gap-6 w-full max-w-7xl mx-auto text-text-primary relative pb-20">
+      
+      {/* Header */}
+      <div className="flex flex-row justify-between items-start">
+        <div className="flex flex-col">
+          <h1 className="font-heading font-bold text-[32px] m-0 text-white leading-tight">Grade Management</h1>
+          <p className="font-heading text-sm text-text-secondary mt-1">Review, edit, and finalize academic assessments for the current term.</p>
         </div>
-      )}
+        
+        <div className="flex gap-4">
+          <button className="flex items-center gap-2 px-4 py-2 bg-transparent text-text-secondary border border-border rounded text-sm font-bold font-heading cursor-pointer hover:text-white transition-colors">
+            <Download size={16} /> Export CSV
+          </button>
+          <button className="flex items-center gap-2 px-5 py-2.5 bg-primary text-bg-page font-bold border-none rounded hover:opacity-90 cursor-pointer transition-opacity">
+            <UploadCloud size={18} /> Publish All
+          </button>
+        </div>
+      </div>
 
-      <div className="flex items-center gap-4">
-        <label className="font-heading font-semibold text-text-primary">Select Course Offering:</label>
-        <select 
-          className="px-4 py-2 border border-border rounded-lg font-body text-base outline-none min-w-[200px]"
-          value={selectedOffering}
-          onChange={(e) => setSelectedOffering(e.target.value)}
-        >
-          {offerings?.map(o => (
-            <option key={o._id} value={o._id}>{o.courseId?.name || "Course"} - {o.schedule}</option>
+      {/* Top Filters */}
+      <div className="flex flex-wrap gap-4 items-end bg-bg-light border border-border rounded-xl p-4">
+        <div className="flex flex-col gap-1 w-[260px]">
+          <span className="text-[10px] text-text-secondary font-bold uppercase tracking-wider">Select Course</span>
+          <div className="flex items-center justify-between px-3 py-2 bg-[#121620] border border-border rounded text-sm text-white cursor-pointer hover:border-primary transition-colors">
+            <span>CS402 - Artificial Intelligence</span>
+            <ChevronDown size={14} className="text-text-secondary" />
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-1 w-[220px]">
+          <span className="text-[10px] text-text-secondary font-bold uppercase tracking-wider">Assessment Type</span>
+          <div className="flex items-center justify-between px-3 py-2 bg-[#121620] border border-border rounded text-sm text-white cursor-pointer hover:border-primary transition-colors">
+            <span>Midterm Examination</span>
+            <ChevronDown size={14} className="text-text-secondary" />
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-1 w-[180px]">
+          <span className="text-[10px] text-text-secondary font-bold uppercase tracking-wider">Section</span>
+          <div className="flex items-center justify-between px-3 py-2 bg-[#121620] border border-border rounded text-sm text-white cursor-pointer hover:border-primary transition-colors">
+            <span>All Sections</span>
+            <ChevronDown size={14} className="text-text-secondary" />
+          </div>
+        </div>
+
+        <button className="flex items-center gap-2 px-4 py-2 bg-[#121620] border border-border text-text-secondary rounded text-sm hover:text-white transition-colors cursor-pointer h-[38px] ml-2">
+          <Filter size={16} /> More Filters
+        </button>
+
+        <div className="px-4 py-2 bg-[rgba(52,211,153,0.1)] border border-[rgba(52,211,153,0.3)] rounded text-primary text-sm font-bold ml-auto h-[38px] flex items-center">
+          Status: {metrics.publishStatus}
+        </div>
+      </div>
+
+      {/* Summary Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div className="bg-bg-light rounded-xl p-5 border border-border flex flex-col justify-between">
+          <span className="text-xs text-text-secondary font-bold uppercase tracking-wider mb-2">Average Score</span>
+          <div className="flex items-end gap-2">
+            <span className="text-2xl font-bold text-white">{metrics.averageScore}</span>
+            <span className="text-[11px] text-primary font-bold mb-1">~+2.1%</span>
+          </div>
+        </div>
+
+        <div className="bg-bg-light rounded-xl p-5 border border-border flex flex-col justify-between">
+          <span className="text-xs text-text-secondary font-bold uppercase tracking-wider mb-2">Graded Items</span>
+          <div className="flex items-end gap-2">
+            <span className="text-2xl font-bold text-white">{metrics.gradedItems}</span>
+            <span className="text-[11px] text-text-secondary mb-1">93% Done</span>
+          </div>
+        </div>
+
+        <div className="bg-bg-light rounded-xl p-5 border border-border flex flex-col justify-between">
+          <span className="text-xs text-text-secondary font-bold uppercase tracking-wider mb-2">Highest Score</span>
+          <div className="flex items-end gap-2">
+            <span className="text-2xl font-bold text-white">{metrics.highestScore}</span>
+            <span className="text-[11px] text-text-secondary mb-1">{metrics.highestGrade}</span>
+          </div>
+        </div>
+
+        <div className="bg-bg-light rounded-xl p-5 border border-border flex flex-col justify-between">
+          <span className="text-xs text-text-secondary font-bold uppercase tracking-wider mb-2">Publish Status</span>
+          <div className="flex flex-col mt-1">
+            <span className="text-xs text-text-secondary">Not visible to students</span>
+            <span className="text-sm font-bold text-danger uppercase tracking-widest mt-1">{metrics.publishStatus}</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Table Section */}
+      <div className="bg-bg-light border border-border rounded-xl overflow-hidden flex flex-col">
+        {/* Table Header */}
+        <div className="grid grid-cols-12 gap-4 p-4 border-b border-border text-[11px] text-text-secondary font-bold uppercase tracking-wider items-center">
+          <div className="col-span-3">Student Name</div>
+          <div className="col-span-2">Student ID</div>
+          <div className="col-span-1">Section</div>
+          <div className="col-span-2 text-center">Score (100)</div>
+          <div className="col-span-1 text-center">Grade</div>
+          <div className="col-span-2">Feedback / Private Note</div>
+          <div className="col-span-1 text-right">Actions</div>
+        </div>
+
+        {/* Table Rows */}
+        <div className="flex flex-col">
+          {students.map((student) => (
+            <div key={student.id} className="grid grid-cols-12 gap-4 p-4 border-b border-[rgba(255,255,255,0.05)] items-center hover:bg-[rgba(255,255,255,0.02)] transition-colors">
+              
+              <div className="col-span-3 flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-[#121620] border border-border flex items-center justify-center text-primary font-bold text-xs">{student.initials}</div>
+                <span className="text-white text-sm font-semibold">{student.name}</span>
+              </div>
+              
+              <div className="col-span-2 text-text-secondary text-sm font-mono">{student.studentId}</div>
+              <div className="col-span-1 text-text-secondary text-sm pl-2">{student.section}</div>
+              
+              <div className="col-span-2 flex justify-center">
+                <input 
+                  type="text" 
+                  defaultValue={student.score}
+                  className={`w-16 h-8 text-center bg-[#121620] border rounded font-mono font-bold text-sm outline-none transition-colors ${
+                    student.score !== '--' ? 'border-primary text-white' : 'border-border text-text-secondary'
+                  }`}
+                />
+              </div>
+              
+              <div className="col-span-1 flex justify-center">
+                {student.grade !== '--' ? (
+                  <span className="w-8 h-8 rounded flex items-center justify-center bg-[rgba(52,211,153,0.1)] border border-primary text-primary font-bold text-sm">
+                    {student.grade}
+                  </span>
+                ) : (
+                  <span className="text-text-secondary font-bold text-sm">--</span>
+                )}
+              </div>
+              
+              <div className="col-span-2">
+                <span className={`text-xs italic ${student.feedback.includes('Add') ? 'text-text-muted cursor-text' : 'text-text-secondary'}`}>
+                  {student.feedback}
+                </span>
+              </div>
+              
+              <div className="col-span-1 flex justify-end">
+                <button className="bg-transparent border-none text-text-secondary cursor-pointer hover:text-white">
+                  <MoreVertical size={16} />
+                </button>
+              </div>
+            </div>
           ))}
-        </select>
+        </div>
+
+        {/* Pagination Footer */}
+        <div className="flex justify-between items-center p-4 text-xs text-text-secondary font-mono">
+          <span>Showing 1-{students.length} of 45 students</span>
+          <div className="flex gap-1">
+            <button className="w-8 h-8 flex items-center justify-center bg-transparent border border-border rounded text-text-secondary cursor-pointer hover:text-white transition-colors">&lt;</button>
+            <button className="w-8 h-8 flex items-center justify-center bg-primary border border-primary rounded text-bg-page font-bold cursor-pointer">1</button>
+            <button className="w-8 h-8 flex items-center justify-center bg-transparent border border-border rounded text-text-secondary cursor-pointer hover:text-white transition-colors">2</button>
+            <button className="w-8 h-8 flex items-center justify-center bg-transparent border border-border rounded text-text-secondary cursor-pointer hover:text-white transition-colors">3</button>
+            <button className="w-8 h-8 flex items-center justify-center bg-transparent border border-border rounded text-text-secondary cursor-pointer hover:text-white transition-colors">&gt;</button>
+          </div>
+        </div>
+
       </div>
 
-      <div className="bg-white border border-border rounded-xl overflow-hidden shadow-sm">
-        {loading && !students?.length ? (
-           <LoadingSkeleton type="table" count={5} />
-        ) : (
-        <div className="overflow-x-auto">
-          <table className="w-full border-collapse">
-            <thead>
-              <tr className="border-b border-border bg-bg-light">
-                <th className="text-left px-8 py-4 font-heading font-semibold text-xs tracking-wider uppercase text-text-secondary">
-                  Student Name
-                </th>
-                <th className="text-left px-8 py-4 font-heading font-semibold text-xs tracking-wider uppercase text-text-secondary">
-                  University ID
-                </th>
-                <th className="text-left px-8 py-4 font-heading font-semibold text-xs tracking-wider uppercase text-text-secondary">
-                  Input Grade
-                </th>
-                <th className="text-center px-8 py-4 font-heading font-semibold text-xs tracking-wider uppercase text-text-secondary">
-                  Action
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {!students || students.length === 0 ? (
-                <tr>
-                  <td colSpan={4} className="px-8 py-8 text-center font-heading text-text-muted">
-                    No students enrolled to grade.
-                  </td>
-                </tr>
-              ) : (
-                students.map((student, i) => (
-                  <tr key={student._id} className={i > 0 ? "border-t border-border hover:bg-gray-50" : "hover:bg-gray-50"}>
-                    <td className="px-8 py-[18.5px] font-heading font-bold text-base text-text-primary">
-                      {student.userId?.name || "Student Name"}
-                    </td>
-                    <td className="px-8 py-4 font-body font-normal text-base text-text-primary">
-                      {student.userId?.universityId || "ID"}
-                    </td>
-                    <td className="px-8 py-4">
-                      <select 
-                         className="px-3 py-2 border border-border rounded-md font-body outline-none"
-                         value={grades[student._id] || ""}
-                         onChange={(e) => handleGradeChange(student._id, e.target.value)}
-                      >
-                         <option value="" disabled>Select Grade</option>
-                         <option value="A+">A+</option>
-                         <option value="A">A</option>
-                         <option value="B+">B+</option>
-                         <option value="B">B</option>
-                         <option value="C+">C+</option>
-                         <option value="C">C</option>
-                         <option value="D">D</option>
-                         <option value="F">F</option>
-                      </select>
-                    </td>
-                    <td className="px-8 py-4 text-center">
-                      <button 
-                         className={btnPrimary}
-                         disabled={!grades[student._id]}
-                         onClick={() => handleSubmit(student._id)}
-                      >
-                         <CheckCircle size={14} className="inline mr-1" />
-                         Publish
-                      </button>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+      {/* Bottom Section (Legend + Activity) */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        
+        {/* Legend */}
+        <div className="col-span-2 bg-bg-light border border-border border-dashed rounded-xl p-5 flex flex-col gap-4">
+          <div className="flex items-center gap-2 text-text-secondary text-xs font-bold uppercase tracking-wider mb-2">
+            <Info size={14} /> Grading Legend & Weighting
+          </div>
+          
+          <div className="flex flex-wrap gap-8 text-sm">
+            <div className="flex items-center gap-2">
+              <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
+              <span className="text-white">A (90-100): <span className="text-text-secondary">Excellent</span></span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-1.5 h-1.5 rounded-full bg-text-secondary"></div>
+              <span className="text-white">B (80-89): <span className="text-text-secondary">Proficient</span></span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-1.5 h-1.5 rounded-full bg-text-secondary"></div>
+              <span className="text-white">C (70-79): <span className="text-text-secondary">Adequate</span></span>
+            </div>
+          </div>
+          
+          <div className="text-xs text-text-secondary italic mt-4 pt-4 border-t border-[rgba(255,255,255,0.05)]">
+            Current assessment weight: <strong className="text-white">35% of Total Grade</strong>. Grades are saved as drafts until published.
+          </div>
         </div>
-        )}
+
+        {/* Recent Activity */}
+        <div className="col-span-1 bg-bg-light border border-border rounded-xl p-5 flex flex-col gap-4">
+          <span className="text-xs text-text-secondary font-bold uppercase tracking-wider mb-2">Recent Activity</span>
+          
+          <div className="flex flex-col gap-4">
+            <div className="flex flex-col relative pl-4 border-l-2 border-[rgba(255,255,255,0.1)]">
+              <div className="absolute left-[-2px] top-1 w-[2px] h-3 bg-text-secondary"></div>
+              <span className="text-sm text-white">Graded 12 submissions</span>
+              <span className="text-xs text-text-secondary mt-1 font-mono">10 minutes ago</span>
+            </div>
+            
+            <div className="flex flex-col relative pl-4 border-l-2 border-[rgba(255,255,255,0.1)]">
+              <div className="absolute left-[-2px] top-1 w-[2px] h-3 bg-text-secondary"></div>
+              <span className="text-sm text-white">Exported Section A data</span>
+              <span className="text-xs text-text-secondary mt-1 font-mono">2 hours ago</span>
+            </div>
+            
+            <div className="flex flex-col relative pl-4 border-l-2 border-[rgba(255,255,255,0.1)]">
+              <div className="absolute left-[-2px] top-1 w-[2px] h-3 bg-primary"></div>
+              <span className="text-sm text-white">Modified rubric criteria</span>
+              <span className="text-xs text-text-secondary mt-1 font-mono">Yesterday, 4:30 PM</span>
+            </div>
+          </div>
+        </div>
+
       </div>
+
     </div>
   );
 };

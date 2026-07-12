@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const crypto = require("crypto");
 const User = require("../models/User");
 const Student = require("../models/Student");
 const Professor = require("../models/Professor");
@@ -55,7 +56,7 @@ exports.registerUser = async (userData) => {
     await session.commitTransaction();
     session.endSession();
 
-    return { user: newUser, roleProfile: roleProfile ? roleProfile[0] : null };
+    return { user: newUser };
   } catch (error) {
     // If anything fails, undo all database changes!
     await session.abortTransaction();
@@ -130,9 +131,93 @@ exports.logoutUser = async (userId, res) => {
   });
 };
 
+/**
+ * FORGOT PASSWORD SERVICE
+ * Generates a reset token, hashes it, and stores it with an expiry on the user record.
+ * Returns the unhashed token (for testing — in production this would be emailed).
+ */
+exports.forgotPassword = async (email) => {
+  const user = await User.findOne({ email });
+  if (!user) {
+    throw new Error("User with that email does not exist");
+  }
+
+  // Generate a random token
+  const resetToken = crypto.randomBytes(32).toString("hex");
+
+  // Hash the token and save to DB
+  const hashedToken = crypto
+    .createHash("sha256")
+    .update(resetToken)
+    .digest("hex");
+
+  user.resetPasswordToken = hashedToken;
+  user.resetPasswordExpire = Date.now() + 60 * 60 * 1000; // 1 hour
+  await user.save({ validateBeforeSave: false });
+
+  // Return the unhashed token (for testing/development)
+  return { resetToken };
+};
+
+/**
+ * RESET PASSWORD SERVICE
+ * Validates the reset token and updates the password.
+ */
+exports.resetPassword = async (token, newPassword) => {
+  // Hash the incoming token to match what's stored in DB
+  const hashedToken = crypto
+    .createHash("sha256")
+    .update(token)
+    .digest("hex");
+
+  const user = await User.findOne({
+    resetPasswordToken: hashedToken,
+    resetPasswordExpire: { $gt: Date.now() },
+  });
+
+  if (!user) {
+    throw new Error("Invalid or expired reset token");
+  }
+
+  // Set the new password
+  user.password = newPassword;
+  user.resetPasswordToken = undefined;
+  user.resetPasswordExpire = undefined;
+  await user.save();
+
+  return { message: "Password reset successful" };
+};
+
+/**
+ * CHANGE PASSWORD SERVICE
+ * Verifies the current password and updates to a new one.
+ */
+exports.changePassword = async (userId, currentPassword, newPassword) => {
+  // Fetch user with password field included
+  const user = await User.findById(userId).select("+password");
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  // Verify current password
+  const isMatch = await user.matchPassword(currentPassword);
+  if (!isMatch) {
+    throw new Error("Current password is incorrect");
+  }
+
+  // Set new password
+  user.password = newPassword;
+  await user.save();
+
+  return { message: "Password changed successfully" };
+};
+
 module.exports = {
   registerUser: exports.registerUser,
   loginUser: exports.loginUser,
   getMe: exports.getMe,
   logoutUser: exports.logoutUser,
+  forgotPassword: exports.forgotPassword,
+  resetPassword: exports.resetPassword,
+  changePassword: exports.changePassword,
 };
