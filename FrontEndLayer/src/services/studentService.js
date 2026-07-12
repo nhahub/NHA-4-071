@@ -3,7 +3,7 @@ import { StudentResponseSchema } from '../Schemas/ResponseSchemas/studentRespons
 import { DashboardResponseSchema } from '../Schemas/ResponseSchemas/dashboardResponseSchema';
 import { CourseResponseSchema } from '../Schemas/ResponseSchemas/courseResponseSchema';
 import { EnrollmentResponseSchema } from '../Schemas/ResponseSchemas/enrollmentResponseSchema';
-import { ComplaintResponseSchema } from '../Schemas/ResponseSchemas/complaintResponseSchema';
+import { ComplaintResponseSchema, ComplaintItemSchema } from '../Schemas/ResponseSchemas/complaintResponseSchema';
 import { PaymentResponseSchema } from '../Schemas/ResponseSchemas/paymentResponseSchema';
 import { AdvisingSessionResponseSchema } from '../Schemas/ResponseSchemas/advisingSessionResponseSchema';
 import { SettingsResponseSchema } from '../Schemas/ResponseSchemas/settingsResponseSchema';
@@ -18,12 +18,15 @@ import { TranscriptResponseSchema } from '../Schemas/ResponseSchemas/transcriptR
 import { StudyPlanResponseSchema } from '../Schemas/ResponseSchemas/studyPlanResponseSchema';
 import { NotificationResponseSchema } from '../Schemas/ResponseSchemas/notificationResponseSchema';
 import { AttendanceResponseSchema } from '../Schemas/ResponseSchemas/attendanceResponseSchema';
+import { UpdateProfileRequestSchema } from '../Schemas/RequestSchemas/profileSchemas';
 
 export const getStudentProfile = () =>
   fetchService('/students/profile', { method: 'GET' }, StudentResponseSchema);
 
-export const updateStudentProfile = (data) =>
-  fetchService('/students/profile', { method: 'PATCH', data }, StudentResponseSchema);
+export const updateStudentProfile = (data) => {
+  const payload = UpdateProfileRequestSchema.parse(data);
+  return fetchService('/students/profile', { method: 'PATCH', data: payload }, StudentResponseSchema);
+};
 
 export const getMySettings = () =>
   fetchService('/students/settings', { method: 'GET' }, SettingsResponseSchema);
@@ -56,7 +59,7 @@ export const getMyComplaints = () =>
 
 export const submitComplaint = (data) => {
   const payload = ComplaintRequestSchema.parse(data);
-  return fetchService('/complaints', { method: 'POST', data: payload });
+  return fetchService('/complaints', { method: 'POST', data: payload }, ComplaintItemSchema);
 };
 
 export const getMyPayments = () =>

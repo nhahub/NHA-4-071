@@ -41,12 +41,20 @@ exports.getProfile = async (studentUserId) => {
 };
 
 exports.updateProfile = async (studentUserId, updateData) => {
-  const student = await Student.findOneAndUpdate(
-    { userId: studentUserId },
-    updateData,
-    { returnDocument: "after", runValidators: true },
-  );
-  if (!student) throw new Error("Student profile not found");
+  const { name, ...studentData } = updateData;
+
+  if (name !== undefined) {
+    await User.findByIdAndUpdate(studentUserId, { name }, { runValidators: true });
+  }
+
+  if (Object.keys(studentData).length > 0) {
+    await Student.findOneAndUpdate(
+      { userId: studentUserId },
+      studentData,
+      { returnDocument: "after", runValidators: true },
+    );
+  }
+
   return await exports.getProfile(studentUserId);
 };
 

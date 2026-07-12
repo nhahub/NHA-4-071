@@ -1,5 +1,5 @@
 import { z } from 'zod';
 
 export const UpdateProfileRequestSchema = z.object({
-  program: z.string().optional(),
+  name: z.string().min(1, 'Name is required').optional(),
 });

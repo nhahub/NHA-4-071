@@ -22,12 +22,15 @@ const StudentComplaintPage = () => {
   const handleSubmit = async () => {
     if (!subject.trim() || !description.trim()) return;
     setSubmitting(true);
-    await submitComplaint({ subject, description });
-    setSubject("");
-    setDescription("");
-    setShowForm(false);
-    setSubmitting(false);
-    loadComplaints();
+    try {
+      await submitComplaint({ subject, description });
+      setSubject("");
+      setDescription("");
+      setShowForm(false);
+      loadComplaints();
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   if (loading) return <LoadingSkeleton count={3} />;

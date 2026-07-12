@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
   GraduationCap, Presentation, ClipboardList,
-  User, Mail, Lock, Eye, EyeOff, ArrowRight,
+  User, Mail, Lock, Eye, EyeOff, ArrowRight, Shield,
 } from 'lucide-react';
 import { RegisterRequestSchema } from '../../Schemas/RequestSchemas/authSchemas';
 import { useAuth } from '../../hooks/useAuth';
