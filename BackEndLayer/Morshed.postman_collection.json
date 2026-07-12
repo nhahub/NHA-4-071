@@ -1055,6 +1055,26 @@
             "description": "Endpoints for Professors to manage courses, assignments, attendance and grades. Requires Professor Bearer Token."
         },
         {
+            {
+            "name": "Health Check",
+            "item": [
+                {
+                    "name": "Health Check",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/health",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["health"]
+                        },
+                        "description": "Public. Returns API status."
+                    }
+                }
+            ],
+            "description": "Public health check endpoint. No authentication required."
+        },
+        {
             "name": "Advisor Portal",
             "auth": {
                 "type": "bearer",

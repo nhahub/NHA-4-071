@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
   GraduationCap, Presentation, ClipboardList,
-  User, Mail, Lock, Eye, EyeOff, ArrowRight,Shield
+  User, Mail, Lock, Eye, EyeOff, ArrowRight,
 } from 'lucide-react';
 import { RegisterRequestSchema } from '../../Schemas/RequestSchemas/authSchemas';
 import { useAuth } from '../../hooks/useAuth';
@@ -14,7 +14,6 @@ const ROLE_OPTIONS = [
   { value: 'student', label: 'Student', icon: GraduationCap },
   { value: 'professor', label: 'Professor', icon: Presentation },
   { value: 'advisor', label: 'Advisor', icon: ClipboardList },
-  { value: 'admin', label: 'Admin', icon: Shield },
 ];
 
 
