@@ -27,7 +27,7 @@ const ROLE_DASHBOARD = {
 
 const RegisterPage = () => {
   const navigate = useNavigate();
-  const { register: registerUser, loading, error, user, isAuthenticated, clearError } = useAuth();
+  const { register: registerUser, loading, error, registrationSuccess, clearError, resetRegistrationSuccess } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
@@ -51,10 +51,11 @@ const RegisterPage = () => {
   }, [clearError]);
 
   useEffect(() => {
-    if (isAuthenticated && user) {
-      navigate(ROLE_DASHBOARD[user.role] || ROUTES.STUDENT.DASHBOARD, { replace: true });
+    if (registrationSuccess) {
+      resetRegistrationSuccess();
+      navigate(ROUTES.LOGIN, { replace: true });
     }
-  }, [isAuthenticated, user, navigate]);
+  }, [registrationSuccess, navigate, resetRegistrationSuccess]);
 
   const onSubmit = (data) => {
     registerUser(data);

@@ -2,7 +2,7 @@
     "info": {
         "_postman_id": "morshed-api-collection-v2",
         "name": "Morshed API",
-        "description": "Backend API collection for the Morshed University Platform.\n\n**Setup:**\n1. Create an environment with `baseUrl` = `http://localhost:5000/api`\n2. Create an environment variable `token` (leave value empty).\n3. Login using the Auth folder. The script will auto-save your token!",
+        "description": "Backend API collection for the Morshed University Platform.\n\n**Standard Response Format:**\nAll endpoints return:\n```\n{\n  \"success\": true,\n  \"data\": { ... }\n}\n```\nErrors return:\n```\n{\n  \"success\": false,\n  \"message\": \"Error description\"\n}\n```\n\n**Setup:**\n1. Create an environment with `baseUrl` = `http://localhost:5000/api`\n2. Create an environment variable `token` (leave value empty).\n3. Login using the Auth folder. The script will auto-save your token!",
         "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
     },
     "auth": {

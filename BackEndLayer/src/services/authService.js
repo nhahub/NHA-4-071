@@ -56,7 +56,7 @@ exports.registerUser = async (userData) => {
     await session.commitTransaction();
     session.endSession();
 
-    return { user: newUser, roleProfile: roleProfile ? roleProfile[0] : null };
+    return { user: newUser };
   } catch (error) {
     // If anything fails, undo all database changes!
     await session.abortTransaction();

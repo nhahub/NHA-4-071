@@ -1,6 +1,6 @@
 import { fetchService } from './genericFetchService';
 import { LoginRequestSchema, RegisterRequestSchema, ForgotPasswordRequestSchema, ChangePasswordRequestSchema } from '../Schemas/RequestSchemas/authSchemas';
-import { LoginResponseSchema, UserSchema, MessageResponseSchema } from '../Schemas/ResponseSchemas/authResponseSchema';
+import { LoginResponseSchema, RegisterResponseSchema, MessageResponseSchema } from '../Schemas/ResponseSchemas/authResponseSchema';
 
 export const loginUser = (credentials) => {
   const payload = LoginRequestSchema.parse(credentials);
@@ -9,7 +9,7 @@ export const loginUser = (credentials) => {
 
 export const registerUser = (data) => {
   const payload = RegisterRequestSchema.parse(data);
-  return fetchService('/auth/register', { method: 'POST', data: payload }, LoginResponseSchema);
+  return fetchService('/auth/register', { method: 'POST', data: payload }, RegisterResponseSchema);
 };
 
 export const forgotPassword = (data) => {
