@@ -119,3 +119,21 @@ exports.updateSettings = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
+exports.getReports = async (req, res) => {
+  try {
+    const reports = await adminService.getReports();
+    res.status(200).json({ success: true, data: reports });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+exports.getRegistrationStats = async (req, res) => {
+  try {
+    const stats = await adminService.getRegistrationStats();
+    res.status(200).json({ success: true, data: stats });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};

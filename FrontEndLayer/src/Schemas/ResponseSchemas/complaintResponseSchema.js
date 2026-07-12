@@ -8,6 +8,6 @@ const ComplaintItemSchema = z.object({
   description: z.string(),
   status: z.enum(['pending', 'in_progress', 'resolved', 'rejected']),
   createdAt: z.string().optional(),
-});
+}).passthrough();
 
 export const ComplaintResponseSchema = z.array(ComplaintItemSchema);

@@ -44,7 +44,7 @@ exports.updateProfile = async (studentUserId, updateData) => {
   const student = await Student.findOneAndUpdate(
     { userId: studentUserId },
     updateData,
-    { new: true, runValidators: true },
+    { returnDocument: "after", runValidators: true },
   );
   if (!student) throw new Error("Student profile not found");
   return await exports.getProfile(studentUserId);
@@ -59,7 +59,7 @@ exports.updateSettings = async (studentUserId, settingsData) => {
   const student = await Student.findOneAndUpdate(
     { userId: studentUserId },
     { settings: settingsData },
-    { new: true, runValidators: true },
+    { returnDocument: "after", runValidators: true },
   );
   if (!student) throw new Error("Student profile not found");
   return student.settings;
@@ -260,7 +260,7 @@ exports.markNotificationRead = async (studentUserId, notificationId) => {
   const notification = await Notification.findOneAndUpdate(
     { _id: notificationId, userId: studentUserId },
     { read: true },
-    { new: true },
+    { returnDocument: "after" },
   );
   if (!notification) throw new Error("Notification not found");
   return notification;

@@ -8,6 +8,6 @@ const PaymentItemSchema = z.object({
   amount: z.number(),
   status: z.enum(['pending', 'paid', 'overdue']),
   createdAt: z.string().optional(),
-});
+}).passthrough();
 
 export const PaymentResponseSchema = z.array(PaymentItemSchema);

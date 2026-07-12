@@ -1,9 +1,9 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import { getDepartments } from '../../services/adminService';
+import { getDemographics } from '../../services/adminService';
 
 export const fetchDepartments = createAsyncThunk(
   'department/fetchAll', async (_, { rejectWithValue }) => {
-    const result = await getDepartments();
+    const result = await getDemographics();
     if (!result.success) return rejectWithValue(result.error);
     return result.data;
   }

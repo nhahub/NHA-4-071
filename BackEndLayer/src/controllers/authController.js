@@ -49,7 +49,7 @@ exports.logout = async (req, res, next) => {
   try {
     await authService.logoutUser(req.user?._id, res);
 
-    res.status(200).json({ success: true, message: "Logged out successfully" });
+    res.status(200).json({ success: true, data: { message: "Logged out successfully" } });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

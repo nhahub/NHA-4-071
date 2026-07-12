@@ -8,7 +8,6 @@ import StatusBadge from "../../shared/components/StatusBadge";
 import SessionCard from "../../shared/components/SessionCard";
 import AlertItem from "../../shared/components/AlertItem";
 import CircularProgress from "../../shared/components/CircularProgress";
-import { advisors } from "../../dummyData/advisors";
 import AdvisorCard from "../../shared/components/AdvisorCard";
 
 const MetricCard = ({ label, value, borderColor, children, progress }) => (

@@ -6,4 +6,4 @@ export const AssignmentResponseSchema = z.object({
   title: z.string(),
   dueDate: z.string(),
   maxScore: z.number().int(),
-});
+}).passthrough();

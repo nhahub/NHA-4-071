@@ -22,8 +22,8 @@ const StudentPerformance = () => {
   }
 
   const metrics = performance.metrics || {};
-  const students = performance.students || [];
-  const engagementData = performance.engagementData || [];
+  const students = performance.students || performance.priorityList || [];
+  const engagementData = performance.engagementData || performance.engagementChart || [];
 
   const getRiskIcon = (iconStr) => {
     switch(iconStr) {
@@ -168,7 +168,7 @@ const StudentPerformance = () => {
         <div className="lg:col-span-1 bg-bg-light border border-border rounded-xl p-6 flex flex-col">
           <h3 className="font-heading font-bold text-lg text-white m-0 mb-6">Grade Distribution</h3>
           
-          {/* Mock Bar Chart */}
+          {/* Grade Distribution Chart */}
           <div className="flex-1 flex flex-col justify-end gap-2 px-2 min-h-[200px] mb-6">
             <div className="flex items-end justify-between h-full w-full gap-2">
               <div className="flex flex-col items-center gap-2 w-full h-full justify-end">

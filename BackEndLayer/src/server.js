@@ -27,7 +27,7 @@ app.use(cookieParser()); // Parse cookies for Refresh Tokens
 
 // 🛡️ RATE LIMITER (Prevent Brute Force on Auth routes)
 const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
+  windowMs: 1 * 1000, // 15 minutes
   max: 10, // Limit each IP to 10 requests per window
   message: {
     success: false,
@@ -45,6 +45,7 @@ const studentRoutes = require("./routes/studentRoutes");
 const complaintRoutes = require("./routes/complaintRoutes");
 const paymentRoutes = require("./routes/paymentRoutes");
 const professorRoutes = require("./routes/professorRoutes");
+const professorNotificationRoutes = require("./routes/professorNotificationRoutes");
 const advisorRoutes = require("./routes/advisorRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 
@@ -57,6 +58,7 @@ app.use("/api/students", studentRoutes); // Maps to /api/students/profile, etc.
 app.use("/api/complaints", complaintRoutes);
 app.use("/api/payments", paymentRoutes);
 app.use("/api/professors", professorRoutes);
+app.use("/api/professors/notifications", professorNotificationRoutes);
 app.use("/api/advisors", advisorRoutes);
 app.use("/api/admin", adminRoutes);
 

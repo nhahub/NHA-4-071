@@ -1,16 +1,33 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Building2, Users, GraduationCap, AlertCircle, Filter,
   Plus, Code, Settings as CogIcon, Palette, Briefcase,
   MoreVertical, UserCheck
 } from "lucide-react";
-import { departments as initialDepts, pendingAllocations as initialAllocations } from "../../dummyData";
+import { getDemographics, createDepartment } from "../../services/adminService";
 import DepartmentModal from "./components/DepartmentModal";
 
 const DepartmentManagement = () => {
-  const [localDepts, setLocalDepts] = useState(initialDepts);
-  const [localAllocations, setLocalAllocations] = useState(initialAllocations);
+  const [localDepts, setLocalDepts] = useState([]);
+  const [localAllocations, setLocalAllocations] = useState([]);
   const [filterCategory, setFilterCategory] = useState("ALL");
+
+  useEffect(() => {
+    getDemographics().then((result) => {
+      if (result.success && Array.isArray(result.data)) {
+        const formatted = result.data.map((d, idx) => ({
+          _id: d._id,
+          name: d.name || "Unknown",
+          code: d.code || "",
+          badge: "GENERAL",
+          iconType: ["code", "gear", "palette", "briefcase"][idx % 4],
+          head: { status: "vacant", name: "Vacant", title: "", avatar: "", avatarColor: "" },
+          facultyCount: 0,
+        }));
+        setLocalDepts(formatted);
+      }
+    });
+  }, []);
   
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedDept, setSelectedDept] = useState(null);

@@ -16,10 +16,22 @@ const enrollmentSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(fetchMyEnrollments.pending, (state) => { state.loading = true; state.error = null; })
-      .addCase(fetchMyEnrollments.fulfilled, (state, action) => { state.loading = false; state.enrollments = action.payload; })
+      .addCase(fetchMyEnrollments.fulfilled, (state, action) => {
+        state.loading = false;
+        const seen = new Set();
+        state.enrollments = (action.payload || []).filter((e) => {
+          if (seen.has(e._id)) return false;
+          seen.add(e._id);
+          return true;
+        });
+      })
       .addCase(fetchMyEnrollments.rejected, (state, action) => { state.loading = false; state.error = action.payload; })
       .addCase(enrollCourse.pending, (state) => { state.loading = true; })
-      .addCase(enrollCourse.fulfilled, (state, action) => { state.loading = false; state.enrollments.push(action.payload); })
+      .addCase(enrollCourse.fulfilled, (state, action) => {
+        state.loading = false;
+        const exists = state.enrollments.some((e) => e._id === action.payload._id);
+        if (!exists) state.enrollments.push(action.payload);
+      })
       .addCase(enrollCourse.rejected, (state, action) => { state.loading = false; state.error = action.payload; })
       .addCase(dropCourse.pending, (state) => { state.loading = true; })
       .addCase(dropCourse.fulfilled, (state, action) => {
