@@ -32,6 +32,9 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 AGENTS.md
+
+# Vercel build output
+.vercel
 # ==========================================
 # ⚙️ BACKEND LAYER (Express.js / MongoDB)
 # ==========================================
