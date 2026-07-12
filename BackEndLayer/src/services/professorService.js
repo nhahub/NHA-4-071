@@ -466,7 +466,34 @@ exports.getGradesOverview = async (professorUserId) => {
   };
 };
 
-// 12. Get Performance Analytics
+// 12. Get Notifications
+exports.getNotifications = async (professorUserId) => {
+  const Notification = require("../models/Notification");
+  const notifications = await Notification.find({ userId: professorUserId })
+    .sort({ createdAt: -1 });
+  return notifications.map((n) => ({
+    _id: n._id,
+    userId: n.userId,
+    type: n.type,
+    title: n.title,
+    message: n.message,
+    read: n.read,
+    date: n.createdAt,
+  }));
+};
+
+// 13. Update Professor Profile
+exports.updateProfile = async (professorUserId, updateData) => {
+  const professor = await Professor.findOneAndUpdate(
+    { userId: professorUserId },
+    updateData,
+    { returnDocument: "after", runValidators: true },
+  );
+  if (!professor) throw new Error("Professor profile not found");
+  return await exports.getProfile(professorUserId);
+};
+
+// 14. Get Performance Analytics
 exports.getPerformance = async (professorUserId) => {
   const professor = await Professor.findOne({ userId: professorUserId });
   if (!professor) throw new Error("Professor profile not found");

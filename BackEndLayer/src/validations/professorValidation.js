@@ -32,4 +32,8 @@ const attendanceSchema = z.object({
     .nonempty("At least one attendance record is required"),
 });
 
-module.exports = { gradeSchema, assignmentSchema, attendanceSchema };
+const updateProfileSchema = z.object({
+  title: z.string().optional(),
+});
+
+module.exports = { gradeSchema, assignmentSchema, attendanceSchema, updateProfileSchema };

@@ -5,12 +5,14 @@ const validate = require("../middlewares/validateMiddleware");
 const {
   createAdvisingSessionSchema,
   updateAdvisingSessionSchema,
+  updateProfileSchema,
 } = require("../validations/advisorValidation");
 const advisorController = require("../controllers/advisorController");
 
 router.use(protect, authorize("advisor"));
 
 router.get("/profile", advisorController.getProfile);
+router.patch("/profile", validate(updateProfileSchema), advisorController.updateProfile);
 router.get("/dashboard", advisorController.getDashboard);
 router.get("/students", advisorController.getStudents);
 

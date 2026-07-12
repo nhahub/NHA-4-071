@@ -13,7 +13,12 @@ const updateAdvisingSessionSchema = z.object({
     .optional(),
 });
 
+const updateProfileSchema = z.object({
+  title: z.string().optional(),
+});
+
 module.exports = {
   createAdvisingSessionSchema,
   updateAdvisingSessionSchema,
+  updateProfileSchema,
 };
