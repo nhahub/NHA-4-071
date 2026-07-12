@@ -10,7 +10,16 @@ export const UserSchema = z.object({
 }).passthrough();
 
 export const LoginResponseSchema = z.object({
-  user: UserSchema,
+  success: z.boolean(),
+  data: z.object({
+    user: UserSchema,
+    token: z.string().optional(),
+  }),
+}).passthrough();
+
+export const RegisterResponseSchema = z.object({
+  success: z.boolean(),
+  data: UserSchema,
 }).passthrough();
 
 export const MessageResponseSchema = z.object({

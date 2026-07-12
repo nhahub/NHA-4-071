@@ -6,7 +6,7 @@ export const login = createAsyncThunk(
   async (credentials, { rejectWithValue }) => {
     const result = await loginUser(credentials);
     if (!result.success) return rejectWithValue(result.error);
-    return result.data;
+    return result.data.data;
   }
 );
 
@@ -15,7 +15,7 @@ export const register = createAsyncThunk(
   async (data, { rejectWithValue }) => {
     const result = await registerUser(data);
     if (!result.success) return rejectWithValue(result.error);
-    return result.data;
+    return result.data.data;
   }
 );
 
@@ -42,6 +42,6 @@ export const getMe = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     const result = await getCurrentUser();
     if (!result.success) return rejectWithValue(result.error);
-    return result.data;
+    return result.data.data;
   }
 );
