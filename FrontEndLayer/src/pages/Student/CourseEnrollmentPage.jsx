@@ -13,12 +13,13 @@ const ENROLLMENT_ERRORS = {
   "No active semester for registration right now": "Registration is not open at this time. Please check back later or contact your advisor.",
   "This course is not offered in the current semester": "This course is not available for the current semester.",
   "Already enrolled in this course": "You are already enrolled in this course.",
+  "You have already completed this course": "You have already completed this course and cannot re-enroll.",
   "Student profile not found": "Could not find your student profile. Please contact the registrar.",
 };
 
-const btnPrimary = "flex flex-row items-center px-4 py-[9px] gap-2 bg-primary shadow-sm rounded-lg border-none text-white font-body font-normal text-base cursor-pointer";
+const btnPrimary = "flex flex-row items-center px-4 py-[9px] gap-2 bg-primary shadow-sm rounded-lg border-none text-white font-body font-normal text-sm sm:text-base cursor-pointer";
 
-const btnOutline = "flex flex-row items-center px-4 py-2 gap-2 border border-text-muted rounded-lg bg-transparent text-primary font-body font-normal text-base cursor-pointer";
+const btnOutline = "flex flex-row items-center px-4 py-2 gap-2 border border-text-muted rounded-lg bg-transparent text-primary font-body font-normal text-sm sm:text-base cursor-pointer";
 
 const CourseEnrollmentPage = () => {
   const navigate = useNavigate();
@@ -73,11 +74,11 @@ const CourseEnrollmentPage = () => {
   if (loading) return <LoadingSkeleton count={3} />;
 
   return (
-    <div className="flex flex-col gap-8 max-w-[960px] mx-auto">
+    <div className="flex flex-col gap-6 md:gap-8 max-w-[960px] mx-auto">
       <PageHeader title="Course Enrollment" subtitle="Browse available courses and manage your enrollments">
         <button className={btnOutline} onClick={() => navigate(ROUTES.STUDENT.SCHEDULE)}>
           <BookOpen size={16} color="#4F378A" />
-          My Schedule
+          <span className="hidden sm:inline">My Schedule</span>
         </button>
       </PageHeader>
 
@@ -97,9 +98,9 @@ const CourseEnrollmentPage = () => {
         </div>
       )}
 
-      <div className="flex gap-6">
-        <div className="flex-[2] flex flex-col gap-4">
-          <h3 className="font-heading font-semibold text-xl m-0 text-text-primary">
+      <div className="flex flex-col lg:flex-row gap-4 md:gap-6">
+        <div className="flex-[2] flex flex-col gap-3 md:gap-4">
+          <h3 className="font-heading font-semibold text-lg md:text-xl m-0 text-text-primary">
             Available Courses
           </h3>
 
@@ -111,12 +112,12 @@ const CourseEnrollmentPage = () => {
             availableCourses.map((course) => (
               <div
                 key={course._id}
-                className={`bg-white ${isSelected(course._id) ? "border-primary" : "border-border"} rounded-xl p-6 shadow-sm`}
+                className={`bg-white ${isSelected(course._id) ? "border-primary" : "border-border"} rounded-xl p-4 sm:p-6 shadow-sm`}
                 style={{ borderWidth: 1, borderStyle: "solid" }}
               >
-                <div className="flex justify-between items-start">
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3">
                   <div>
-                    <h4 className="font-heading font-semibold text-lg m-0 text-text-primary">
+                    <h4 className="font-heading font-semibold text-base sm:text-lg m-0 text-text-primary">
                       {course.code} - {course.name}
                     </h4>
                     <p className="font-heading font-normal text-sm mt-1 mb-0 text-text-secondary">
@@ -142,8 +143,8 @@ const CourseEnrollmentPage = () => {
           )}
         </div>
 
-        <div className="flex-1 bg-white border border-border rounded-xl p-6 shadow-sm self-start sticky top-[100px]">
-          <h4 className="font-heading font-semibold text-base m-0 mb-4 text-text-primary">
+        <div className="flex-1 bg-white border border-border rounded-xl p-4 sm:p-6 shadow-sm lg:self-start lg:sticky lg:top-[100px]">
+          <h4 className="font-heading font-semibold text-sm sm:text-base m-0 mb-4 text-text-primary">
             Selected Courses ({selected.length})
           </h4>
 
@@ -177,7 +178,7 @@ const CourseEnrollmentPage = () => {
             </button>
           )}
 
-          <h4 className="font-heading font-semibold text-base mt-6 mb-4 text-text-primary">
+          <h4 className="font-heading font-semibold text-sm sm:text-base mt-6 mb-4 text-text-primary">
             My Enrollments
           </h4>
           {(!enrollments || enrollments.length === 0) ? (

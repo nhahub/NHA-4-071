@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
-import { Bell, User, LogOut, Search } from "lucide-react";
+import { Bell, User, LogOut, Search, Menu } from "lucide-react";
 import { ROUTES } from "../../routes/RoutePaths";
 
 const pageTitles = {
@@ -20,7 +20,7 @@ const pageTitles = {
   "/advisor/dashboard": "Dashboard",
 };
 
-const DashboardHeader = () => {
+const DashboardHeader = ({ onMenuToggle }) => {
   const { user, logout } = useAuth();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
@@ -64,17 +64,17 @@ const DashboardHeader = () => {
   if (isAdmin) {
     return (
       <header
-        className="box-border flex flex-row justify-between items-center px-8 h-[64px] bg-header-bg border-b border-border"
+        className="box-border flex flex-row justify-between items-center px-4 md:px-8 h-[64px] bg-header-bg border-b border-border"
       >
         {/* Left: Title + Search */}
         <div className="flex flex-row items-center gap-4">
           <h2
-            className="font-heading font-bold text-2xl leading-8 text-text-primary m-0"
+            className="font-heading font-bold text-lg md:text-2xl leading-8 text-text-primary m-0"
             style={{ letterSpacing: "-0.24px" }}
           >
             {pageTitle}
           </h2>
-          <div className="relative">
+          <div className="relative hidden md:block">
             <Search
               size={18}
               className="absolute left-3 top-1/2 -translate-y-1/2 text-admin-text-muted"
@@ -88,14 +88,14 @@ const DashboardHeader = () => {
         </div>
 
         {/* Right: Bell + Divider + User + Status Badge */}
-        <div className="flex flex-row items-center gap-4">
+        <div className="flex flex-row items-center gap-2 md:gap-4">
           <button className="p-2 bg-transparent border-none cursor-pointer">
             <Bell size={20} className="text-admin-accent" />
           </button>
 
-          <div className="w-px h-8" style={{ background: "#424754" }} />
+          <div className="w-px h-8 hidden md:block" style={{ background: "#424754" }} />
 
-          <div className="flex flex-row items-center gap-2">
+          <div className="flex flex-row items-center gap-2 hidden md:flex">
             <span
               className="font-heading font-bold text-[11px] leading-4 text-sidebar-text"
               style={{ letterSpacing: "0.55px" }}
@@ -128,21 +128,27 @@ const DashboardHeader = () => {
 
   if (role === "professor") {
     return (
-      <header className="box-border flex flex-row justify-between items-center px-8 h-[64px] bg-header-bg border-b border-border">
-        {/* Left: Search */}
-        <div className="flex flex-row items-center">
-          <div className="relative">
+      <header className="box-border flex flex-row justify-between items-center px-4 md:px-8 h-[64px] bg-header-bg border-b border-border">
+        {/* Left: Hamburger + Search */}
+        <div className="flex flex-row items-center gap-3">
+          <button
+            onClick={onMenuToggle}
+            className="lg:hidden p-2 bg-transparent border-none cursor-pointer text-sidebar-text hover:text-white transition-colors"
+          >
+            <Menu size={20} />
+          </button>
+          <div className="relative hidden sm:block">
             <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-sidebar-text" />
             <input
               type="text"
               placeholder="Search courses or student files..."
-              className="w-[320px] h-9 pl-10 pr-4 py-2 font-heading font-normal text-[13px] leading-[17px] text-text-primary placeholder-text-muted bg-bg-page border border-border rounded-lg outline-none focus:border-primary transition-colors"
+              className="w-[200px] md:w-[320px] h-9 pl-10 pr-4 py-2 font-heading font-normal text-[13px] leading-[17px] text-text-primary placeholder-text-muted bg-bg-page border border-border rounded-lg outline-none focus:border-primary transition-colors"
             />
           </div>
         </div>
 
-        {/* Right: Bell + Settings + User */}
-        <div className="flex flex-row items-center gap-6">
+        {/* Right: Bell + User */}
+        <div className="flex flex-row items-center gap-4 md:gap-6">
           <div className="flex items-center gap-4">
             <button
               onClick={() => navigate(notificationsRoute)}
@@ -150,23 +156,16 @@ const DashboardHeader = () => {
             >
               <Bell size={20} />
             </button>
-            <button
-              onClick={() => {}}
-              className="relative p-2 rounded-full cursor-pointer bg-transparent border-none text-sidebar-text hover:text-white transition-colors"
-            >
-              {/* Note: Settings is not imported in this file, we should import it or use a fallback. We'll use a standard icon if Settings isn't imported, but let's assume we can import it. */}
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-settings"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-            </button>
           </div>
 
-          <div className="w-px h-8 bg-border" />
+          <div className="w-px h-8 bg-border hidden md:block" />
 
           <div className="flex flex-row items-center gap-3 relative" ref={dropdownRef}>
             <button
               onClick={() => setDropdownOpen((p) => !p)}
               className="flex flex-row items-center gap-3 cursor-pointer bg-transparent border-none"
             >
-              <div className="flex flex-col items-end text-right">
+              <div className="flex-col items-end text-right hidden md:flex">
                 <span className="font-heading font-bold text-sm leading-5 text-white">
                   {user?.name || "Dr. Arsalan Morshed"}
                 </span>
@@ -175,7 +174,6 @@ const DashboardHeader = () => {
                 </span>
               </div>
               <div className="w-9 h-9 rounded-md bg-bg-light border border-border flex items-center justify-center overflow-hidden">
-                {/* Fallback avatar image or initial */}
                 <span className="text-white font-heading font-bold text-sm">
                   {user?.name?.charAt(0)?.toUpperCase() || "AM"}
                 </span>
@@ -209,14 +207,20 @@ const DashboardHeader = () => {
 
   // Non-admin, non-professor header (student, advisor)
   return (
-    <header className="flex flex-row justify-between items-center px-6 h-[64px] bg-header-bg border-b border-border">
-      <div className="flex items-center gap-4">
-        <h2 className="font-heading font-bold text-2xl text-primary m-0">
+    <header className="flex flex-row justify-between items-center px-4 md:px-6 h-[64px] bg-header-bg border-b border-border">
+      <div className="flex items-center gap-3">
+        <button
+          onClick={onMenuToggle}
+          className="lg:hidden p-2 bg-transparent border-none cursor-pointer text-sidebar-text hover:text-white transition-colors"
+        >
+          <Menu size={20} />
+        </button>
+        <h2 className="font-heading font-bold text-lg md:text-2xl text-primary m-0">
           {pageTitle}
         </h2>
       </div>
 
-      <div className="flex flex-row items-center gap-4">
+      <div className="flex flex-row items-center gap-3 md:gap-4">
         <button
           onClick={() => navigate(notificationsRoute)}
           className="relative p-2 rounded-full cursor-pointer bg-transparent border-none"
@@ -229,7 +233,7 @@ const DashboardHeader = () => {
             onClick={() => setDropdownOpen((p) => !p)}
             className="flex items-center gap-2 cursor-pointer bg-transparent border-none"
           >
-            <span className="font-heading text-sm text-text-secondary">{user?.name || "User"}</span>
+            <span className="font-heading text-sm text-text-secondary hidden sm:inline">{user?.name || "User"}</span>
             <div className="w-8 h-8 rounded-full border border-border bg-sidebar-text flex items-center justify-center overflow-hidden">
               <span className="text-sm text-primary font-semibold">
                 {user?.name?.charAt(0)?.toUpperCase() || "U"}
