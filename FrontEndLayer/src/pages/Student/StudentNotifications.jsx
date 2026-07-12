@@ -56,7 +56,7 @@ const StudentNotifications = () => {
   if (loading) return <LoadingSkeleton count={3} />;
 
   return (
-    <div className="flex flex-col gap-8 max-w-[960px] mx-auto">
+    <div className="flex flex-col gap-6 md:gap-8 max-w-[960px] mx-auto">
       <PageHeader title="Notifications" subtitle="New grades, assignment feedback, and schedule changes." />
 
       {error && (
@@ -64,34 +64,34 @@ const StudentNotifications = () => {
       )}
 
       <div className="flex flex-wrap items-center gap-3">
-        <div className="flex items-center gap-3 px-4 py-3 bg-white border border-border-color rounded-lg shadow-sm flex-1 min-w-[200px]">
+        <div className="flex items-center gap-3 px-3 sm:px-4 py-3 bg-white border border-border-color rounded-lg shadow-sm flex-1 min-w-[200px]">
           <Search size={20} color="#7A7582" />
           <input
             type="text"
             placeholder="Search notifications..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="flex-1 border-none outline-none font-heading text-base bg-transparent"
+            className="flex-1 border-none outline-none font-heading text-sm sm:text-base bg-transparent"
           />
         </div>
 
         {hasUnread && (
           <button
             onClick={markAllRead}
-            className="flex items-center gap-2 px-4 py-3 bg-primary text-white font-heading text-sm font-semibold rounded-lg border-none cursor-pointer hover:bg-primary/90 transition-colors"
+            className="flex items-center gap-2 px-3 sm:px-4 py-3 bg-primary text-white font-heading text-xs sm:text-sm font-semibold rounded-lg border-none cursor-pointer hover:bg-primary/90 transition-colors"
           >
             <CheckCheck size={18} />
-            Mark All Read
+            <span className="hidden sm:inline">Mark All Read</span>
           </button>
         )}
       </div>
 
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
         {FILTERS.map((f) => (
           <button
             key={f}
             onClick={() => setReadFilter(f)}
-            className={`px-3 py-1.5 rounded-full font-heading text-sm border cursor-pointer transition-colors ${
+            className={`px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full font-heading text-xs sm:text-sm border cursor-pointer transition-colors ${
               readFilter === f
                 ? "bg-primary text-white border-primary"
                 : "bg-white text-text-secondary border-border-color hover:border-primary"
@@ -105,7 +105,7 @@ const StudentNotifications = () => {
           <button
             key={t}
             onClick={() => setTypeFilter(t)}
-            className={`px-3 py-1.5 rounded-full font-heading text-sm border cursor-pointer transition-colors ${
+            className={`px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full font-heading text-xs sm:text-sm border cursor-pointer transition-colors ${
               typeFilter === t
                 ? "bg-primary text-white border-primary"
                 : "bg-white text-text-secondary border-border-color hover:border-primary"
@@ -131,7 +131,7 @@ const StudentNotifications = () => {
               <div
                 key={nid}
                 onClick={() => handleNotificationClick(notif)}
-                className="flex gap-4 p-4 border border-border-color rounded-xl shadow-sm cursor-pointer transition-all duration-200 hover:shadow-md select-none"
+                className="flex gap-3 sm:gap-4 p-3 sm:p-4 border border-border-color rounded-xl shadow-sm cursor-pointer transition-all duration-200 hover:shadow-md select-none"
                 style={{
                   background: notif.read ? "#FFFFFF" : "rgba(79, 55, 138, 0.04)",
                   borderLeft: `4px solid ${color}`,
@@ -139,28 +139,28 @@ const StudentNotifications = () => {
                 }}
               >
                 <div
-                  className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 transition-colors duration-200"
+                  className="w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center shrink-0 transition-colors duration-200"
                   style={{ background: `${color}15` }}
                 >
-                  <Icon size={20} color={color} />
+                  <Icon size={18} color={color} />
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex justify-between items-start gap-2">
                     <div className="flex items-center gap-2 min-w-0">
-                      <h4 className="font-heading font-semibold text-base m-0 text-text-primary truncate">
+                      <h4 className="font-heading font-semibold text-sm sm:text-base m-0 text-text-primary truncate">
                         {notif.title}
                       </h4>
                       {!notif.read && (
-                        <span className="text-[11px] font-bold text-white bg-primary px-[6px] py-[1px] rounded-full leading-normal shrink-0">
+                        <span className="text-[10px] sm:text-[11px] font-bold text-white bg-primary px-[5px] sm:px-[6px] py-[1px] rounded-full leading-normal shrink-0">
                           NEW
                         </span>
                       )}
                     </div>
-                    <span className="font-heading text-xs text-text-muted whitespace-nowrap shrink-0">
+                    <span className="font-heading text-[10px] sm:text-xs text-text-muted whitespace-nowrap shrink-0">
                       {notif.date ? format(parseISO(notif.date), "MMM dd") : ""}
                     </span>
                   </div>
-                  <p className="font-heading text-sm text-text-secondary mt-1 line-clamp-2">
+                  <p className="font-heading text-xs sm:text-sm text-text-secondary mt-1 line-clamp-2">
                     {notif.message}
                   </p>
                 </div>

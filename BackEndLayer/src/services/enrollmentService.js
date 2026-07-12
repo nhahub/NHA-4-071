@@ -1,7 +1,7 @@
 const Enrollment = require("../models/Enrollment");
 const CourseOffering = require("../models/CourseOffering");
 const Student = require("../models/Student");
-const Semester = require("../models/Semester"); // Added for current semester lookup
+const Semester = require("../models/Semester");
 const mongoose = require("mongoose");
 
 exports.enrollCourse = async (studentUserId, courseId) => {
@@ -29,23 +29,38 @@ exports.enrollCourse = async (studentUserId, courseId) => {
     if (!offering)
       throw new Error("This course is not offered in the current semester");
 
-    // 4. Check if already enrolled in this offering
+    // 4. Check for ANY existing enrollment (enrolled, dropped, or completed)
+    //    The unique index on (studentId, offeringId) means only one record can exist.
     const existingEnrollment = await Enrollment.findOne({
       studentId: student._id,
       offeringId: offering._id,
-      status: "enrolled",
     });
-    if (existingEnrollment) throw new Error("Already enrolled in this course");
 
-    // 5. 🛡️ ATOMIC CAPACITY CHECK & INCREMENT
-    // We must use $expr to compare two fields in the same document!
+    if (existingEnrollment) {
+      if (existingEnrollment.status === "enrolled") {
+        throw new Error("Already enrolled in this course");
+      }
+      if (existingEnrollment.status === "completed") {
+        throw new Error("You have already completed this course");
+      }
+      // status === "dropped": reactivate the enrollment instead of creating a new one
+      existingEnrollment.status = "enrolled";
+      existingEnrollment.grade = null;
+      await existingEnrollment.save({ session });
+
+      await session.commitTransaction();
+      session.endSession();
+      return existingEnrollment;
+    }
+
+    // 5. Atomic capacity check & increment
     const updatedOffering = await CourseOffering.findOneAndUpdate(
       {
         _id: offering._id,
-        $expr: { $lt: ["$enrolledCount", "$capacity"] }, // Check: count < capacity
+        $expr: { $lt: ["$enrolledCount", "$capacity"] },
       },
-      { $inc: { enrolledCount: 1 } }, // Increment count by 1
-      { returnDocument: "after", session }, // Return the updated document within the transaction
+      { $inc: { enrolledCount: 1 } },
+      { returnDocument: "after", session },
     );
 
     if (!updatedOffering) {
@@ -123,4 +138,25 @@ exports.dropCourse = async (studentUserId, enrollmentId) => {
     session.endSession();
     throw error;
   }
+};
+
+// Recalculate enrolledCount on all offerings to fix data drift
+exports.recalibrateCounts = async () => {
+  const offerings = await CourseOffering.find();
+  let fixed = 0;
+
+  for (const offering of offerings) {
+    const actualCount = await Enrollment.countDocuments({
+      offeringId: offering._id,
+      status: "enrolled",
+    });
+
+    if (offering.enrolledCount !== actualCount) {
+      offering.enrolledCount = actualCount;
+      await offering.save();
+      fixed++;
+    }
+  }
+
+  return { total: offerings.length, fixed };
 };
