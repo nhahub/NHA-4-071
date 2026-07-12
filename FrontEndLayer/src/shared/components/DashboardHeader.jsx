@@ -126,7 +126,88 @@ const DashboardHeader = () => {
     );
   }
 
-  // Non-admin header (student, professor, advisor)
+  if (role === "professor") {
+    return (
+      <header className="box-border flex flex-row justify-between items-center px-8 h-[64px] bg-header-bg border-b border-border">
+        {/* Left: Search */}
+        <div className="flex flex-row items-center">
+          <div className="relative">
+            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-sidebar-text" />
+            <input
+              type="text"
+              placeholder="Search courses or student files..."
+              className="w-[320px] h-9 pl-10 pr-4 py-2 font-heading font-normal text-[13px] leading-[17px] text-text-primary placeholder-text-muted bg-bg-page border border-border rounded-lg outline-none focus:border-primary transition-colors"
+            />
+          </div>
+        </div>
+
+        {/* Right: Bell + Settings + User */}
+        <div className="flex flex-row items-center gap-6">
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => navigate(notificationsRoute)}
+              className="relative p-2 rounded-full cursor-pointer bg-transparent border-none text-sidebar-text hover:text-white transition-colors"
+            >
+              <Bell size={20} />
+            </button>
+            <button
+              onClick={() => {}}
+              className="relative p-2 rounded-full cursor-pointer bg-transparent border-none text-sidebar-text hover:text-white transition-colors"
+            >
+              {/* Note: Settings is not imported in this file, we should import it or use a fallback. We'll use a standard icon if Settings isn't imported, but let's assume we can import it. */}
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-settings"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+            </button>
+          </div>
+
+          <div className="w-px h-8 bg-border" />
+
+          <div className="flex flex-row items-center gap-3 relative" ref={dropdownRef}>
+            <button
+              onClick={() => setDropdownOpen((p) => !p)}
+              className="flex flex-row items-center gap-3 cursor-pointer bg-transparent border-none"
+            >
+              <div className="flex flex-col items-end text-right">
+                <span className="font-heading font-bold text-sm leading-5 text-white">
+                  {user?.name || "Dr. Arsalan Morshed"}
+                </span>
+                <span className="font-heading font-normal text-[11px] leading-4 text-sidebar-text">
+                  Senior Faculty
+                </span>
+              </div>
+              <div className="w-9 h-9 rounded-md bg-bg-light border border-border flex items-center justify-center overflow-hidden">
+                {/* Fallback avatar image or initial */}
+                <span className="text-white font-heading font-bold text-sm">
+                  {user?.name?.charAt(0)?.toUpperCase() || "AM"}
+                </span>
+              </div>
+            </button>
+
+            {dropdownOpen && (
+              <div className="absolute right-0 top-full mt-2 w-48 bg-bg-light rounded-xl shadow-lg border border-border overflow-hidden z-50">
+                <button
+                  onClick={() => { setDropdownOpen(false); navigate(profileRoute); }}
+                  className="flex items-center gap-3 w-full px-4 py-3 text-sm font-heading text-text-primary hover:bg-[rgba(255,255,255,0.05)] transition-colors bg-transparent border-none cursor-pointer text-left"
+                >
+                  <User size={16} className="text-primary" />
+                  Profile
+                </button>
+                <div className="h-[1px] bg-border mx-3" />
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center gap-3 w-full px-4 py-3 text-sm font-heading text-danger hover:bg-[rgba(255,255,255,0.05)] transition-colors bg-transparent border-none cursor-pointer text-left"
+                >
+                  <LogOut size={16} className="text-danger" />
+                  Logout
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      </header>
+    );
+  }
+
+  // Non-admin, non-professor header (student, advisor)
   return (
     <header className="flex flex-row justify-between items-center px-6 h-[64px] bg-header-bg border-b border-border">
       <div className="flex items-center gap-4">

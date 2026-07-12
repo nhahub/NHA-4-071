@@ -72,7 +72,25 @@
   --color-bg-light: #272A2C;
   --color-primary: #ADC6FF;
   --color-danger: #FFB4AB;
-  --color-white: #1D2022;
+  --color-white: #FFFFFF;
+}
+
+/* Professor dark theme */
+[data-theme="professor"] {
+  --color-sidebar-bg: #121620;
+  --color-sidebar-text: #9CA3AF;
+  --color-sidebar-active: #34D399;
+  --color-sidebar-hover: rgba(255, 255, 255, 0.05);
+  --color-bg-page: #0F1319;
+  --color-header-bg: #121620;
+  --color-text-primary: #F3F4F6;
+  --color-text-secondary: #9CA3AF;
+  --color-text-muted: #6B7280;
+  --color-border: #2A3441;
+  --color-bg-light: #161B22; /* Used for cards in this theme */
+  --color-primary: #34D399;
+  --color-danger: #F87171;
+  --color-white: #FFFFFF;
 }
 
 body {

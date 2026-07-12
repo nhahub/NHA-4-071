@@ -1,7 +1,7 @@
 import { NavLink, useLocation } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 import { roleNavConfig } from "../config/roleNavConfig";
-import { LogOut, HelpCircle } from "lucide-react";
+import { LogOut, HelpCircle, Settings } from "lucide-react";
 
 const roleSubtitles = {
   admin: "Admin Portal",
@@ -28,21 +28,22 @@ const DashboardSidebar = () => {
       <div className="flex flex-col items-start w-full">
         <div className="flex flex-col items-start px-6 pb-8 w-full">
           <span
-            className="font-heading font-bold text-[32px] leading-[40px] text-sidebar-active"
+            className="font-heading font-bold text-[32px] leading-[40px] text-sidebar-active flex items-center"
             style={{ letterSpacing: "-0.64px" }}
           >
-            Morshed
+            <span className="text-white">Morshed</span>
+            <span className="text-sidebar-active">.</span>
           </span>
           <span
-            className="font-heading font-bold text-[11px] leading-4 text-sidebar-text opacity-70"
-            style={{ letterSpacing: "0.55px" }}
+            className="font-heading font-bold text-[11px] leading-4 text-sidebar-text opacity-70 uppercase tracking-widest mt-1"
+            style={{ letterSpacing: "1px" }}
           >
             {roleSubtitles[role] || "Portal"}
           </span>
         </div>
 
         {/* Nav Links */}
-        <nav className="flex flex-col items-start gap-1 w-full flex-1">
+        <nav className="flex flex-col items-start gap-1 w-full flex-1 mt-4">
           {navLinks.map((link) => {
             const Icon = link.icon;
             const active = isActive(link.to);
@@ -51,18 +52,12 @@ const DashboardSidebar = () => {
                 key={link.to}
                 to={link.to}
                 end
-                className={`box-border flex flex-row items-center px-3 py-2 gap-3 w-full no-underline font-heading font-bold text-[11px] leading-4 transition-all duration-150 ease-in-out border-l-4 ${
+                className={`box-border flex flex-row items-center px-6 py-3 gap-3 w-full no-underline font-heading font-bold text-[13px] leading-4 transition-all duration-150 ease-in-out border-l-[3px] ${
                   active
-                    ? "bg-bg-light border-l-sidebar-active text-sidebar-active"
-                    : "border-l-transparent text-sidebar-text"
+                    ? "bg-[rgba(255,255,255,0.03)] border-l-sidebar-active text-white"
+                    : "border-l-transparent text-sidebar-text hover:text-white hover:bg-[rgba(255,255,255,0.02)]"
                 }`}
                 style={{ letterSpacing: "0.55px" }}
-                onMouseEnter={(e) => {
-                  if (!active) e.currentTarget.style.background = "rgba(255,255,255,0.05)";
-                }}
-                onMouseLeave={(e) => {
-                  if (!active) e.currentTarget.style.background = "transparent";
-                }}
               >
                 <Icon size={18} className={active ? "text-sidebar-active" : "text-sidebar-text"} />
                 <span>{link.label}</span>
@@ -93,22 +88,20 @@ const DashboardSidebar = () => {
             </div>
           </div>
         ) : (
-          /* Other roles: Help + Logout */
-          <div className="flex flex-col items-start gap-1 w-full">
+          /* Other roles: Settings + Logout */
+          <div className="flex flex-col items-start gap-2 w-full px-3">
             <button
               onClick={() => {}}
-              className="flex flex-row items-center px-3 py-2 gap-3 w-full bg-transparent border-none cursor-pointer font-heading font-bold text-[11px] leading-4 text-sidebar-text"
-              style={{ letterSpacing: "0.55px" }}
+              className="flex flex-row items-center px-3 py-2 gap-3 w-full bg-transparent border-none cursor-pointer font-heading font-semibold text-[13px] leading-4 text-sidebar-text hover:text-white transition-colors"
             >
-              <HelpCircle size={18} className="text-sidebar-text" />
-              <span>Help</span>
+              <Settings size={18} />
+              <span>Settings</span>
             </button>
             <button
               onClick={logout}
-              className="flex flex-row items-center px-3 py-2 gap-3 w-full bg-transparent border-none cursor-pointer font-heading font-bold text-[11px] leading-4 text-danger mb-6"
-              style={{ letterSpacing: "0.55px" }}
+              className="flex flex-row items-center px-3 py-2 gap-3 w-full bg-transparent border-none cursor-pointer font-heading font-semibold text-[13px] leading-4 text-sidebar-text hover:text-white transition-colors mb-6"
             >
-              <LogOut size={18} className="text-danger" />
+              <LogOut size={18} />
               <span>Logout</span>
             </button>
           </div>
