@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useAdvisor } from "../../hooks/useAdvisor";
 import LoadingSkeleton from "../../shared/components/LoadingSkeleton";
 // Icon imports (adjust path if using a different icon library)
-import { ArrowUpRight, ChevronLeft, ChevronRight, Bell } from "react-feather";
+import { ArrowUpRight, ChevronLeft, ChevronRight, Bell } from "lucide-react";
 // Missing component imports
 import StatusBadge from "../../shared/components/StatusBadge";
 import SessionCard from "../../shared/components/SessionCard";

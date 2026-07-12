@@ -2,7 +2,7 @@ import { createAsyncThunk } from '@reduxjs/toolkit';
 import { 
   getProfessorProfile, getMyOfferings, submitStudentGrade,
   getMockProfessorCourses, getMockAttendanceRecords, getMockGlobalAssignments,
-  getMockGradeBook, getMockPerformanceAnalytics, getMockNotifications, getMockDashboardOverview
+  getMockGradeBook, getMockPerformanceAnalytics, getMockNotifications, getMockDashboardOverview, getMockSchedule
 } from '../../services/professorService';
 
 export const fetchProfessorProfile = createAsyncThunk(
@@ -77,6 +77,13 @@ export const fetchNotifications = createAsyncThunk('professor/fetchNotifications
 export const fetchDashboardOverview = createAsyncThunk('professor/fetchDashboardOverview', async (_, { rejectWithValue }) => {
   try {
     const result = await getMockDashboardOverview();
+    return result.data;
+  } catch (error) { return rejectWithValue(error.message); }
+});
+
+export const fetchSchedule = createAsyncThunk('professor/fetchSchedule', async (_, { rejectWithValue }) => {
+  try {
+    const result = await getMockSchedule();
     return result.data;
   } catch (error) { return rejectWithValue(error.message); }
 });

@@ -24,7 +24,7 @@ const ProfessorSchedule = () => {
         </div>
       )}
 
-      <div className="bg-white border border-border rounded-xl overflow-hidden shadow-sm p-8">
+      <div className="bg-bg-light border border-border rounded-xl overflow-hidden shadow-sm p-8">
         {loading ? (
            <LoadingSkeleton type="card" count={2} />
         ) : !offerings || offerings.length === 0 ? (
@@ -34,15 +34,15 @@ const ProfessorSchedule = () => {
           </div>
         ) : (
           <div className="flex flex-col gap-4">
-            <h3 className="font-heading font-semibold text-xl text-text-primary mb-4">Weekly Schedule</h3>
+            <h3 className="font-heading font-semibold text-xl text-white mb-4">Weekly Schedule</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {offerings.map(o => (
-                <div key={o._id} className="flex gap-4 p-4 border border-border rounded-lg bg-bg-light">
-                   <div className="flex items-center justify-center w-12 h-12 bg-primary/10 rounded-full text-primary">
+                <div key={o._id} className="flex gap-4 p-4 border border-border rounded-lg bg-bg-page">
+                   <div className="flex items-center justify-center w-12 h-12 bg-primary/10 rounded-full text-primary flex-shrink-0">
                      <Calendar size={24} />
                    </div>
                    <div className="flex flex-col">
-                      <span className="font-heading font-bold text-base text-text-primary">{o.courseId?.name || "Course"}</span>
+                      <span className="font-heading font-bold text-base text-white">{o.courseId?.name || "Course"}</span>
                       <span className="font-body text-sm text-text-secondary">{o.courseId?.code || "Code"} • Room: {o.classroom}</span>
                       <span className="font-body text-sm font-semibold text-primary mt-1">{o.schedule}</span>
                    </div>

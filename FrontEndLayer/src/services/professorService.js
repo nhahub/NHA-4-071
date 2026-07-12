@@ -122,6 +122,18 @@ export const getMockNotifications = async () => {
   };
 };
 
+export const getMockSchedule = async () => {
+  await delay(600);
+  return {
+    success: true,
+    data: [
+      { _id: 'off-1', courseId: { name: 'Advanced Artificial Intelligence', code: 'CS-401' }, classroom: 'Hall A-201', schedule: 'Sun-Tue 10:00-11:30' },
+      { _id: 'off-2', courseId: { name: 'Discrete Mathematics II', code: 'MAT-202' }, classroom: 'Lab B-105', schedule: 'Mon-Wed 12:00-13:30' },
+      { _id: 'off-3', courseId: { name: 'Technical Writing', code: 'ENG-101' }, classroom: 'Hall A-103', schedule: 'Tue-Thu 10:00-11:30' },
+    ]
+  };
+};
+
 export const getMockDashboardOverview = async () => {
   await delay(800);
   return {
