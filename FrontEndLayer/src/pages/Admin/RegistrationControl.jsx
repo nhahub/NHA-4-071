@@ -1,18 +1,45 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   User, Check, Info, X, Filter, Download,
   AlertCircle, RotateCcw, ChevronLeft, ChevronRight,
   ShieldCheck, CheckCircle2, XCircle
 } from "lucide-react";
-import { initialOverrides, registrationStats as initialStats } from "../../dummyData";
+import { getRegistrationStats } from "../../services/adminService";
+
+const defaultStats = {
+  totalRequests: 0,
+  pendingApproval: 0,
+  autoEnrolled: 0,
+  rejected: 0,
+  semesterName: "Current",
+  isWindowOpen: false,
+};
 
 const RegistrationControl = () => {
-  const [overrides, setOverrides] = useState(initialOverrides);
-  const [stats, setStats] = useState(initialStats);
-  const [isWindowOpen, setIsWindowOpen] = useState(initialStats.isWindowOpen);
+  const [overrides, setOverrides] = useState([]);
+  const [stats, setStats] = useState(defaultStats);
+  const [isWindowOpen, setIsWindowOpen] = useState(false);
   const [filterDept, setFilterDept] = useState("ALL");
   const [currentPage, setCurrentPage] = useState(1);
-  
+
+  useEffect(() => {
+    getRegistrationStats().then((res) => {
+      if (res.success && res.data) {
+        const d = res.data;
+        const mapped = {
+          totalRequests: d.totalRegistered || 0,
+          pendingApproval: d.pendingOverrides || 0,
+          autoEnrolled: d.autoEnrolled || 0,
+          rejected: 0,
+          semesterName: defaultStats.semesterName,
+          isWindowOpen: d.isWindowOpen || false,
+        };
+        setStats(mapped);
+        setIsWindowOpen(mapped.isWindowOpen);
+      }
+    });
+  }, []);
+
   // Dynamic recent activity logs
   const [activities, setActivities] = useState([
     { id: 1, text: "Override #882 Approved", time: "10 mins ago" },
@@ -122,7 +149,7 @@ const RegistrationControl = () => {
             Total Requests
           </div>
           <div className="font-heading font-bold text-3xl text-[#E0E3E5] leading-tight">
-            {(stats.totalRequests + (1280 - initialStats.autoEnrolled)).toLocaleString()}
+            {stats.totalRequests.toLocaleString()}
           </div>
         </div>
 

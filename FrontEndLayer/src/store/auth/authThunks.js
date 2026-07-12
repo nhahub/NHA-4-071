@@ -6,7 +6,10 @@ export const login = createAsyncThunk(
   async (credentials, { rejectWithValue }) => {
     const result = await loginUser(credentials);
     if (!result.success) return rejectWithValue(result.error);
-    return result.data.data;
+    if (result.data?.token) {
+      localStorage.setItem('accessToken', result.data.token);
+    }
+    return result.data;
   }
 );
 
@@ -15,7 +18,7 @@ export const register = createAsyncThunk(
   async (data, { rejectWithValue }) => {
     const result = await registerUser(data);
     if (!result.success) return rejectWithValue(result.error);
-    return result.data.data;
+    return result.data;
   }
 );
 
@@ -32,6 +35,7 @@ export const logout = createAsyncThunk(
   'auth/logout',
   async (_, { rejectWithValue }) => {
     const result = await logoutUser();
+    localStorage.removeItem('accessToken');
     if (!result.success) return rejectWithValue(result.error);
     return null;
   }
@@ -42,6 +46,6 @@ export const getMe = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     const result = await getCurrentUser();
     if (!result.success) return rejectWithValue(result.error);
-    return result.data.data;
+    return result.data;
   }
 );

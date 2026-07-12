@@ -20,4 +20,4 @@ export const DashboardResponseSchema = z.object({
   gpaTrend: z.array(GPATrendSchema).optional().default([]),
   currentCourses: z.array(CourseDataSchema).optional().default([]),
   courseProgress: z.array(CourseProgressSchema).optional().default([]),
-});
+}).passthrough();

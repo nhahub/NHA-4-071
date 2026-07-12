@@ -101,3 +101,30 @@ exports.getSchedule = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
+exports.getDashboard = async (req, res) => {
+  try {
+    const dashboard = await professorService.getDashboard(req.user.id);
+    res.status(200).json({ success: true, data: dashboard });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+exports.getGradesOverview = async (req, res) => {
+  try {
+    const grades = await professorService.getGradesOverview(req.user.id);
+    res.status(200).json({ success: true, data: grades });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+exports.getPerformance = async (req, res) => {
+  try {
+    const performance = await professorService.getPerformance(req.user.id);
+    res.status(200).json({ success: true, data: performance });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};

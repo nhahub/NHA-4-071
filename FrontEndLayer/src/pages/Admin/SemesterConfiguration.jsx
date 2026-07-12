@@ -1,14 +1,22 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Calendar, Plus, ChevronLeft, ChevronRight, Edit2,
   Link2, Settings as CogIcon, RotateCcw, Clock, CheckCircle
 } from "lucide-react";
-import { semesters as initialSemesters } from "../../dummyData";
+import { getAllSemesters, createSemester } from "../../services/adminService";
 import SemesterModal from "./components/SemesterModal";
 
 const SemesterConfiguration = () => {
-  const [localSemesters, setLocalSemesters] = useState(initialSemesters);
+  const [localSemesters, setLocalSemesters] = useState([]);
   const [activeTimelineIdx, setActiveTimelineIdx] = useState(0);
+
+  useEffect(() => {
+    getAllSemesters().then((result) => {
+      if (result.success && Array.isArray(result.data)) {
+        setLocalSemesters(result.data);
+      }
+    });
+  }, []);
   
   // Quick Config Form State
   const [quickForm, setQuickForm] = useState({

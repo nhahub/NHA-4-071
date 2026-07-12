@@ -1,29 +1,54 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Key, Shield, CheckCircle2, XCircle, Globe, Database,
   Copy, Eye, EyeOff, Upload, RefreshCw, Check, Save,
   AlertCircle, Lock, Server, Sliders, History
 } from "lucide-react";
-import { systemSettingsData } from "../../dummyData";
+import { getSettings, updateSettings } from "../../services/adminService";
 
 const SystemSettings = () => {
-  const [apiKey, setApiKey] = useState(systemSettingsData.apiGateway.masterKey);
+  const [settingsData, setSettingsData] = useState({});
+  const [apiKey, setApiKey] = useState("");
   const [showKey, setShowKey] = useState(true);
   const [copied, setCopied] = useState(false);
-  const [rateLimit, setRateLimit] = useState(systemSettingsData.apiGateway.rateLimit);
-  const [webhookUrl, setWebhookUrl] = useState(systemSettingsData.apiGateway.webhookUrl);
+  const [rateLimit, setRateLimit] = useState("");
+  const [webhookUrl, setWebhookUrl] = useState("");
 
   // Toggles
-  const [mfaEnforced, setMfaEnforced] = useState(systemSettingsData.securityProtocol.mfaEnforced);
-  const [sessionTimeout, setSessionTimeout] = useState(systemSettingsData.securityProtocol.sessionAutoTimeout);
+  const [mfaEnforced, setMfaEnforced] = useState(false);
+  const [sessionTimeout, setSessionTimeout] = useState(false);
 
   // RBAC Matrix
-  const [rbacMatrix, setRbacMatrix] = useState(systemSettingsData.rbacMatrix);
+  const [rbacMatrix, setRbacMatrix] = useState([]);
 
   // Branding
-  const [institutionName, setInstitutionName] = useState(systemSettingsData.globalBranding.institutionName);
-  const [primaryColor, setPrimaryColor] = useState(systemSettingsData.globalBranding.primaryColor);
-  const [accentColor, setAccentColor] = useState(systemSettingsData.globalBranding.accentColor);
+  const [institutionName, setInstitutionName] = useState("");
+  const [primaryColor, setPrimaryColor] = useState("");
+  const [accentColor, setAccentColor] = useState("");
+
+  useEffect(() => {
+    getSettings().then((result) => {
+      if (result.success && result.data) {
+        const grouped = { apiGateway: {}, securityProtocol: {}, notifications: {}, integrations: {} };
+        Object.entries(result.data).forEach(([key, value]) => {
+          if (key.startsWith('apiGateway.')) grouped.apiGateway[key.replace('apiGateway.', '')] = value;
+          else if (key.startsWith('securityProtocol.')) grouped.securityProtocol[key.replace('securityProtocol.', '')] = value;
+          else if (key.startsWith('notifications.')) grouped.notifications[key.replace('notifications.', '')] = value;
+          else if (key.startsWith('integrations.')) grouped.integrations[key.replace('integrations.', '')] = value;
+          else grouped.apiGateway[key] = value;
+        });
+        setSettingsData(grouped);
+        setApiKey(grouped.apiGateway.masterKey || "");
+        setRateLimit(grouped.apiGateway.rateLimit || "");
+        setWebhookUrl(grouped.apiGateway.webhookUrl || "");
+        setMfaEnforced(grouped.securityProtocol.mfaEnforced || false);
+        setSessionTimeout(grouped.securityProtocol.sessionAutoTimeout || false);
+        setInstitutionName(grouped.apiGateway.institutionName || "");
+        setPrimaryColor(grouped.apiGateway.primaryColor || "");
+        setAccentColor(grouped.apiGateway.accentColor || "");
+      }
+    });
+  }, []);
 
   const handleCopyKey = () => {
     navigator.clipboard.writeText(apiKey);
@@ -46,8 +71,23 @@ const SystemSettings = () => {
     );
   };
 
-  const handleSaveChanges = () => {
-    alert("System settings and RBAC permission overrides saved successfully!");
+  const handleSaveChanges = async () => {
+    const payload = {
+      "apiGateway.masterKey": apiKey,
+      "apiGateway.rateLimit": rateLimit,
+      "apiGateway.webhookUrl": webhookUrl,
+      "securityProtocol.mfaEnforced": mfaEnforced,
+      "securityProtocol.sessionAutoTimeout": sessionTimeout,
+      "globalBranding.institutionName": institutionName,
+      "globalBranding.primaryColor": primaryColor,
+      "globalBranding.accentColor": accentColor,
+    };
+    const result = await updateSettings(payload);
+    if (result.success) {
+      alert("System settings and RBAC permission overrides saved successfully!");
+    } else {
+      alert("Failed to save settings. Please try again.");
+    }
   };
 
   return (

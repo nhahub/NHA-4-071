@@ -45,7 +45,7 @@ exports.enrollCourse = async (studentUserId, courseId) => {
         $expr: { $lt: ["$enrolledCount", "$capacity"] }, // Check: count < capacity
       },
       { $inc: { enrolledCount: 1 } }, // Increment count by 1
-      { new: true, session }, // Return the updated document within the transaction
+      { returnDocument: "after", session }, // Return the updated document within the transaction
     );
 
     if (!updatedOffering) {

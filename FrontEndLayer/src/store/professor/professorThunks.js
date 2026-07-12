@@ -1,8 +1,10 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import { 
+import {
   getProfessorProfile, getMyOfferings, submitStudentGrade,
-  getMockProfessorCourses, getMockAttendanceRecords, getMockGlobalAssignments,
-  getMockGradeBook, getMockPerformanceAnalytics, getMockNotifications, getMockDashboardOverview, getMockSchedule
+  getProfessorDashboard, getProfessorNotifications,
+  getProfessorGradesOverview, getProfessorPerformance,
+  getProfessorSchedule, getOfferingStudents, createAssignment,
+  getAssignments, getAttendanceRecords,
 } from '../../services/professorService';
 
 export const fetchProfessorProfile = createAsyncThunk(
@@ -29,61 +31,137 @@ export const submitGrade = createAsyncThunk(
   }
 );
 
-// ==========================================
-// MOCK THUNKS FOR PROFESSOR UI INTEGRATION
-// ==========================================
+export const fetchDashboardOverview = createAsyncThunk(
+  'professor/fetchDashboardOverview', async (_, { rejectWithValue }) => {
+    const result = await getProfessorDashboard();
+    if (!result.success) return rejectWithValue(result.error);
+    return result.data;
+  }
+);
 
-export const fetchProfessorCourses = createAsyncThunk('professor/fetchCourses', async (_, { rejectWithValue }) => {
-  try {
-    const result = await getMockProfessorCourses();
+export const fetchNotifications = createAsyncThunk(
+  'professor/fetchNotifications', async (_, { rejectWithValue }) => {
+    const result = await getProfessorNotifications();
+    if (!result.success) return rejectWithValue(result.error);
     return result.data;
-  } catch (error) { return rejectWithValue(error.message); }
-});
+  }
+);
 
-export const fetchAttendanceRecords = createAsyncThunk('professor/fetchAttendance', async (_, { rejectWithValue }) => {
-  try {
-    const result = await getMockAttendanceRecords();
+export const fetchGradeBook = createAsyncThunk(
+  'professor/fetchGradeBook', async (_, { rejectWithValue }) => {
+    const result = await getProfessorGradesOverview();
+    if (!result.success) return rejectWithValue(result.error);
     return result.data;
-  } catch (error) { return rejectWithValue(error.message); }
-});
+  }
+);
 
-export const fetchGlobalAssignments = createAsyncThunk('professor/fetchAssignments', async (_, { rejectWithValue }) => {
-  try {
-    const result = await getMockGlobalAssignments();
+export const fetchPerformanceAnalytics = createAsyncThunk(
+  'professor/fetchPerformance', async (_, { rejectWithValue }) => {
+    const result = await getProfessorPerformance();
+    if (!result.success) return rejectWithValue(result.error);
     return result.data;
-  } catch (error) { return rejectWithValue(error.message); }
-});
+  }
+);
 
-export const fetchGradeBook = createAsyncThunk('professor/fetchGradeBook', async (_, { rejectWithValue }) => {
-  try {
-    const result = await getMockGradeBook();
+export const fetchSchedule = createAsyncThunk(
+  'professor/fetchSchedule', async (_, { rejectWithValue }) => {
+    const result = await getProfessorSchedule();
+    if (!result.success) return rejectWithValue(result.error);
     return result.data;
-  } catch (error) { return rejectWithValue(error.message); }
-});
+  }
+);
 
-export const fetchPerformanceAnalytics = createAsyncThunk('professor/fetchPerformance', async (_, { rejectWithValue }) => {
-  try {
-    const result = await getMockPerformanceAnalytics();
+export const fetchOfferingStudents = createAsyncThunk(
+  'professor/fetchOfferingStudents', async (offeringId, { rejectWithValue }) => {
+    const result = await getOfferingStudents(offeringId);
+    if (!result.success) return rejectWithValue(result.error);
     return result.data;
-  } catch (error) { return rejectWithValue(error.message); }
-});
+  }
+);
 
-export const fetchNotifications = createAsyncThunk('professor/fetchNotifications', async (_, { rejectWithValue }) => {
-  try {
-    const result = await getMockNotifications();
+export const addAssignment = createAsyncThunk(
+  'professor/addAssignment', async (assignmentData, { rejectWithValue }) => {
+    const result = await createAssignment(assignmentData);
+    if (!result.success) return rejectWithValue(result.error);
     return result.data;
-  } catch (error) { return rejectWithValue(error.message); }
-});
-export const fetchDashboardOverview = createAsyncThunk('professor/fetchDashboardOverview', async (_, { rejectWithValue }) => {
-  try {
-    const result = await getMockDashboardOverview();
-    return result.data;
-  } catch (error) { return rejectWithValue(error.message); }
-});
+  }
+);
 
-export const fetchSchedule = createAsyncThunk('professor/fetchSchedule', async (_, { rejectWithValue }) => {
-  try {
-    const result = await getMockSchedule();
+// Compatibility thunks for pages that used old mock names
+export const fetchProfessorCourses = createAsyncThunk(
+  'professor/fetchCourses', async (_, { rejectWithValue }) => {
+    const result = await getMyOfferings();
+    if (!result.success) return rejectWithValue(result.error);
     return result.data;
-  } catch (error) { return rejectWithValue(error.message); }
-});
+  }
+);
+
+export const fetchGlobalAssignments = createAsyncThunk(
+  'professor/fetchAssignments', async (_, { rejectWithValue }) => {
+    try {
+      const offeringsResult = await getMyOfferings();
+      if (!offeringsResult.success) return rejectWithValue(offeringsResult.error);
+      const offerings = offeringsResult.data || [];
+      let allAssignments = [];
+      for (const offering of offerings.slice(0, 5)) {
+        const oid = offering._id;
+        const assignResult = await getAssignments(oid);
+        if (assignResult.success && Array.isArray(assignResult.data)) {
+          allAssignments = allAssignments.concat(
+            assignResult.data.map((a) => ({
+              ...a,
+              courseCode: offering.courseId?.code || '',
+              courseName: offering.courseId?.name || '',
+            }))
+          );
+        }
+      }
+      return { list: allAssignments };
+    } catch (err) {
+      return rejectWithValue(err.message);
+    }
+  }
+);
+
+export const fetchAttendanceRecords = createAsyncThunk(
+  'professor/fetchAttendance', async (_, { rejectWithValue }) => {
+    try {
+      const offeringsResult = await getMyOfferings();
+      if (!offeringsResult.success) return rejectWithValue(offeringsResult.error);
+      const offerings = offeringsResult.data || [];
+      let allStudents = [];
+      for (const offering of offerings.slice(0, 5)) {
+        const oid = offering._id;
+        const attResult = await getAttendanceRecords(oid);
+        if (attResult.success && Array.isArray(attResult.data)) {
+          attResult.data.forEach((record) => {
+            (record.records || []).forEach((r) => {
+              const existing = allStudents.find((s) => String(s.id) === String(r.studentId));
+              if (existing) {
+                existing.total = (existing.total || 0) + 1;
+                if (r.status === 'present') existing.present = (existing.present || 0) + 1;
+              } else {
+                allStudents.push({
+                  id: r.studentId,
+                  name: typeof r.studentId === 'object' ? (r.studentId.name || 'Student') : 'Student',
+                  roll: '',
+                  semester: '',
+                  total: 1,
+                  present: r.status === 'present' ? 1 : 0,
+                  status: r.status,
+                });
+              }
+            });
+          });
+        }
+      }
+      const students = allStudents.map((s) => ({
+        ...s,
+        attendance: s.total > 0 ? Math.round((s.present / s.total) * 100) + '%' : '0%',
+      }));
+      return { students };
+    } catch (err) {
+      return rejectWithValue(err.message);
+    }
+  }
+);

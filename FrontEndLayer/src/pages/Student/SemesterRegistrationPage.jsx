@@ -94,7 +94,7 @@ const SemesterRegistrationPage = () => {
                   <div key={e._id} className="flex items-center gap-2 px-4 py-2 bg-primary/5 rounded-lg">
                     <Check size={16} color="#4F378A" />
                     <span className="font-heading text-sm text-text-primary">
-                      {e.courseName || e.offeringId || e.courseId}
+                      {e.courseId?.code || e.courseId?.name || e.courseId?._id || "Unknown"}
                     </span>
                     <StatusBadge status={e.status} />
                   </div>
@@ -137,7 +137,7 @@ const SemesterRegistrationPage = () => {
                     <Check size={16} color="#4F378A" />
                     <div className="flex-1">
                       <span className="font-heading text-sm text-text-primary">
-                        {e.courseName || e.offeringId || e.courseId}
+                        {e.courseId?.code || e.courseId?.name || e.courseId?._id || "Unknown"}
                       </span>
                     </div>
                     <StatusBadge status={e.status} />

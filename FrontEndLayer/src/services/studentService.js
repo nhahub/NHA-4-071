@@ -92,10 +92,10 @@ export const getMyStudyPlan = () =>
   fetchService('/students/study-plan', { method: 'GET' }, StudyPlanResponseSchema);
 
 export const submitSemesterRegistration = () =>
-  fetchService('/semester-registration', { method: 'POST' });
+  fetchService('/students/semester-registration', { method: 'POST' });
 
 export const saveGpaCalculation = (data) =>
-  fetchService('/gpa-calculations', { method: 'POST', data });
+  fetchService('/students/gpa-calculations', { method: 'POST', data });
 
 export const createStudentAdvisingSession = (data) => {
   const payload = AdvisingSessionRequestSchema.parse(data);

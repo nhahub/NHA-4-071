@@ -12,6 +12,9 @@ const professorController = require("../controllers/professorController");
 // All routes protected for Professors only
 router.use(protect, authorize("professor"));
 
+router.get("/dashboard", professorController.getDashboard);
+router.get("/grades-overview", professorController.getGradesOverview);
+router.get("/performance", professorController.getPerformance);
 router.get("/profile", professorController.getProfile);
 router.get("/schedule", professorController.getSchedule); // My Schedule
 router.get("/offerings", professorController.getMyOfferings); // My Courses

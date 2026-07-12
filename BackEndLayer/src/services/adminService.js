@@ -145,8 +145,104 @@ exports.updateSettings = async (settingsData) => {
     await Setting.findOneAndUpdate(
       { key },
       { value },
-      { upsert: true, new: true },
+      { upsert: true, returnDocument: "after" },
     );
   }
   return settingsData;
+};
+
+exports.getReports = async () => {
+  const [totalUsers, totalEnrollments, totalComplaints, professors, advisors, departments] =
+    await Promise.all([
+      User.countDocuments(),
+      Enrollment.countDocuments(),
+      Complaint.countDocuments(),
+      User.countDocuments({ role: "professor" }),
+      User.countDocuments({ role: "advisor" }),
+      require("../models/Department").countDocuments().catch(() => 0),
+    ]);
+
+  const totalCourses = await require("../models/Course").countDocuments().catch(() => 0);
+
+  const enrollments = await Enrollment.find()
+    .populate({
+      path: "offeringId",
+      populate: { path: "semesterId", select: "name" },
+    })
+    .select("createdAt");
+
+  const monthlyMap = {};
+  enrollments.forEach((e) => {
+    const d = new Date(e.createdAt || Date.now());
+    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+    monthlyMap[key] = (monthlyMap[key] || 0) + 1;
+  });
+  const enrollmentTrends = Object.entries(monthlyMap)
+    .sort(([a], [b]) => a.localeCompare(b))
+    .slice(-6)
+    .map(([month, count]) => ({ month, count }));
+
+  const students = await Student.find().populate("departmentId", "name");
+  const deptGpa = {};
+  students.forEach((s) => {
+    const deptName = s.departmentId?.name || "Unknown";
+    if (!deptGpa[deptName]) deptGpa[deptName] = { sum: 0, count: 0 };
+    deptGpa[deptName].sum += s.GPA || 0;
+    deptGpa[deptName].count++;
+  });
+  const gpaByDepartment = Object.entries(deptGpa).map(([name, data]) => ({
+    department: name,
+    gpa: data.count > 0 ? +(data.sum / data.count).toFixed(2) : 0,
+  }));
+
+  const roleCounts = await User.aggregate([
+    { $group: { _id: "$role", count: { $sum: 1 } } },
+  ]);
+  const institutionalGrowth = roleCounts.map((r) => ({
+    role: r._id,
+    count: r.count,
+  }));
+
+  return {
+    kpis: [
+      { label: "Total Users", value: totalUsers },
+      { label: "Total Courses", value: totalCourses },
+      { label: "Total Enrollments", value: totalEnrollments },
+      { label: "Total Complaints", value: totalComplaints },
+    ],
+    enrollmentTrends,
+    gpaByDepartment,
+    institutionalGrowth,
+  };
+};
+
+exports.getRegistrationStats = async () => {
+  const currentSemester = await Semester.findOne({
+    registrationStatus: { $in: ["ongoing", "open"] },
+  }).sort({ startDate: -1 });
+
+  if (!currentSemester) {
+    return {
+      totalRegistered: 0,
+      autoEnrolled: 0,
+      pendingOverrides: 0,
+      isWindowOpen: false,
+    };
+  }
+
+  const offeringIds = (
+    await CourseOffering.find({ semesterId: currentSemester._id }).select("_id")
+  ).map((o) => o._id);
+
+  const totalRegistered = await Enrollment.countDocuments({
+    offeringId: { $in: offeringIds },
+    status: "enrolled",
+  });
+
+  return {
+    totalRegistered,
+    autoEnrolled: totalRegistered,
+    pendingOverrides: 0,
+    isWindowOpen: currentSemester.registrationStatus === "open",
+  };
 };

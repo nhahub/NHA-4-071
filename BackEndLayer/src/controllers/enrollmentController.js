@@ -2,13 +2,13 @@ const enrollmentService = require("../services/enrollmentService");
 
 exports.enroll = async (req, res) => {
   try {
-    // Pass req.body.courseId instead of req.body.offeringId
     const enrollment = await enrollmentService.enrollCourse(
       req.user.id,
       req.body.courseId,
     );
     res.status(201).json({ success: true, data: enrollment });
   } catch (error) {
+    console.error("Enrollment error:", error.message);
     res.status(400).json({ success: false, message: error.message });
   }
 };

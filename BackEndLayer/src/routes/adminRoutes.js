@@ -55,4 +55,7 @@ router.put(
   adminController.updateSettings,
 );
 
+router.get("/reports", adminController.getReports);
+router.get("/registration-stats", adminController.getRegistrationStats);
+
 module.exports = router;

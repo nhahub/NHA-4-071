@@ -1,7 +1,14 @@
-import { z } from "zod";
+import { z } from 'zod';
+
 export const ExamItemSchema = z.object({
-  _id: z.string(), studentId: z.string(), courseCode: z.string(), courseName: z.string(),
-  date: z.string(), startTime: z.string(), endTime: z.string(),
-  room: z.string(), seat: z.string(), status: z.string(),
-});
+  _id: z.string(),
+  courseCode: z.string().optional(),
+  courseName: z.string().optional(),
+  date: z.string(),
+  startTime: z.string(),
+  endTime: z.string(),
+  room: z.string().optional(),
+  status: z.string(),
+}).passthrough();
+
 export const ExamResponseSchema = z.array(ExamItemSchema);
