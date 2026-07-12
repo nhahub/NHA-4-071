@@ -6,6 +6,16 @@ const Attendance = require("../models/Attendance");
 const Course = require("../models/Course");
 const Complaint = require("../models/Complaint");
 
+exports.updateProfile = async (advisorUserId, updateData) => {
+  const advisor = await Advisor.findOneAndUpdate(
+    { userId: advisorUserId },
+    updateData,
+    { returnDocument: "after", runValidators: true },
+  );
+  if (!advisor) throw new Error("Advisor profile not found");
+  return await exports.getProfile(advisorUserId);
+};
+
 exports.getProfile = async (advisorUserId) => {
   const advisor = await Advisor.findOne({ userId: advisorUserId })
     .populate("userId", "name email universityId")

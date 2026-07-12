@@ -10,6 +10,9 @@ import { UpdateIssueStatusRequestSchema } from '../Schemas/RequestSchemas/issueS
 export const getAdvisorProfile = () =>
   fetchService('/advisors/profile', { method: 'GET' }, AdvisorProfileSchema);
 
+export const updateAdvisorProfile = (data) =>
+  fetchService('/advisors/profile', { method: 'PATCH', data }, AdvisorProfileSchema);
+
 export const getAssignedStudents = () =>
   fetchService('/advisors/students', { method: 'GET' });
 

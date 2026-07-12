@@ -14,6 +14,9 @@ import { ProfessorAttendanceResponseSchema } from '../Schemas/ResponseSchemas/pr
 export const getProfessorProfile = () =>
   fetchService('/professors/profile', { method: 'GET' }, ProfessorProfileSchema);
 
+export const updateProfessorProfile = (data) =>
+  fetchService('/professors/profile', { method: 'PATCH', data }, ProfessorProfileSchema);
+
 export const getMyOfferings = () =>
   fetchService('/professors/offerings', { method: 'GET' }, CourseOfferingsResponseSchema);
 

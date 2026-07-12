@@ -877,6 +877,41 @@
                     }
                 },
                 {
+                    "name": "Update Profile",
+                    "request": {
+                        "method": "PATCH",
+                        "header": [],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"title\": \"Associate Professor\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/professors/profile",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["professors", "profile"]
+                        },
+                        "description": "Professor Only. Update profile fields like title."
+                    }
+                },
+                {
+                    "name": "Get Notifications",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/professors/notifications",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["professors", "notifications"]
+                        },
+                        "description": "Professor Only. Get all notifications."
+                    }
+                },
+                {
                     "name": "Get My Schedule",
                     "request": {
                         "method": "GET",
@@ -1055,7 +1090,6 @@
             "description": "Endpoints for Professors to manage courses, assignments, attendance and grades. Requires Professor Bearer Token."
         },
         {
-            {
             "name": "Health Check",
             "item": [
                 {
@@ -1098,6 +1132,28 @@
                             "path": ["advisors", "profile"]
                         },
                         "description": "Advisor Only. Returns advisor profile."
+                    }
+                },
+                {
+                    "name": "Update Profile",
+                    "request": {
+                        "method": "PATCH",
+                        "header": [],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"title\": \"Senior Advisor\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/advisors/profile",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["advisors", "profile"]
+                        },
+                        "description": "Advisor Only. Update profile fields like title."
                     }
                 },
                 {

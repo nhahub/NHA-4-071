@@ -232,6 +232,7 @@ exports.getMyAdvisingSessions = async (studentUserId) => {
 
 exports.createMyAdvisingSession = async (studentUserId, sessionData) => {
   const student = await getStudentDoc(studentUserId);
+  if (!student.advisorId) throw new Error("No advisor assigned. Please contact administration.");
   const session = await AdvisingSession.create({
     studentId: student._id,
     advisorId: student.advisorId,

@@ -548,7 +548,18 @@ Create a new advising session request.
 
 | Field | Type | Required | Constraints |
 |---|---|---|---|
+| `semesterId` | string | yes | MongoDB ObjectId |
 | `notes` | string | no | free text |
+
+**Zod Schema:**
+```javascript
+const createAdvisingSessionStudentSchema = z.object({
+  semesterId: z.string().min(1, "Semester ID is required"),
+  notes: z.string().optional(),
+});
+```
+
+**Success (201):** Created session object.
 
 ---
 
@@ -694,6 +705,31 @@ Get professor profile.
 
 ---
 
+### PATCH /api/professors/profile
+Update professor profile.
+
+| Field | Type | Required | Constraints |
+|---|---|---|---|
+| `title` | string | no | free text |
+
+**Zod Schema:**
+```javascript
+const updateProfileSchema = z.object({
+  title: z.string().optional(),
+});
+```
+
+**Success (200):** Updated professor profile object.
+
+---
+
+### GET /api/professors/notifications
+Get professor notifications.
+
+**Success (200):** Array of notification objects.
+
+---
+
 ### GET /api/professors/schedule
 Get teaching schedule for current semester.
 
@@ -794,6 +830,24 @@ All routes are **Protected** - **Advisor** only.
 
 ### GET /api/advisors/profile
 Get advisor profile.
+
+---
+
+### PATCH /api/advisors/profile
+Update advisor profile.
+
+| Field | Type | Required | Constraints |
+|---|---|---|---|
+| `title` | string | no | free text |
+
+**Zod Schema:**
+```javascript
+const updateProfileSchema = z.object({
+  title: z.string().optional(),
+});
+```
+
+**Success (200):** Updated advisor profile object.
 
 ---
 
@@ -1120,7 +1174,7 @@ DTOs transform raw Mongoose documents into the API response format. They ensure 
 
 ---
 
-## Complete Endpoint Index (77 Endpoints)
+## Complete Endpoint Index (80 Endpoints)
 
 | # | Method | Path | Auth | Role |
 |---|---|---|---|---|
@@ -1171,33 +1225,36 @@ DTOs transform raw Mongoose documents into the API response format. They ensure 
 | 45 | POST | `/api/payments` | Protect | Student |
 | 46 | GET | `/api/payments` | Protect | Student |
 | 47 | GET | `/api/professors/profile` | Protect | Professor |
-| 48 | GET | `/api/professors/schedule` | Protect | Professor |
-| 49 | GET | `/api/professors/offerings` | Protect | Professor |
-| 50 | GET | `/api/professors/offerings/:offeringId/students` | Protect | Professor |
-| 51 | GET | `/api/professors/offerings/:offeringId/assignments` | Protect | Professor |
-| 52 | POST | `/api/professors/assignments` | Protect | Professor |
-| 53 | POST | `/api/professors/offerings/:offeringId/attendance` | Protect | Professor |
-| 54 | GET | `/api/professors/offerings/:offeringId/attendance` | Protect | Professor |
-| 55 | POST | `/api/professors/grades` | Protect | Professor |
-| 56 | GET | `/api/advisors/profile` | Protect | Advisor |
-| 57 | GET | `/api/advisors/dashboard` | Protect | Advisor |
-| 58 | GET | `/api/advisors/students` | Protect | Advisor |
-| 59 | POST | `/api/advisors/sessions` | Protect | Advisor |
-| 60 | GET | `/api/advisors/sessions` | Protect | Advisor |
-| 61 | PATCH | `/api/advisors/sessions/:sessionId` | Protect | Advisor |
-| 62 | GET | `/api/advisors/student-progress/:studentId` | Protect | Advisor |
-| 63 | GET | `/api/advisors/graduation/:studentId` | Protect | Advisor |
-| 64 | GET | `/api/advisors/issues` | Protect | Advisor |
-| 65 | PATCH | `/api/advisors/issues/:issueId` | Protect | Advisor |
-| 66 | GET | `/api/admin/dashboard` | Protect | Admin |
-| 67 | POST | `/api/admin/semesters` | Protect | Admin |
-| 68 | POST | `/api/admin/courses` | Protect | Admin |
-| 69 | GET | `/api/admin/users` | Protect | Admin |
-| 70 | PATCH | `/api/admin/users/:id` | Protect | Admin |
-| 71 | GET | `/api/admin/complaints` | Protect | Admin |
-| 72 | PATCH | `/api/admin/complaints/:complaintId` | Protect | Admin |
-| 73 | PATCH | `/api/admin/semesters/:id` | Protect | Admin |
-| 74 | POST | `/api/admin/semester-registration` | Protect | Admin |
-| 75 | GET | `/api/admin/settings` | Protect | Admin |
-| 76 | PUT | `/api/admin/settings` | Protect | Admin |
-| 77 | GET | `/api/health` | Public | - |
+| 48 | PATCH | `/api/professors/profile` | Protect | Professor |
+| 49 | GET | `/api/professors/notifications` | Protect | Professor |
+| 50 | GET | `/api/professors/schedule` | Protect | Professor |
+| 51 | GET | `/api/professors/offerings` | Protect | Professor |
+| 52 | GET | `/api/professors/offerings/:offeringId/students` | Protect | Professor |
+| 53 | GET | `/api/professors/offerings/:offeringId/assignments` | Protect | Professor |
+| 54 | POST | `/api/professors/assignments` | Protect | Professor |
+| 55 | POST | `/api/professors/offerings/:offeringId/attendance` | Protect | Professor |
+| 56 | GET | `/api/professors/offerings/:offeringId/attendance` | Protect | Professor |
+| 57 | POST | `/api/professors/grades` | Protect | Professor |
+| 58 | GET | `/api/advisors/profile` | Protect | Advisor |
+| 59 | PATCH | `/api/advisors/profile` | Protect | Advisor |
+| 60 | GET | `/api/advisors/dashboard` | Protect | Advisor |
+| 61 | GET | `/api/advisors/students` | Protect | Advisor |
+| 62 | POST | `/api/advisors/sessions` | Protect | Advisor |
+| 63 | GET | `/api/advisors/sessions` | Protect | Advisor |
+| 64 | PATCH | `/api/advisors/sessions/:sessionId` | Protect | Advisor |
+| 65 | GET | `/api/advisors/student-progress/:studentId` | Protect | Advisor |
+| 66 | GET | `/api/advisors/graduation/:studentId` | Protect | Advisor |
+| 67 | GET | `/api/advisors/issues` | Protect | Advisor |
+| 68 | PATCH | `/api/advisors/issues/:issueId` | Protect | Advisor |
+| 69 | GET | `/api/admin/dashboard` | Protect | Admin |
+| 70 | POST | `/api/admin/semesters` | Protect | Admin |
+| 71 | POST | `/api/admin/courses` | Protect | Admin |
+| 72 | GET | `/api/admin/users` | Protect | Admin |
+| 73 | PATCH | `/api/admin/users/:id` | Protect | Admin |
+| 74 | GET | `/api/admin/complaints` | Protect | Admin |
+| 75 | PATCH | `/api/admin/complaints/:complaintId` | Protect | Admin |
+| 76 | PATCH | `/api/admin/semesters/:id` | Protect | Admin |
+| 77 | POST | `/api/admin/semester-registration` | Protect | Admin |
+| 78 | GET | `/api/admin/settings` | Protect | Admin |
+| 79 | PUT | `/api/admin/settings` | Protect | Admin |
+| 80 | GET | `/api/health` | Public | - |

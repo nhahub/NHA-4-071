@@ -1,5 +1,14 @@
 const advisorService = require("../services/advisorService");
 
+exports.updateProfile = async (req, res) => {
+  try {
+    const profile = await advisorService.updateProfile(req.user.id, req.body);
+    res.status(200).json({ success: true, data: profile });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+};
+
 exports.getProfile = async (req, res) => {
   try {
     const profile = await advisorService.getProfile(req.user.id);
