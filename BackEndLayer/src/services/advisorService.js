@@ -108,7 +108,7 @@ exports.getSessions = async (advisorUserId, query = {}) => {
   }
 
   const sessions = await AdvisingSession.find(filter)
-    .populate("studentId", "userId")
+    .populate({ path: "studentId", populate: { path: "userId", select: "name universityId" } })
     .populate("semesterId", "name code")
     .sort({ createdAt: -1 });
 

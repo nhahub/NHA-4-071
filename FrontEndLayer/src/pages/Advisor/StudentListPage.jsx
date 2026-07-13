@@ -20,7 +20,7 @@ const StudentListPage = () => {
     );
   }
 
-  const students = Array.isArray(assignedStudents) ? assignedStudents : [];
+  const students = assignedStudents?.students || [];
 
   return (
     <div className="space-y-6 p-8" style={{ background: '#121415', minHeight: 'calc(100vh - 64px)' }}>
@@ -56,7 +56,7 @@ const StudentListPage = () => {
                   <td className="py-3 px-4 text-[#C2C6D6] text-sm">{student.level ?? 'N/A'}</td>
                   <td className="py-3 px-4">
                     <button
-                      onClick={() => navigate(`${ROUTES.ADVISOR.STUDENT_PROGRESS.replace(':studentId', student._id || student.id)}`)}
+                      onClick={() => navigate(ROUTES.ADVISOR.STUDENT_PROGRESS.replace(':id', student._id || student.id))}
                       className="px-3 py-1 bg-[#ADC6FF]/20 text-[#ADC6FF] rounded text-xs font-bold uppercase tracking-wider hover:bg-[#ADC6FF]/30 border-none cursor-pointer transition-colors"
                     >
                       View Progress
