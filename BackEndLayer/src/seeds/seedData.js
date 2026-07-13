@@ -6,6 +6,10 @@ const Department = require("../models/Department");
 const Semester = require("../models/Semester");
 const Course = require("../models/Course");
 const CourseOffering = require("../models/CourseOffering");
+const User = require("../models/User");
+const Student = require("../models/Student");
+const Professor = require("../models/Professor");
+const Advisor = require("../models/Advisor");
 
 const DEPARTMENTS = [
   { name: "General", code: "GEN" },
@@ -129,6 +133,84 @@ const CLASSROOMS = [
   "Online",
 ];
 
+const USERS = [
+  // Admin
+  // { name: "Admin User", email: "admin@morshed.com", universityId: "ADM001", password: "password123", role: "admin" },
+  // Professors
+  {
+    name: "Dr. Ahmed Hassan",
+    email: "ahmed@morshed.com",
+    universityId: "PROF001",
+    password: "password123",
+    role: "professor",
+  },
+  {
+    name: "Dr. Sara Ali",
+    email: "sara@morshed.com",
+    universityId: "PROF002",
+    password: "password123",
+    role: "professor",
+  },
+  {
+    name: "Dr. Mohamed Nour",
+    email: "mohamed@morshed.com",
+    universityId: "PROF003",
+    password: "password123",
+    role: "professor",
+  },
+  // Advisors
+  {
+    name: "Advisor Khaled",
+    email: "khaled@morshed.com",
+    universityId: "ADV001",
+    password: "password123",
+    role: "advisor",
+  },
+  {
+    name: "Advisor Mona",
+    email: "mona@morshed.com",
+    universityId: "ADV002",
+    password: "password123",
+    role: "advisor",
+  },
+  // Students
+  {
+    name: "Omar Student",
+    email: "omar@morshed.com",
+    universityId: "STD001",
+    password: "password123",
+    role: "student",
+  },
+  {
+    name: "Ali Hassan",
+    email: "ali@morshed.com",
+    universityId: "STD002",
+    password: "password123",
+    role: "student",
+  },
+  {
+    name: "Nour Ahmed",
+    email: "nour@morshed.com",
+    universityId: "STD003",
+    password: "password123",
+    role: "student",
+  },
+  {
+    name: "Mariam Khaled",
+    email: "mariam@morshed.com",
+    universityId: "STD004",
+    password: "password123",
+    role: "student",
+  },
+  {
+    name: "Youssef Ibrahim",
+    email: "youssef@morshed.com",
+    universityId: "STD005",
+    password: "password123",
+    role: "student",
+  },
+];
+
 async function seed() {
   try {
     await mongoose.connect(process.env.MONGO_URI);
@@ -198,7 +280,9 @@ async function seed() {
             enrolledCount: 0,
           });
           offeringCount++;
-          console.log(`  ${c.code} - ${OFFERING_SCHEDULES[scheduleIdx]} @ ${CLASSROOMS[classroomIdx]}`);
+          console.log(
+            `  ${c.code} - ${OFFERING_SCHEDULES[scheduleIdx]} @ ${CLASSROOMS[classroomIdx]}`,
+          );
         }
       }
     }
@@ -206,6 +290,129 @@ async function seed() {
       console.log("  Offerings already exist, none created.");
     } else {
       console.log(`  Created ${offeringCount} offerings`);
+    }
+
+    console.log("\n=== SEEDING USERS ===");
+    const userMap = {};
+    for (const u of USERS) {
+      const existing = await User.findOne({ universityId: u.universityId });
+      if (!existing) {
+        const user = await User.create(u);
+        userMap[u.universityId] = user._id;
+        console.log(`  ${u.universityId}: ${u.name} (${u.role})`);
+      } else {
+        userMap[u.universityId] = existing._id;
+        console.log(
+          `  ${u.universityId}: ${u.name} (${u.role}) - already exists`,
+        );
+      }
+    }
+
+    console.log("\n=== SEEDING PROFESSORS ===");
+    const professorData = [
+      {
+        userId: userMap["PROF001"],
+        departmentId: deptMap["CS"],
+        title: "Professor",
+      },
+      {
+        userId: userMap["PROF002"],
+        departmentId: deptMap["SE"],
+        title: "Associate Professor",
+      },
+      {
+        userId: userMap["PROF003"],
+        departmentId: deptMap["AI"],
+        title: "Assistant Professor",
+      },
+    ];
+    for (const p of professorData) {
+      const existing = await Professor.findOne({ userId: p.userId });
+      if (!existing) {
+        await Professor.create(p);
+        console.log(`  Professor ${p.userId} created (${p.title})`);
+      } else {
+        console.log(`  Professor ${p.userId} already exists`);
+      }
+    }
+
+    console.log("\n=== SEEDING ADVISORS ===");
+    const advisorData = [
+      {
+        userId: userMap["ADV001"],
+        departmentId: deptMap["CS"],
+        title: "Senior Advisor",
+      },
+      {
+        userId: userMap["ADV002"],
+        departmentId: deptMap["SE"],
+        title: "Academic Advisor",
+      },
+    ];
+    const advisorIdMap = {};
+    for (const a of advisorData) {
+      const existing = await Advisor.findOne({ userId: a.userId });
+      if (!existing) {
+        const advisor = await Advisor.create(a);
+        advisorIdMap[a.userId.toString()] = advisor._id;
+        console.log(`  Advisor ${a.title} created`);
+      } else {
+        advisorIdMap[a.userId.toString()] = existing._id;
+        console.log(`  Advisor ${a.title} already exists`);
+      }
+    }
+
+    console.log("\n=== SEEDING STUDENTS ===");
+    const studentData = [
+      {
+        userId: userMap["STD001"],
+        departmentId: deptMap["CS"],
+        advisorId: advisorIdMap[userMap["ADV001"].toString()],
+        GPA: 3.5,
+        level: 2,
+        program: "Computer Science",
+      },
+      {
+        userId: userMap["STD002"],
+        departmentId: deptMap["CS"],
+        advisorId: advisorIdMap[userMap["ADV001"].toString()],
+        GPA: 3.2,
+        level: 1,
+        program: "Computer Science",
+      },
+      {
+        userId: userMap["STD003"],
+        departmentId: deptMap["SE"],
+        advisorId: advisorIdMap[userMap["ADV002"].toString()],
+        GPA: 3.8,
+        level: 3,
+        program: "Software Engineering",
+      },
+      {
+        userId: userMap["STD004"],
+        departmentId: deptMap["AI"],
+        advisorId: null,
+        GPA: 3.0,
+        level: 2,
+        program: "Artificial Intelligence",
+      },
+      {
+        userId: userMap["STD005"],
+        departmentId: deptMap["IS"],
+        advisorId: null,
+        GPA: 2.8,
+        level: 1,
+        program: "Information Systems",
+      },
+    ];
+    for (const s of studentData) {
+      const existing = await Student.findOne({ userId: s.userId });
+      if (!existing) {
+        await Student.create(s);
+        console.log(`  Student ${s.userId} created (${s.program})`);
+      } else {
+        console.log(`  Student ${s.userId} already exists`);
+      }
     }
 
     console.log("\n=== SEEDING COMPLETE ===");
