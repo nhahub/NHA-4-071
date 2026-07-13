@@ -54,14 +54,16 @@ const StudentSchedulePage = () => {
                   </div>
                 </td>
                 {days.map((day) => {
-                  const course = scheduleData.find((s) => s.day === day && s.start === time);
+                  const courses = scheduleData.filter((s) => s.day === day && s.start === time);
                   return (
                     <td
                       key={`${day}-${time}`}
-                      className={`${course ? "p-1.5 sm:p-2" : "p-0"} border-b border-bg-light align-top min-h-[48px] sm:min-h-[60px]`}
+                      className={`${courses.length ? "p-1.5 sm:p-2" : "p-0"} border-b border-bg-light align-top min-h-[48px] sm:min-h-[60px]`}
                     >
-                      {course && (
+                      <div className="flex flex-col gap-1">
+                      {courses.map((course) => (
                         <div
+                          key={course.code}
                           className="rounded-lg p-1.5 sm:p-2 h-full"
                           style={{ background: getCourseColor(course.code) }}
                         >
@@ -78,7 +80,8 @@ const StudentSchedulePage = () => {
                             <User size={8} /> <span className="hidden md:inline">{course.professor}</span>
                           </div>
                         </div>
-                      )}
+                      ))}
+                      </div>
                     </td>
                   );
                 })}
