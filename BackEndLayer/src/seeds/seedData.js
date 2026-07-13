@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 dotenv.config();
 
 const User = require("../models/User");
+const Admin = require("../models/Admin");
 const Department = require("../models/Department");
 const Semester = require("../models/Semester");
 const Course = require("../models/Course");
@@ -344,6 +345,23 @@ async function seed() {
       console.log(`  ${su.universityId}: ${su.name}`);
     }
 
+    // ===================== ADMIN USER =====================
+    console.log("\n=== SEEDING ADMIN USER ===");
+    const ADMIN_USER = { name: "Admin", email: "admin@morshed.com", universityId: "AD001", password: "password123", role: "admin" };
+    let adminUser = await User.findOne({ universityId: "AD001" });
+    if (!adminUser) {
+      adminUser = await User.create(ADMIN_USER);
+    }
+    console.log(`  AD001: Admin`);
+
+    // ===================== ADMIN PROFILE =====================
+    console.log("\n=== SEEDING ADMIN PROFILE ===");
+    const existingAdminProfile = await Admin.findOne({ userId: adminUser._id });
+    if (!existingAdminProfile) {
+      await Admin.create({ userId: adminUser._id });
+    }
+    console.log(`  Admin profile linked to User ${adminUser._id}`);
+
     // ===================== PROFESSOR PROFILES =====================
     console.log("\n=== SEEDING PROFESSOR PROFILES ===");
     const profMap = [];
@@ -424,6 +442,7 @@ async function seed() {
             GPA: sp.gpa,
             level: sp.level,
             program: sp.program,
+            settings: { showGpa: true, preferredLanguage: "en" },
           },
         },
         { upsert: true, returnDocument: "after" },
@@ -477,6 +496,7 @@ async function seed() {
 
     // S25 enrollments: each student enrolled in 3-4 courses, all currently enrolled
     const s25Enrollments = [
+      { stuIdx: 0, courses: ["CS201", "CS202", "GEN201"] },
       { stuIdx: 1, courses: ["AI201", "AI202", "GEN201"] },
       { stuIdx: 2, courses: ["SE102", "SE103", "GEN201"] },
       { stuIdx: 3, courses: ["IS201", "IS202", "GEN201"] },
@@ -552,7 +572,7 @@ async function seed() {
     // ===================== SEMESTER REGISTRATIONS =====================
     console.log("\n=== SEEDING SEMESTER REGISTRATIONS ===");
     let registrationCount = 0;
-    const s25Students = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
+    const s25Students = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
     for (const idx of s25Students) {
       const reg = await SemesterRegistration.findOneAndUpdate(
         { studentId: stuMap[idx]._id, semesterId: semMap["S25"] },
@@ -865,8 +885,10 @@ async function seed() {
         subject: c.subject,
       });
       if (!existing) {
+        const advisorUser = advUserMap[c.stuIdx % advUserMap.length];
         await Complaint.create({
           studentId: stuMap[c.stuIdx]._id,
+          adminId: advisorUser._id,
           subject: c.subject,
           description: c.description,
           status: c.status,
@@ -1216,6 +1238,7 @@ async function seed() {
     console.log(`  Semesters:          ${SEMESTERS.length}`);
     console.log(`  Courses:            ${courseCount}`);
     console.log(`  Course Offerings:   ${offeringCount} new`);
+    console.log(`  Admin Users:        ${1}`);
     console.log(`  Professor Users:    ${PROFESSOR_USERS.length}`);
     console.log(`  Advisor Users:      ${ADVISOR_USERS.length}`);
     console.log(`  Student Users:      ${STUDENT_USERS.length}`);
@@ -1232,9 +1255,10 @@ async function seed() {
     console.log(`  Registrations:      ${registrationCount}`);
     console.log("========================================");
     console.log("\nLOGIN CREDENTIALS (all accounts):");
-    console.log("  Password: Test@123");
+    console.log("  Common Password: Test@123");
+    console.log("  Admin Password:  password123");
     console.log("  ---");
-    console.log("  Admin:      AD001  | admin@morshed.com");
+    console.log("  Admin:      AD001  | admin@morshed.com (password: password123)");
     console.log("  Professors: PR001-PR007 | <name>@morshed.com");
     console.log("  Advisors:   ADVS001-ADVS003 | <name>@morshed.com");
     console.log("  Students:   STU001-STU012 | <name>@student.morshed.com");
