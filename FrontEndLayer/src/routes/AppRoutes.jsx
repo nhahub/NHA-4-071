@@ -42,6 +42,10 @@ import AdvisingSessionsPage from '../pages/Advisor/AdvisingSessionsPage';
 import GraduationRequirements from '../pages/Advisor/GraduationRequirements';
 import IssueResolutionPage from '../pages/Advisor/IssueResolutionPage';
 import StudentProgressDetail from '../pages/Advisor/StudentProgressDetail';
+import AtRisk from '../pages/Advisor/AtRisk';
+import TodaysSessions from '../pages/Advisor/TodaysSessions';
+import Alerts from '../pages/Advisor/Alerts';
+import Insights from '../pages/Advisor/Insights';
 
 import AdminDashboard from '../pages/Admin/AdminDashboard';
 import UserManagement from '../pages/Admin/UserManagement';
@@ -114,12 +118,16 @@ export const router = createBrowserRouter([
       {
         element: <ProtectedRoute allowedRoles={['advisor']} />,
         children: [
-          { path: ROUTES.ADVISOR.DASHBOARD, element: <AdvisorDashboard /> },
-          { path: ROUTES.ADVISOR.STUDENTS, element: <StudentListPage /> },
-          { path: ROUTES.ADVISOR.SESSIONS, element: <AdvisingSessionsPage /> },
-          { path: ROUTES.ADVISOR.GRADUATION, element: <GraduationRequirements /> },
-          { path: ROUTES.ADVISOR.ISSUES, element: <IssueResolutionPage /> },
-          { path: ROUTES.ADVISOR.STUDENT_PROGRESS, element: <StudentProgressDetail /> },
+           { path: ROUTES.ADVISOR.DASHBOARD, element: <AdvisorDashboard /> },
+           { path: ROUTES.ADVISOR.STUDENTS, element: <StudentListPage /> },
+           { path: ROUTES.ADVISOR.SESSIONS, element: <AdvisingSessionsPage /> },
+           { path: ROUTES.ADVISOR.GRADUATION, element: <GraduationRequirements /> },
+           { path: ROUTES.ADVISOR.ISSUES, element: <IssueResolutionPage /> },
+           { path: ROUTES.ADVISOR.STUDENT_PROGRESS, element: <StudentProgressDetail /> },
+           { path: ROUTES.ADVISOR.AT_RISK, element: <AtRisk /> },
+           { path: ROUTES.ADVISOR.TODAY_SESSIONS, element: <TodaysSessions /> },
+           { path: ROUTES.ADVISOR.ALERTS, element: <Alerts /> },
+           { path: ROUTES.ADVISOR.INSIGHTS, element: <Insights /> },
         ],
       },
       {

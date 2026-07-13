@@ -18,7 +18,7 @@ export const fetchAssignedStudents = createAsyncThunk(
   'advisor/fetchStudents', async (_, { rejectWithValue }) => {
     const result = await getAssignedStudents();
     if (!result.success) return rejectWithValue(result.error);
-    return result.data;
+    return result.data.students;
   }
 );
 

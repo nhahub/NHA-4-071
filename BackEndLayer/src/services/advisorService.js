@@ -48,9 +48,20 @@ exports.getDashboard = async (advisorUserId) => {
     GPA: { $lt: 2.0 },
   });
 
+  // Return keys that match the front‑end expectations
+  // Front‑end expects `totalAdvisees` and `atRiskCount`
+  // We'll map the backend fields accordingly.
   return {
-    totalAdvisees,
-    atRiskAdvisees,
+    metrics: {
+      totalAdvisees,
+      atRiskCount: atRiskAdvisees,
+      auditCompletionPercent: 0,
+      avgResponseHours: 0,
+    },
+    atRiskStudents: [],
+    todaysSessions: [],
+    alerts: [],
+    insights: [],
   };
 };
 
