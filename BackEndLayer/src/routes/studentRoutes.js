@@ -32,6 +32,7 @@ router.get("/exams", studentController.getExams);
 router.get("/transcript", studentController.getTranscript);
 router.get("/study-plan", studentController.getStudyPlan);
 router.post("/semester-registration", studentController.submitSemesterRegistration);
+router.get("/semester-registration/info", studentController.getSemesterRegistrationInfo);
 router.post("/gpa-calculations", studentController.saveGpaCalculation);
 
 module.exports = router;
