@@ -43,3 +43,6 @@ export const updateIssueStatus = (issueId, status) => {
   const payload = UpdateIssueStatusRequestSchema.parse({ status });
   return fetchService(`/advisors/issues/${issueId}`, { method: 'PATCH', data: payload });
 };
+
+export const getSemesters = () =>
+  fetchService('/semesters', { method: 'GET' });

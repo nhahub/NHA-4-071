@@ -4,14 +4,14 @@ import { useAdvisor } from '../../hooks/useAdvisor';
 import LoadingSkeleton from '../../shared/components/LoadingSkeleton';
 
 const StudentProgressDetail = () => {
-  const { studentId } = useParams();
+  const { id } = useParams();
   const { studentProgress, loading, loadStudentProgress } = useAdvisor();
 
   useEffect(() => {
-    if (studentId) {
-      loadStudentProgress(studentId);
+    if (id) {
+      loadStudentProgress(id);
     }
-  }, [studentId]);
+  }, [id]);
 
   if (loading) {
     return (
@@ -35,7 +35,9 @@ const StudentProgressDetail = () => {
     <div className="space-y-6 p-8" style={{ background: '#121415', minHeight: 'calc(100vh - 64px)' }}>
       <div>
         <h1 className="font-heading font-semibold text-2xl text-[#E0E3E5] m-0">Student Progress</h1>
-        <p className="font-heading text-sm text-[#C2C6D6] mt-1 m-0">Detailed progress report for {student?.name || 'Student'}</p>
+        <p className="font-heading text-sm text-[#C2C6D6] mt-1 m-0">
+          {student?.name || 'Student'} — {student?.universityId || ''} — {student?.departmentName || ''}
+        </p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -73,7 +75,7 @@ const StudentProgressDetail = () => {
             <tbody className="divide-y divide-[#424754]/40">
               {enrollments.map((e, idx) => (
                 <tr key={idx} className="hover:bg-[#272A2C]/40 transition-colors">
-                  <td className="py-3 px-4 text-[#E0E3E5] text-sm">{e.courseId?.name || e.courseId || 'Unknown'}</td>
+                  <td className="py-3 px-4 text-[#E0E3E5] text-sm">{e.courseCode || 'Unknown'} — {e.courseName || ''}</td>
                   <td className="py-3 px-4">
                     <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
                       e.status === 'completed' ? 'bg-[#323537] text-[#C2C6D6]' :
@@ -94,16 +96,32 @@ const StudentProgressDetail = () => {
       {attendanceSummary && attendanceSummary.length > 0 && (
         <div className="bg-[#1D2022] border border-[#424754] rounded-lg overflow-hidden">
           <div className="px-6 py-4 border-b border-[#424754]">
-            <h3 className="font-heading font-semibold text-lg text-[#E0E3E5] m-0">Attendance Summary</h3>
+            <h3 className="font-heading font-semibold text-lg text-[#E0E3E5] m-0">Attendance Records</h3>
           </div>
-          <div className="p-6 space-y-3">
-            {attendanceSummary.map((att, idx) => (
-              <div key={idx} className="flex justify-between items-center">
-                <span className="text-[#E0E3E5] text-sm">{att.course || att.name || `Course ${idx + 1}`}</span>
-                <span className="text-[#ADC6FF] font-mono text-sm">{att.percent ?? att.rate ?? 'N/A'}%</span>
-              </div>
-            ))}
-          </div>
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="bg-[#272A2C]/60 border-b border-[#424754]">
+                <th className="py-3 px-4 font-heading font-bold text-[11px] text-[#C2C6D6] uppercase tracking-wider">Date</th>
+                <th className="py-3 px-4 font-heading font-bold text-[11px] text-[#C2C6D6] uppercase tracking-wider">Status</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-[#424754]/40">
+              {attendanceSummary.map((att, idx) => (
+                <tr key={idx} className="hover:bg-[#272A2C]/40 transition-colors">
+                  <td className="py-3 px-4 text-[#E0E3E5] text-sm">{att.date ? new Date(att.date).toLocaleDateString() : 'N/A'}</td>
+                  <td className="py-3 px-4">
+                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                      att.status === 'present' ? 'bg-[#323537] text-[#C2C6D6]' :
+                      att.status === 'late' ? 'bg-[#4CD7F6]/20 text-[#4CD7F6]' :
+                      'bg-[#93000A]/20 text-[#FFB4AB]'
+                    }`}>
+                      {att.status || 'unknown'}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       )}
     </div>

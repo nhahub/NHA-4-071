@@ -3,7 +3,7 @@ import {
   getAdvisorProfile, getAssignedStudents, getAdvisorDashboard,
   getSessions, createSession, updateAdvisingSession,
   getStudentProgress, getGraduationAudit,
-  getIssues, updateIssueStatus,
+  getIssues, updateIssueStatus, getSemesters,
 } from '../../services/advisorService';
 
 export const fetchAdvisorProfile = createAsyncThunk(
@@ -81,6 +81,14 @@ export const fetchIssues = createAsyncThunk(
 export const modifyIssueStatus = createAsyncThunk(
   'advisor/modifyIssueStatus', async ({ issueId, status }, { rejectWithValue }) => {
     const result = await updateIssueStatus(issueId, status);
+    if (!result.success) return rejectWithValue(result.error);
+    return result.data;
+  }
+);
+
+export const fetchSemesters = createAsyncThunk(
+  'advisor/fetchSemesters', async (_, { rejectWithValue }) => {
+    const result = await getSemesters();
     if (!result.success) return rejectWithValue(result.error);
     return result.data;
   }

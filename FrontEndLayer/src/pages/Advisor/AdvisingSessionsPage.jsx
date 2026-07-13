@@ -3,13 +3,18 @@ import { useAdvisor } from '../../hooks/useAdvisor';
 import LoadingSkeleton from '../../shared/components/LoadingSkeleton';
 
 const AdvisingSessionsPage = () => {
-  const { sessions, loading, loadSessions, createSession, updateSession } = useAdvisor();
+  const { sessions, assignedStudents, semesters, loading, loadSessions, loadStudents, loadSemesters, createSession, updateSession } = useAdvisor();
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState({ studentId: '', semesterId: '', notes: '' });
 
   useEffect(() => {
     loadSessions();
+    loadStudents();
+    loadSemesters();
   }, []);
+
+  const students = assignedStudents?.students || [];
+  const semesterList = Array.isArray(semesters) ? semesters : [];
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -54,24 +59,36 @@ const AdvisingSessionsPage = () => {
         <form onSubmit={handleSubmit} className="bg-[#1D2022] border border-[#424754] rounded-lg p-6 space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-[11px] uppercase font-bold text-[#C2C6D6] tracking-wider mb-1">Student ID</label>
-              <input
-                type="text"
+              <label className="block text-[11px] uppercase font-bold text-[#C2C6D6] tracking-wider mb-1">Student</label>
+              <select
                 required
                 value={formData.studentId}
                 onChange={(e) => setFormData({ ...formData, studentId: e.target.value })}
                 className="w-full px-3 py-2 bg-[#101415] border border-[#424754] rounded text-[#E0E3E5] text-sm focus:outline-none focus:border-[#ADC6FF]"
-              />
+              >
+                <option value="">Select a student...</option>
+                {students.map((s) => (
+                  <option key={s._id} value={s._id}>
+                    {s.userId?.name || s.name || 'Unknown'} — {s.userId?.universityId || s.universityId || ''}
+                  </option>
+                ))}
+              </select>
             </div>
             <div>
-              <label className="block text-[11px] uppercase font-bold text-[#C2C6D6] tracking-wider mb-1">Semester ID</label>
-              <input
-                type="text"
+              <label className="block text-[11px] uppercase font-bold text-[#C2C6D6] tracking-wider mb-1">Semester</label>
+              <select
                 required
                 value={formData.semesterId}
                 onChange={(e) => setFormData({ ...formData, semesterId: e.target.value })}
                 className="w-full px-3 py-2 bg-[#101415] border border-[#424754] rounded text-[#E0E3E5] text-sm focus:outline-none focus:border-[#ADC6FF]"
-              />
+              >
+                <option value="">Select a semester...</option>
+                {semesterList.map((sem) => (
+                  <option key={sem._id} value={sem._id}>
+                    {sem.name || sem.code || 'Unknown'} {sem.registrationStatus ? `(${sem.registrationStatus})` : ''}
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
           <div>
@@ -94,6 +111,7 @@ const AdvisingSessionsPage = () => {
           <thead>
             <tr className="bg-[#272A2C]/60 border-b border-[#424754]">
               <th className="py-3 px-4 font-heading font-bold text-[11px] text-[#C2C6D6] uppercase tracking-wider">Student</th>
+              <th className="py-3 px-4 font-heading font-bold text-[11px] text-[#C2C6D6] uppercase tracking-wider">Semester</th>
               <th className="py-3 px-4 font-heading font-bold text-[11px] text-[#C2C6D6] uppercase tracking-wider">Status</th>
               <th className="py-3 px-4 font-heading font-bold text-[11px] text-[#C2C6D6] uppercase tracking-wider">Notes</th>
               <th className="py-3 px-4 font-heading font-bold text-[11px] text-[#C2C6D6] uppercase tracking-wider">Actions</th>
@@ -102,13 +120,16 @@ const AdvisingSessionsPage = () => {
           <tbody className="divide-y divide-[#424754]/40">
             {sessionList.length === 0 ? (
               <tr>
-                <td colSpan={4} className="py-8 text-center text-[#C2C6D6] text-sm">No advising sessions found.</td>
+                <td colSpan={5} className="py-8 text-center text-[#C2C6D6] text-sm">No advising sessions found.</td>
               </tr>
             ) : (
               sessionList.map((session) => (
                 <tr key={session._id} className="hover:bg-[#272A2C]/40 transition-colors">
                   <td className="py-3 px-4 text-[#E0E3E5] text-sm">
-                    {typeof session.studentId === 'object' ? (session.studentId.name || session.studentId._id) : session.studentId}
+                    {session.studentId?.userId?.name || session.studentId?.userId?._id || session.studentId?._id || session.studentId}
+                  </td>
+                  <td className="py-3 px-4 text-[#C2C6D6] text-sm">
+                    {session.semesterId?.name || session.semesterId?.code || '-'}
                   </td>
                   <td className="py-3 px-4">
                     <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
