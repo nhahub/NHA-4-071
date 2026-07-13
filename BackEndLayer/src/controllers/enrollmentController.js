@@ -5,7 +5,7 @@ exports.enroll = async (req, res) => {
   try {
     const enrollment = await enrollmentService.enrollCourse(
       req.user.id,
-      req.body.courseId,
+      req.body.offeringId,
     );
     res.status(201).json({ success: true, data: enrollment });
   } catch (error) {

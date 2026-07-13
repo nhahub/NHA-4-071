@@ -9,7 +9,7 @@ export const StudentResponseSchema = z.object({
   level: z.number().int().min(1),
   name: z.string().optional(),
   email: z.string().optional(),
-  universityId: z.string().optional(),
+  universityId: z.string().nullable().optional(),
   departmentName: z.string().nullable().optional(),
   program: z.string().optional(),
 }).passthrough();

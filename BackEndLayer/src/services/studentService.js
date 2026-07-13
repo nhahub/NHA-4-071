@@ -10,7 +10,30 @@ const Attendance = require("../models/Attendance");
 const Exam = require("../models/Exam");
 const StudyPlan = require("../models/StudyPlan");
 const AdvisingSession = require("../models/AdvisingSession");
+const SemesterRegistration = require("../models/SemesterRegistration");
+const Setting = require("../models/Setting");
 const universityService = require("./universityService");
+
+const GRADE_POINTS = { "A": 4.0, "A-": 3.7, "B+": 3.3, "B": 3.0, "B-": 2.7, "C+": 2.3, "C": 2.0, "C-": 1.7, "D+": 1.3, "D": 1.0, "F": 0.0 };
+
+const computeGPA = async (studentId) => {
+  const enrollments = await Enrollment.find({
+    studentId,
+    status: { $in: ["completed", "enrolled"] },
+    grade: { $ne: null },
+  }).populate("courseId", "credits");
+  let totalPoints = 0;
+  let totalCredits = 0;
+  for (const e of enrollments) {
+    const gp = GRADE_POINTS[e.grade];
+    const cr = e.courseId?.credits || 0;
+    if (gp !== undefined && cr > 0) {
+      totalPoints += gp * cr;
+      totalCredits += cr;
+    }
+  }
+  return totalCredits > 0 ? Math.round((totalPoints / totalCredits) * 100) / 100 : 0;
+};
 
 const getStudentDoc = async (studentUserId) => {
   const student = await Student.findOne({ userId: studentUserId });
@@ -25,12 +48,13 @@ exports.getProfile = async (studentUserId) => {
   );
   if (!student) throw new Error("Student profile not found");
   const user = await User.findById(studentUserId);
+  const gpa = await computeGPA(student._id);
   return {
     _id: student._id,
     userId: user._id,
     departmentId: student.departmentId?._id || null,
     advisorId: student.advisorId,
-    GPA: student.GPA,
+    GPA: gpa,
     level: student.level,
     name: user.name,
     email: user.email,
@@ -41,12 +65,20 @@ exports.getProfile = async (studentUserId) => {
 };
 
 exports.updateProfile = async (studentUserId, updateData) => {
-  const student = await Student.findOneAndUpdate(
-    { userId: studentUserId },
-    updateData,
-    { returnDocument: "after", runValidators: true },
-  );
-  if (!student) throw new Error("Student profile not found");
+  const { name, ...studentData } = updateData;
+
+  if (name !== undefined) {
+    await User.findByIdAndUpdate(studentUserId, { name }, { runValidators: true });
+  }
+
+  if (Object.keys(studentData).length > 0) {
+    await Student.findOneAndUpdate(
+      { userId: studentUserId },
+      studentData,
+      { returnDocument: "after", runValidators: true },
+    );
+  }
+
   return await exports.getProfile(studentUserId);
 };
 
@@ -97,9 +129,10 @@ exports.getDashboard = async (studentUserId) => {
     percent: e.grade ? 100 : 0,
     grade: e.grade || "N/A",
   }));
+  const gpa = await computeGPA(student._id);
   return {
     student: {
-      GPA: student.GPA,
+      GPA: gpa,
       level: student.level,
       departmentName: student.departmentId?.name || "Unassigned",
     },
@@ -122,9 +155,10 @@ exports.getCourseCatalog = async () => {
     .populate("courseId", "code name credits")
     .populate("professorId", "name");
   return offerings.map((o) => ({
-    _id: o._id,
-    courseCode: o.courseId?.code,
-    courseName: o.courseId?.name,
+    _id: o.courseId?._id || o._id,
+    offeringId: o._id,
+    code: o.courseId?.code,
+    name: o.courseId?.name,
     credits: o.courseId?.credits,
     professor: o.professorId?.name || "TBA",
     schedule: o.schedule,
@@ -153,15 +187,23 @@ const parseSchedule = (scheduleStr) => {
 
 exports.getSchedule = async (studentUserId) => {
   const student = await getStudentDoc(studentUserId);
+  const currentSemester = await universityService.getCurrentSemester();
+  if (!currentSemester) return [];
+
   const enrollments = await Enrollment.find({ studentId: student._id, status: "enrolled" })
     .populate("courseId", "code name")
     .populate({
       path: "offeringId",
-      select: "schedule classroom professorId",
-      populate: { path: "professorId", select: "name" },
+      select: "schedule classroom professorId semesterId",
+      populate: [
+        { path: "professorId", select: "name" },
+        { path: "semesterId", select: "_id" },
+      ],
     });
+
   const result = [];
   for (const e of enrollments) {
+    if (e.offeringId?.semesterId?._id?.toString() !== currentSemester._id.toString()) continue;
     const slots = parseSchedule(e.offeringId?.schedule);
     for (const slot of slots) {
       result.push({
@@ -184,8 +226,9 @@ exports.getGrades = async (studentUserId) => {
     studentId: student._id,
     status: { $in: ["enrolled", "completed"] },
   }).populate("courseId", "code name credits");
+  const gpa = await computeGPA(student._id);
   return {
-    GPA: student.GPA,
+    GPA: gpa,
     grades: enrollments.filter((e) => e.grade).map((e) => ({
       courseCode: e.courseId?.code,
       courseName: e.courseId?.name,
@@ -198,21 +241,27 @@ exports.getGrades = async (studentUserId) => {
 exports.getPayments = async (studentUserId) => {
   const student = await getStudentDoc(studentUserId);
   const payments = await Payment.find({ studentId: student._id })
-    .populate("semesterId", "name")
+    .populate("semesterId", "name code")
     .sort({ createdAt: -1 });
   return payments.map((p) => ({
     _id: p._id,
+    studentId: p.studentId,
+    semesterId: p.semesterId?._id || p.semesterId,
+    semesterName: p.semesterId?.name || null,
+    description: p.description,
     amount: p.amount,
+    paymentMethod: p.paymentMethod,
+    transactionId: p.transactionId,
     status: p.status,
-    semesterId: p.semesterId?._id,
-    semesterName: p.semesterId?.name,
+    dueDate: p.dueDate,
+    paidAt: p.paidAt,
     createdAt: p.createdAt,
   }));
 };
 
 exports.getMyEnrollments = async (studentUserId) => {
   const student = await getStudentDoc(studentUserId);
-  return await Enrollment.find({ studentId: student._id, status: "enrolled" })
+  return await Enrollment.find({ studentId: student._id })
     .populate("courseId", "code name credits")
     .populate("offeringId", "schedule classroom");
 };
@@ -318,30 +367,69 @@ exports.getExams = async (studentUserId) => {
 
 exports.getTranscript = async (studentUserId) => {
   const student = await getStudentDoc(studentUserId);
-  const enrollments = await Enrollment.find({ studentId: student._id })
+  const enrollments = await Enrollment.find({
+    studentId: student._id,
+    status: { $in: ["completed", "enrolled"] },
+  })
     .populate("courseId", "code name credits")
     .populate("offeringId", "semesterId schedule classroom");
+
+  const gradePoints = GRADE_POINTS;
+
+  const semIds = [...new Set(enrollments.map((e) => e.offeringId?.semesterId?.toString()).filter(Boolean))];
+  const semDocs = await Semester.find({ _id: { $in: semIds } });
+  const semMapDocs = {};
+  for (const s of semDocs) {
+    semMapDocs[s._id.toString()] = s;
+  }
+
   const semesterMap = {};
   for (const e of enrollments) {
     let semName = "Unknown";
+    let semStartDate = null;
     if (e.offeringId && e.offeringId.semesterId) {
-      const sem = await Semester.findById(e.offeringId.semesterId);
+      const sem = semMapDocs[e.offeringId.semesterId.toString()];
       semName = sem?.name || "Unknown";
+      semStartDate = sem?.startDate || null;
     }
     if (!semesterMap[semName]) {
-      semesterMap[semName] = { name: semName, gpa: 0, totalCredits: 0, courses: [] };
+      semesterMap[semName] = { name: semName, startDate: semStartDate, gpa: 0, totalCredits: 0, courses: [] };
     }
+
+    const isCompleted = e.status === "completed" && e.grade;
     semesterMap[semName].courses.push({
       code: e.courseId?.code,
       name: e.courseId?.name,
-      credits: e.courseId?.credits,
-      grade: e.grade || "N/A",
+      credits: e.courseId?.credits || 0,
+      grade: isCompleted ? e.grade : "In Progress",
+      status: e.status,
     });
   }
+
+  for (const sem of Object.values(semesterMap)) {
+    let totalPoints = 0;
+    let totalCredits = 0;
+    for (const c of sem.courses) {
+      if (c.status === "completed" && c.grade && gradePoints[c.grade] !== undefined && c.credits > 0) {
+        totalPoints += gradePoints[c.grade] * c.credits;
+        totalCredits += c.credits;
+      }
+    }
+    sem.totalCredits = totalCredits;
+    sem.gpa = totalCredits > 0 ? Math.round((totalPoints / totalCredits) * 100) / 100 : 0;
+  }
+
+  const sortedSemesters = Object.values(semesterMap).sort((a, b) => {
+    if (a.startDate && b.startDate) return new Date(b.startDate) - new Date(a.startDate);
+    if (a.startDate) return -1;
+    if (b.startDate) return 1;
+    return b.name.localeCompare(a.name);
+  });
+
   return {
     _id: student._id,
     studentId: student._id,
-    semesters: Object.values(semesterMap),
+    semesters: sortedSemesters.map(({ startDate, ...rest }) => rest),
   };
 };
 
@@ -380,7 +468,122 @@ exports.submitSemesterRegistration = async (studentUserId) => {
   if (currentSemester.registrationStatus !== "open") {
     throw new Error("Semester registration is not currently open");
   }
-  return { message: "Semester registration submitted successfully", semesterId: currentSemester._id };
+
+  const existing = await SemesterRegistration.findOne({
+    studentId: student._id,
+    semesterId: currentSemester._id,
+  });
+
+  if (existing) {
+    return { message: "Semester registration already submitted", semesterId: currentSemester._id, alreadyRegistered: true };
+  }
+
+  await SemesterRegistration.create({
+    studentId: student._id,
+    semesterId: currentSemester._id,
+  });
+
+  return { message: "Semester registration submitted successfully", semesterId: currentSemester._id, alreadyRegistered: false };
+};
+
+exports.getSemesterRegistrationInfo = async (studentUserId) => {
+  const student = await getStudentDoc(studentUserId);
+  const currentSemester = await universityService.getCurrentSemester();
+  if (!currentSemester) return null;
+
+  const registration = await SemesterRegistration.findOne({
+    studentId: student._id,
+    semesterId: currentSemester._id,
+  });
+
+  const offerings = await CourseOffering.find({ semesterId: currentSemester._id })
+    .populate("courseId", "code name credits")
+    .populate("professorId", "name");
+
+  const enrollments = await Enrollment.find({ studentId: student._id })
+    .populate("courseId", "code name credits")
+    .populate({
+      path: "offeringId",
+      select: "semesterId schedule classroom",
+      populate: { path: "semesterId", select: "_id" },
+    });
+
+  const completedCourseIds = new Set(
+    enrollments
+      .filter((e) => e.status === "completed" && e.courseId?._id)
+      .map((e) => e.courseId._id.toString())
+  );
+
+  const currentEnrolledCourseIds = new Set(
+    enrollments
+      .filter((e) => e.status === "enrolled" && e.offeringId?.semesterId?._id?.toString() === currentSemester._id.toString() && e.courseId?._id)
+      .map((e) => e.courseId._id.toString())
+  );
+
+  const availableCourses = offerings
+    .filter((o) => {
+      const cid = o.courseId?._id?.toString();
+      return (
+        cid &&
+        !completedCourseIds.has(cid) &&
+        !currentEnrolledCourseIds.has(cid) &&
+        o.enrolledCount < o.capacity
+      );
+    })
+    .map((o) => ({
+      _id: o.courseId?._id,
+      offeringId: o._id,
+      code: o.courseId?.code,
+      name: o.courseId?.name,
+      credits: o.courseId?.credits,
+      professor: o.professorId?.name || "TBA",
+      schedule: o.schedule,
+      classroom: o.classroom,
+      capacity: o.capacity,
+      enrolledCount: o.enrolledCount,
+      seatsAvailable: o.capacity - o.enrolledCount,
+    }));
+
+  const currentEnrollments = enrollments
+    .filter((e) => e.offeringId?.semesterId?._id?.toString() === currentSemester._id.toString() && e.status === "enrolled")
+    .map((e) => ({
+      _id: e._id,
+      courseId: e.courseId?._id,
+      code: e.courseId?.code,
+      name: e.courseId?.name,
+      credits: e.courseId?.credits,
+      schedule: e.offeringId?.schedule,
+      classroom: e.offeringId?.classroom,
+      status: e.status,
+    }));
+
+  const enrolledCredits = currentEnrollments.reduce((sum, e) => sum + (e.credits || 0), 0);
+
+  const completedCredits = await Enrollment.aggregate([
+    { $match: { studentId: student._id, status: "completed" } },
+    { $lookup: { from: "courses", localField: "courseId", foreignField: "_id", as: "course" } },
+    { $unwind: { path: "$course", preserveNullAndEmptyArrays: true } },
+    { $group: { _id: null, total: { $sum: "$course.credits" } } },
+  ]);
+
+  const earnedCredits = completedCredits.length > 0 ? completedCredits[0].total : 0;
+  const plan = await StudyPlan.findOne({ studentId: student._id });
+  const requiredCredits = plan?.totalRequired || 120;
+  const maxSetting = await Setting.findOne({ key: "maxCreditsPerSemester" });
+  const maxCredits = maxSetting?.value || 18;
+
+  return {
+    semester: { name: currentSemester.name, registrationStatus: currentSemester.registrationStatus },
+    isRegistered: !!registration,
+    registeredAt: registration?.registeredAt || null,
+    availableCourses,
+    enrolledCourses: currentEnrollments,
+    enrolledCredits,
+    maxCredits,
+    earnedCredits,
+    requiredCredits,
+    remainingCredits: requiredCredits - earnedCredits,
+  };
 };
 
 exports.saveGpaCalculation = async (studentUserId, calculationData) => {

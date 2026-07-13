@@ -1,7 +1,7 @@
 const { z } = require("zod");
 
 const updateProfileSchema = z.object({
-  program: z.string().optional(),
+  name: z.string().min(1, "Name is required").optional(),
 });
 
 const updateSettingsSchema = z.object({

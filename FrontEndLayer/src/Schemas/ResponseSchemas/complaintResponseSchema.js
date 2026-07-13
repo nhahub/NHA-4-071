@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-const ComplaintItemSchema = z.object({
+export const ComplaintItemSchema = z.object({
   _id: z.string(),
   studentId: z.string(),
   adminId: z.string().nullable(),

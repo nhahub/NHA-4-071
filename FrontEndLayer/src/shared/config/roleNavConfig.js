@@ -28,7 +28,6 @@ import {
 export const roleNavConfig = {
   student: [
     { to: ROUTES.STUDENT.DASHBOARD, label: "Dashboard", icon: LayoutDashboard },
-    { to: ROUTES.STUDENT.ENROLLMENT, label: "Course Enrollment", icon: BookOpen },
     { to: ROUTES.STUDENT.SEMESTER_REGISTRATION, label: "Semester Registration", icon: CalendarCheck },
     { to: ROUTES.STUDENT.SCHEDULE, label: "Schedule", icon: Calendar },
     { to: ROUTES.STUDENT.EXAM_SCHEDULE, label: "Exam Schedule", icon: ScrollText },
