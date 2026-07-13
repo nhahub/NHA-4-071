@@ -14,10 +14,9 @@ const StudentAttendancePage = () => {
   if (loading) return <LoadingSkeleton count={3} />;
 
   const courseAttendance = attendance?.courses || [];
-  const overallPercent = courseAttendance.length > 0 ? Math.round(
-    courseAttendance.reduce((s, c) => s + c.attended, 0) /
-    courseAttendance.reduce((s, c) => s + c.total, 0) * 100
-  ) : 0;
+  const totalAttended = courseAttendance.reduce((s, c) => s + c.attended, 0);
+  const totalClasses = courseAttendance.reduce((s, c) => s + c.total, 0);
+  const overallPercent = totalClasses > 0 ? Math.round((totalAttended / totalClasses) * 100) : 0;
   return (
     <div className="flex flex-col gap-6 md:gap-8 max-w-[960px] mx-auto">
       <PageHeader title="Attendance" subtitle="Track your class attendance" />
@@ -38,8 +37,8 @@ const StudentAttendancePage = () => {
           </div>
           <ProgressBar value={overallPercent} max={100} color={overallPercent >= 80 ? "#4F378A" : "#BA1A1A"} height={6} />
         </KPICard>
-        <KPICard label="CLASSES HELD" value={courseAttendance.reduce((s, c) => s + c.total, 0)} subtitle="total sessions" borderColor="#63597C" />
-        <KPICard label="CLASSES ATTENDED" value={courseAttendance.reduce((s, c) => s + c.attended, 0)} subtitle="attended" borderColor="#CFBCFF" />
+        <KPICard label="CLASSES HELD" value={totalClasses} subtitle="total sessions" borderColor="#63597C" />
+        <KPICard label="CLASSES ATTENDED" value={totalAttended} subtitle="attended" borderColor="#CFBCFF" />
       </div>
 
       <div className="flex flex-col gap-3 sm:gap-4">
