@@ -13,7 +13,12 @@ const SemesterConfiguration = () => {
   useEffect(() => {
     getAllSemesters().then((result) => {
       if (result.success && Array.isArray(result.data)) {
-        setLocalSemesters(result.data);
+        setLocalSemesters(
+          result.data.map((sem) => ({
+            ...sem,
+            status: sem.status || sem.registrationStatus || "UPCOMING",
+          }))
+        );
       }
     });
   }, []);

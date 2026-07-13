@@ -8,7 +8,7 @@ import {
 
 const AssignmentsPage = () => {
   const dispatch = useDispatch();
-  const { assignments, loading } = useSelector((state) => state.professor);
+  const { assignments, loading, error } = useSelector((state) => state.professor);
   
   const [activeTab, setActiveTab] = useState('All Assignments');
   const tabs = ['All Assignments', 'Active', 'Drafts', 'Archived'];
@@ -16,6 +16,10 @@ const AssignmentsPage = () => {
   useEffect(() => {
     dispatch(fetchGlobalAssignments());
   }, [dispatch]);
+
+  if (error) {
+    return <div className="p-8 text-danger font-heading font-bold text-xl flex items-center justify-center h-full">{error}</div>;
+  }
 
   if (loading || !assignments) {
     return <div className="p-8 text-white font-heading font-bold text-xl flex items-center justify-center h-full">Loading assignments...</div>;

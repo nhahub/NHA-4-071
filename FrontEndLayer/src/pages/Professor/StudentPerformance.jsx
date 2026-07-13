@@ -11,11 +11,15 @@ import {
 
 const StudentPerformance = () => {
   const dispatch = useDispatch();
-  const { performance, loading } = useSelector((state) => state.professor);
+  const { performance, loading, error } = useSelector((state) => state.professor);
 
   useEffect(() => {
     dispatch(fetchPerformanceAnalytics());
   }, [dispatch]);
+
+  if (error) {
+    return <div className="p-8 text-danger font-heading font-bold text-xl flex items-center justify-center h-full">{error}</div>;
+  }
 
   if (loading || !performance) {
     return <div className="p-8 text-white font-heading font-bold text-xl flex items-center justify-center h-full">Loading performance data...</div>;
@@ -59,7 +63,7 @@ const StudentPerformance = () => {
         <div className="bg-bg-light rounded-xl p-5 border border-border flex flex-col justify-between relative overflow-hidden">
           <span className="text-xs text-text-secondary font-bold uppercase tracking-wider mb-2 relative z-10">Class Average GPA</span>
           <div className="flex items-end gap-2 relative z-10">
-            <span className="text-3xl font-bold text-white block mb-2">{metrics.avgGpa}</span>
+            <span className="text-3xl font-bold text-white block mb-2">{metrics.gpa}</span>
             <span className="text-sm font-bold text-primary mb-3">+0.4</span>
           </div>
           <div className="w-1/2 h-1.5 bg-[#121620] rounded-full relative z-10">
@@ -70,7 +74,7 @@ const StudentPerformance = () => {
 
         <div className="bg-bg-light rounded-xl p-5 border border-border flex flex-col justify-between relative overflow-hidden">
           <span className="text-xs text-text-secondary font-bold uppercase tracking-wider mb-2 relative z-10">Attendance Rate</span>
-          <span className="text-3xl font-bold text-white block mb-2 relative z-10">{metrics.attendanceRate}</span>
+            <span className="text-3xl font-bold text-white block mb-2 relative z-10">{metrics.attendance}</span>
           <div className="w-1/2 h-1.5 bg-[#121620] rounded-full relative z-10">
             <div className="w-[94.8%] h-full bg-primary rounded-full"></div>
           </div>
@@ -91,8 +95,8 @@ const StudentPerformance = () => {
 
         <div className="bg-bg-light rounded-xl p-5 border border-border flex flex-col justify-between relative overflow-hidden">
           <span className="text-xs text-text-secondary font-bold uppercase tracking-wider mb-2 relative z-10">Submission Velocity</span>
-          <span className="text-3xl font-bold text-white block mb-2 relative z-10">{metrics.velocity}</span>
-          <span className="text-[11px] text-primary relative z-10">92% On-time delivery</span>
+            <span className="text-3xl font-bold text-white block mb-2 relative z-10">{metrics.velocity || "92%"}</span>
+            <span className="text-[11px] text-primary relative z-10">92% On-time delivery</span>
           <div className="absolute right-3 top-5 opacity-20 text-primary"><CheckCircle size={40} /></div>
         </div>
       </div>
@@ -117,7 +121,7 @@ const StudentPerformance = () => {
           {/* Table Rows */}
           <div className="flex flex-col">
             {students.map((student) => (
-              <div key={student.id} className="grid grid-cols-12 gap-4 px-6 py-4 border-b border-[rgba(255,255,255,0.05)] items-center hover:bg-[rgba(255,255,255,0.02)] transition-colors">
+              <div key={student._id || student.id} className="grid grid-cols-12 gap-4 px-6 py-4 border-b border-[rgba(255,255,255,0.05)] items-center hover:bg-[rgba(255,255,255,0.02)] transition-colors">
                 
                 <div className="col-span-4 flex items-center gap-3">
                   <div className="w-8 h-8 rounded bg-[#121620] border border-[rgba(255,255,255,0.05)] flex items-center justify-center text-text-secondary font-bold text-xs opacity-50"></div>
@@ -150,7 +154,7 @@ const StudentPerformance = () => {
                 
                 <div className="col-span-1 flex justify-center text-primary">
                   <button className="bg-transparent border-none text-primary cursor-pointer hover:text-white transition-colors">
-                    {getRiskIcon(student.icon)}
+                    {getRiskIcon(student.iconType || student.icon)}
                   </button>
                 </div>
               </div>

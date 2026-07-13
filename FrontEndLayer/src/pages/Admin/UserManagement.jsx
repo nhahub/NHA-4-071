@@ -29,8 +29,9 @@ const UserManagement = () => {
   }, [dispatch]);
 
   useEffect(() => {
-    if (users && users.length > 0) {
-      setLocalUsers(users);
+    const userList = Array.isArray(users) ? users : users?.users || [];
+    if (userList.length > 0) {
+      setLocalUsers(userList);
     }
   }, [users]);
 

@@ -4,9 +4,11 @@ import { SemesterListResponseSchema, CurrentSemesterResponseSchema } from '../Sc
 import { DepartmentsResponseSchema } from '../Schemas/ResponseSchemas/departmentResponseSchema';
 import { AdminReportsResponseSchema } from '../Schemas/ResponseSchemas/adminReportsResponseSchema';
 import { AdminRegistrationStatsResponseSchema } from '../Schemas/ResponseSchemas/adminRegistrationStatsResponseSchema';
+import { AdminDashboardResponseSchema } from '../Schemas/ResponseSchemas/adminDashboardResponseSchema';
+import { AdminUsersResponseSchema } from '../Schemas/ResponseSchemas/adminUsersResponseSchema';
 
 export const getAllUsers = () =>
-  fetchService('/admin/users', { method: 'GET' });
+  fetchService('/admin/users', { method: 'GET' }, AdminUsersResponseSchema);
 
 export const setUserRole = (userId, role) =>
   fetchService(`/admin/users/${userId}`, { method: 'PATCH', data: { role } });
@@ -36,7 +38,7 @@ export const getDemographics = () =>
   fetchService('/departments', { method: 'GET' }, DepartmentsResponseSchema);
 
 export const getAdminDashboard = () =>
-  fetchService('/admin/dashboard', { method: 'GET' });
+  fetchService('/admin/dashboard', { method: 'GET' }, AdminDashboardResponseSchema);
 
 export const getReports = () =>
   fetchService('/admin/reports', { method: 'GET' }, AdminReportsResponseSchema);

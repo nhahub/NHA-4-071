@@ -5,11 +5,15 @@ import { Users, Clock, Filter, Plus, User, FileText, BellRing, BarChart2, MoreVe
 
 const MyCoursesPage = () => {
   const dispatch = useDispatch();
-  const { courses, loading } = useSelector((state) => state.professor);
+  const { courses, loading, error } = useSelector((state) => state.professor);
 
   useEffect(() => {
     dispatch(fetchProfessorCourses());
   }, [dispatch]);
+
+  if (error) {
+    return <div className="p-8 text-danger font-heading font-bold text-xl flex items-center justify-center h-full">{error}</div>;
+  }
 
   if (loading || !courses) {
     return <div className="p-8 text-white font-heading font-bold text-xl flex items-center justify-center h-full">Loading courses data...</div>;

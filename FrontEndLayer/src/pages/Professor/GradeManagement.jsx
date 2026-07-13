@@ -8,11 +8,15 @@ import {
 
 const GradeManagement = () => {
   const dispatch = useDispatch();
-  const { gradeBook, loading } = useSelector((state) => state.professor);
+  const { gradeBook, loading, error } = useSelector((state) => state.professor);
 
   useEffect(() => {
     dispatch(fetchGradeBook());
   }, [dispatch]);
+
+  if (error) {
+    return <div className="p-8 text-danger font-heading font-bold text-xl flex items-center justify-center h-full">{error}</div>;
+  }
 
   if (loading || !gradeBook) {
     return <div className="p-8 text-white font-heading font-bold text-xl flex items-center justify-center h-full">Loading gradebook...</div>;
@@ -127,7 +131,7 @@ const GradeManagement = () => {
         {/* Table Rows */}
         <div className="flex flex-col">
           {students.map((student) => (
-            <div key={student.id} className="grid grid-cols-12 gap-4 p-4 border-b border-[rgba(255,255,255,0.05)] items-center hover:bg-[rgba(255,255,255,0.02)] transition-colors">
+            <div key={student._id || student.id} className="grid grid-cols-12 gap-4 p-4 border-b border-[rgba(255,255,255,0.05)] items-center hover:bg-[rgba(255,255,255,0.02)] transition-colors">
               
               <div className="col-span-3 flex items-center gap-3">
                 <div className="w-8 h-8 rounded-full bg-[#121620] border border-border flex items-center justify-center text-primary font-bold text-xs">{student.initials}</div>

@@ -89,21 +89,30 @@ const DashboardSidebar = ({ mobileOpen, onClose }) => {
         {/* Bottom Section */}
         <div className="flex flex-col items-start w-full border-t border-border pt-6 px-3">
           {isAdmin ? (
-            <div className="flex flex-row items-center px-3 py-4 gap-3 w-full">
-              <div
-                className="flex items-center justify-center w-8 h-8 rounded-xl text-white font-heading font-bold text-sm flex-shrink-0"
-                style={{ background: "#4D8EFF" }}
+            <div className="flex flex-col items-start gap-2 w-full px-3">
+              <div className="flex flex-row items-center px-3 py-4 gap-3 w-full">
+                <div
+                  className="flex items-center justify-center w-8 h-8 rounded-xl text-white font-heading font-bold text-sm flex-shrink-0"
+                  style={{ background: "#4D8EFF" }}
+                >
+                  {user?.name?.charAt(0)?.toUpperCase() || "A"}
+                </div>
+                <div className="flex flex-col items-start">
+                  <span className="font-heading font-bold text-xs leading-[18px] text-text-primary">
+                    {user?.name || "Admin Supervisor"}
+                  </span>
+                  <span className="font-heading font-normal text-[10px] leading-[15px] text-sidebar-text">
+                    {user?.email || "admin@morshed.edu"}
+                  </span>
+                </div>
+              </div>
+              <button
+                onClick={logout}
+                className="flex flex-row items-center px-3 py-2 gap-3 w-full bg-transparent border-none cursor-pointer font-heading font-semibold text-[13px] leading-4 text-sidebar-text hover:text-white transition-colors mb-6"
               >
-                {user?.name?.charAt(0)?.toUpperCase() || "A"}
-              </div>
-              <div className="flex flex-col items-start">
-                <span className="font-heading font-bold text-xs leading-[18px] text-text-primary">
-                  {user?.name || "Admin Supervisor"}
-                </span>
-                <span className="font-heading font-normal text-[10px] leading-[15px] text-sidebar-text">
-                  {user?.email || "admin@morshed.edu"}
-                </span>
-              </div>
+                <LogOut size={18} />
+                <span>Logout</span>
+              </button>
             </div>
           ) : (
             <div className="flex flex-col items-start gap-2 w-full px-3">

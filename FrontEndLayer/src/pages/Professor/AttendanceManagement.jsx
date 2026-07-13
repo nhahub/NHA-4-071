@@ -8,12 +8,16 @@ import {
 
 const AttendanceManagement = () => {
   const dispatch = useDispatch();
-  const { attendance, loading } = useSelector((state) => state.professor);
+  const { attendance, loading, error } = useSelector((state) => state.professor);
   const [selectedStudents, setSelectedStudents] = useState([]);
 
   useEffect(() => {
     dispatch(fetchAttendanceRecords());
   }, [dispatch]);
+
+  if (error) {
+    return <div className="p-8 text-danger font-heading font-bold text-xl flex items-center justify-center h-full">{error}</div>;
+  }
 
   if (loading || !attendance) {
     return <div className="p-8 text-white font-heading font-bold text-xl flex items-center justify-center h-full">Loading attendance data...</div>;

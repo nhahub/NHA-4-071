@@ -8,12 +8,16 @@ import {
 
 const ProfessorNotifications = () => {
   const dispatch = useDispatch();
-  const { notifications, loading } = useSelector((state) => state.professor);
+  const { notifications, loading, error } = useSelector((state) => state.professor);
   const [activeMessage, setActiveMessage] = useState(1);
 
   useEffect(() => {
     dispatch(fetchNotifications());
   }, [dispatch]);
+
+  if (error) {
+    return <div className="p-8 text-danger font-heading font-bold text-xl flex items-center justify-center h-full">{error}</div>;
+  }
 
   if (loading || !notifications) {
     return <div className="p-8 text-white font-heading font-bold text-xl flex items-center justify-center h-full">Loading notifications...</div>;

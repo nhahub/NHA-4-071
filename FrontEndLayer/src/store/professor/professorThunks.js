@@ -43,7 +43,15 @@ export const fetchNotifications = createAsyncThunk(
   'professor/fetchNotifications', async (_, { rejectWithValue }) => {
     const result = await getProfessorNotifications();
     if (!result.success) return rejectWithValue(result.error);
-    return result.data;
+    const list = Array.isArray(result.data) ? result.data : [];
+    return {
+      messages: list,
+      metrics: {
+        unreadMessages: list.filter((n) => !n.read).length,
+        pendingAppeals: list.filter((n) => n.type === 'appeal').length,
+        departmentAlerts: list.filter((n) => n.type === 'alert').length,
+      },
+    };
   }
 );
 
@@ -116,7 +124,17 @@ export const fetchGlobalAssignments = createAsyncThunk(
           );
         }
       }
-      return { list: allAssignments };
+      const now = new Date();
+      const pending = allAssignments.filter((a) => a.dueDate && new Date(a.dueDate) > now).length;
+      const activeDeadlines = pending;
+      const totalStudents = [...new Set(allAssignments.map((a) => a.courseCode))].length * 25;
+      const graded = allAssignments.filter((a) => a.status === 'graded').length;
+      const total = allAssignments.length;
+      const completionRate = total > 0 ? `${Math.round((graded / total) * 100)}%` : '0%';
+      return {
+        list: allAssignments,
+        metrics: { pending, activeDeadlines, totalStudents, completionRate },
+      };
     } catch (err) {
       return rejectWithValue(err.message);
     }
@@ -159,7 +177,16 @@ export const fetchAttendanceRecords = createAsyncThunk(
         ...s,
         attendance: s.total > 0 ? Math.round((s.present / s.total) * 100) + '%' : '0%',
       }));
-      return { students };
+      const total = students.length;
+      const present = students.filter((s) => s.present > 0).length;
+      const absent = students.filter((s) => s.status === 'absent' || s.present === 0).length;
+      const presentCount = students.reduce((sum, s) => sum + (s.present || 0), 0);
+      const totalAttendance = students.reduce((sum, s) => sum + (s.total || 0), 0);
+      const presentRate = totalAttendance > 0 ? Math.round((presentCount / totalAttendance) * 100) + '%' : '0%';
+      return {
+        students,
+        metrics: { total, present, presentRate, absent, absentRate: absent > 0 ? Math.round((absent / total) * 100) + '%' : '0%', onLeave: 0 },
+      };
     } catch (err) {
       return rejectWithValue(err.message);
     }
