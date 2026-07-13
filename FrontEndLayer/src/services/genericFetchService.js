@@ -50,7 +50,7 @@ export const fetchService = async (endpoint, options, schema = null) => {
     return { success: true, data: response.data };
   } catch (error) {
     if (error instanceof ZodError) {
-      console.error('Data Validation Failed:', error.errors);
+      console.error('Data Validation Failed:', error.issues);
       return { success: false, error: 'Received invalid data from server.' };
     }
 

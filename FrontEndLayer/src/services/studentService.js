@@ -4,7 +4,7 @@ import { DashboardResponseSchema } from '../Schemas/ResponseSchemas/dashboardRes
 import { CourseResponseSchema } from '../Schemas/ResponseSchemas/courseResponseSchema';
 import { EnrollmentResponseSchema } from '../Schemas/ResponseSchemas/enrollmentResponseSchema';
 import { ComplaintResponseSchema, ComplaintItemSchema } from '../Schemas/ResponseSchemas/complaintResponseSchema';
-import { PaymentResponseSchema } from '../Schemas/ResponseSchemas/paymentResponseSchema';
+import { PaymentResponseSchema, PaymentSummarySchema } from '../Schemas/ResponseSchemas/paymentResponseSchema';
 import { AdvisingSessionResponseSchema } from '../Schemas/ResponseSchemas/advisingSessionResponseSchema';
 import { SettingsResponseSchema } from '../Schemas/ResponseSchemas/settingsResponseSchema';
 import { CourseOfferingsResponseSchema } from '../Schemas/ResponseSchemas/offeringResponseSchema';
@@ -18,6 +18,7 @@ import { TranscriptResponseSchema } from '../Schemas/ResponseSchemas/transcriptR
 import { StudyPlanResponseSchema } from '../Schemas/ResponseSchemas/studyPlanResponseSchema';
 import { NotificationResponseSchema } from '../Schemas/ResponseSchemas/notificationResponseSchema';
 import { AttendanceResponseSchema } from '../Schemas/ResponseSchemas/attendanceResponseSchema';
+import { SemesterRegistrationInfoResponseSchema } from '../Schemas/ResponseSchemas/semesterRegistrationInfoResponseSchema';
 import { UpdateProfileRequestSchema } from '../Schemas/RequestSchemas/profileSchemas';
 
 export const getStudentProfile = () =>
@@ -38,7 +39,7 @@ export const getStudentDashboard = () =>
   fetchService('/students/dashboard', { method: 'GET' }, DashboardResponseSchema);
 
 export const getAvailableCourses = () =>
-  fetchService('/courses/available', { method: 'GET' }, CourseResponseSchema);
+  fetchService('/students/courses', { method: 'GET' }, CourseResponseSchema);
 
 export const getCourseOfferings = (courseId) =>
   fetchService(`/courses/${courseId}/offerings`, { method: 'GET' }, CourseOfferingsResponseSchema);
@@ -46,8 +47,8 @@ export const getCourseOfferings = (courseId) =>
 export const getMyEnrollments = () =>
   fetchService('/students/enrollments', { method: 'GET' }, EnrollmentResponseSchema);
 
-export const enrollInOffering = (courseId) => {
-  const payload = EnrollmentRequestSchema.parse({ courseId });
+export const enrollInOffering = (offeringId) => {
+  const payload = EnrollmentRequestSchema.parse({ offeringId });
   return fetchService('/enrollments', { method: 'POST', data: payload });
 };
 
@@ -64,6 +65,9 @@ export const submitComplaint = (data) => {
 
 export const getMyPayments = () =>
   fetchService('/students/payments', { method: 'GET' }, PaymentResponseSchema);
+
+export const getPaymentSummary = () =>
+  fetchService('/payments/summary', { method: 'GET' }, PaymentSummarySchema);
 
 export const makePayment = (data) => {
   const payload = MakePaymentRequestSchema.parse(data);
@@ -96,6 +100,9 @@ export const getMyStudyPlan = () =>
 
 export const submitSemesterRegistration = () =>
   fetchService('/students/semester-registration', { method: 'POST' });
+
+export const getSemesterRegistrationInfo = () =>
+  fetchService('/students/semester-registration/info', { method: 'GET' }, SemesterRegistrationInfoResponseSchema);
 
 export const saveGpaCalculation = (data) =>
   fetchService('/students/gpa-calculations', { method: 'POST', data });

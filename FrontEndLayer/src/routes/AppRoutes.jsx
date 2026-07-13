@@ -12,7 +12,7 @@ import RegisterPage from '../pages/Auth/RegisterPage';
 import ForgotPasswordPage from '../pages/Auth/ForgotPasswordPage';
 
 import StudentDashboard from '../pages/Student/StudentDashboard';
-import CourseEnrollmentPage from '../pages/Student/CourseEnrollmentPage';
+import { Navigate } from 'react-router-dom';
 import SemesterRegistrationPage from '../pages/Student/SemesterRegistrationPage';
 import StudentSchedulePage from '../pages/Student/StudentSchedulePage';
 import ExamSchedulePage from '../pages/Student/ExamSchedulePage';
@@ -86,7 +86,7 @@ export const router = createBrowserRouter([
         element: <ProtectedRoute allowedRoles={['student']} />,
         children: [
           { path: ROUTES.STUDENT.DASHBOARD, element: <StudentDashboard /> },
-          { path: ROUTES.STUDENT.ENROLLMENT, element: <CourseEnrollmentPage /> },
+          { path: ROUTES.STUDENT.ENROLLMENT, element: <Navigate to={ROUTES.STUDENT.SEMESTER_REGISTRATION} replace /> },
           { path: ROUTES.STUDENT.SEMESTER_REGISTRATION, element: <SemesterRegistrationPage /> },
           { path: ROUTES.STUDENT.SCHEDULE, element: <StudentSchedulePage /> },
           { path: ROUTES.STUDENT.EXAM_SCHEDULE, element: <ExamSchedulePage /> },
