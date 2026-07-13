@@ -11,11 +11,15 @@ import {
 
 const ProfessorDashboard = () => {
   const dispatch = useDispatch();
-  const { dashboard, loading } = useSelector((state) => state.professor);
+  const { dashboard, loading, error } = useSelector((state) => state.professor);
 
   useEffect(() => {
     dispatch(fetchDashboardOverview());
   }, [dispatch]);
+
+  if (error) {
+    return <div className="p-8 text-danger font-heading font-bold text-xl flex items-center justify-center h-full">{error}</div>;
+  }
 
   if (loading || !dashboard) {
     return <div className="p-8 text-white font-heading font-bold text-xl flex items-center justify-center h-full">Loading dashboard...</div>;

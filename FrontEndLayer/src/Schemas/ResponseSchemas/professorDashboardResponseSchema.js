@@ -1,11 +1,13 @@
 import { z } from 'zod';
 
+const NumOrStr = z.union([z.string(), z.number()]);
+
 const AgendaItemSchema = z.object({
-  id: z.union([z.string(), z.number()]),
+  id: NumOrStr,
   time: z.string(),
   course: z.string(),
   location: z.string(),
-  students: z.number().nullable().optional(),
+  students: NumOrStr.nullable().optional(),
   action: z.string(),
   type: z.string(),
 }).passthrough();
@@ -14,31 +16,31 @@ const CourseOverviewSchema = z.object({
   id: z.string(),
   type: z.string(),
   details: z.string(),
-  progress: z.number(),
+  progress: NumOrStr,
 }).passthrough();
 
 const ActivityItemSchema = z.object({
-  id: z.union([z.string(), z.number()]),
+  id: NumOrStr,
   text: z.string(),
   subtext: z.string().optional(),
-  count: z.number().nullable().optional(),
+  count: NumOrStr.nullable().optional(),
   time: z.string().optional(),
   type: z.string().optional(),
 }).passthrough();
 
 const PerformancePointSchema = z.object({
   name: z.string(),
-  value: z.number(),
+  value: NumOrStr,
 }).passthrough();
 
 export const ProfessorDashboardResponseSchema = z.object({
   metrics: z.object({
-    totalStudents: z.union([z.string(), z.number()]),
+    totalStudents: NumOrStr,
     studentsTrend: z.string().optional(),
-    avgAttendance: z.union([z.string(), z.number()]),
+    avgAttendance: NumOrStr,
     attendanceTrend: z.string().optional(),
-    pendingGrades: z.number(),
-    academicAlerts: z.number(),
+    pendingGrades: NumOrStr,
+    academicAlerts: NumOrStr,
   }).passthrough(),
   agenda: z.array(AgendaItemSchema),
   currentCourses: z.array(CourseOverviewSchema),

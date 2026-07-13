@@ -162,8 +162,8 @@ const GradeManagement = () => {
               </div>
               
               <div className="col-span-2">
-                <span className={`text-xs italic ${student.feedback.includes('Add') ? 'text-text-muted cursor-text' : 'text-text-secondary'}`}>
-                  {student.feedback}
+                <span className={`text-xs italic ${student.feedback?.includes('Add') ? 'text-text-muted cursor-text' : 'text-text-secondary'}`}>
+                  {student.feedback || "Add feedback"}
                 </span>
               </div>
               

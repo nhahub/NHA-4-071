@@ -11,7 +11,8 @@ import { getReports } from "../../services/adminService";
 const ReportsAnalytics = () => {
   const [viewMode, setViewMode] = useState("FACULTY");
   const [timeRange, setTimeRange] = useState("MULTI-YEAR");
-  const [reports, setReports] = useState({ kpis: [], enrollmentTrends: [], gpaByDepartment: [], institutionalGrowth: [] });
+  const [reports, setReports] = useState({ kpis: { totalEnrollment: { value: 0, change: "0%" }, avgGpa: { value: "0.0", change: "0%" }, retentionRate: { value: "0%", change: "0%" }, graduationRate: { value: "0%", change: "0%" } }, enrollmentTrends: [], gpaByDepartment: [], institutionalGrowth: [] });
+  const [loadingReports, setLoadingReports] = useState(true);
 
   useEffect(() => {
     getReports().then((result) => {
@@ -25,7 +26,7 @@ const ReportsAnalytics = () => {
                 retentionRate: { value: data.kpis[2]?.value ?? "0%", change: "+5%" },
                 graduationRate: { value: data.kpis[3]?.value ?? "0%", change: "-2%" },
               }
-            : {},
+            : { totalEnrollment: { value: 0, change: "0%" }, avgGpa: { value: "0.0", change: "0%" }, retentionRate: { value: "0%", change: "0%" }, graduationRate: { value: "0%", change: "0%" } },
           enrollmentTrends: (data.enrollmentTrends || []).map((item) => ({
             year: item.month || item.name || "",
             students: item.count || item.value || 0,
@@ -45,6 +46,7 @@ const ReportsAnalytics = () => {
           })),
         });
       }
+      setLoadingReports(false);
     });
   }, []);
 
