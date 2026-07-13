@@ -1,10 +1,11 @@
 const Enrollment = require("../models/Enrollment");
 const CourseOffering = require("../models/CourseOffering");
 const Student = require("../models/Student");
-const Semester = require("../models/Semester"); // Added for current semester lookup
+const Setting = require("../models/Setting");
 const mongoose = require("mongoose");
+const { getCurrentSemester } = require("./universityService");
 
-exports.enrollCourse = async (studentUserId, courseId) => {
+exports.enrollCourse = async (studentUserId, offeringId) => {
   const session = await mongoose.startSession();
   session.startTransaction();
 
@@ -13,52 +14,106 @@ exports.enrollCourse = async (studentUserId, courseId) => {
     const student = await Student.findOne({ userId: studentUserId });
     if (!student) throw new Error("Student profile not found");
 
-    // 2. Find the Current Active Semester
-    const currentSemester = await Semester.findOne({
-      registrationStatus: { $in: ["open", "ongoing"] },
-    });
-    if (!currentSemester)
-      throw new Error("No active semester for registration right now");
+    // 2. Find the offering by _id and populate semester + course
+    const offering = await CourseOffering.findById(offeringId)
+      .populate("semesterId", "registrationStatus name")
+      .populate("courseId", "code name credits");
 
-    // 3. Find the Course Offering for this Course in the Current Semester
-    const offering = await CourseOffering.findOne({
-      courseId: courseId,
-      semesterId: currentSemester._id,
-    });
+    if (!offering) throw new Error("Course offering not found");
 
-    if (!offering)
-      throw new Error("This course is not offered in the current semester");
+    // 3. Verify the offering belongs to an active semester
+    const status = offering.semesterId?.registrationStatus;
+    if (status !== "open" && status !== "ongoing") {
+      throw new Error("This course is not offered in an active semester");
+    }
 
-    // 4. Check if already enrolled in this offering
+    // 4. Credit limit check
+    const maxSetting = await Setting.findOne({ key: "maxCreditsPerSemester" });
+    const maxCredits = maxSetting?.value || 18;
+
+    const currentSemesterId = offering.semesterId._id;
+    const currentCredits = await Enrollment.aggregate([
+      {
+        $match: {
+          studentId: student._id,
+          status: "enrolled",
+        },
+      },
+      {
+        $lookup: {
+          from: "courseofferings",
+          localField: "offeringId",
+          foreignField: "_id",
+          as: "offering",
+        },
+      },
+      { $unwind: "$offering" },
+      { $match: { "offering.semesterId": currentSemesterId } },
+      {
+        $lookup: {
+          from: "courses",
+          localField: "courseId",
+          foreignField: "_id",
+          as: "course",
+        },
+      },
+      { $unwind: "$course" },
+      { $group: { _id: null, total: { $sum: "$course.credits" } } },
+    ]);
+
+    const enrolledCredits = currentCredits.length > 0 ? currentCredits[0].total : 0;
+    const courseCredits = offering.courseId?.credits || 3;
+
+    if (enrolledCredits + courseCredits > maxCredits) {
+      throw new Error(
+        `Credit limit exceeded. You have ${enrolledCredits} credits and this course is ${courseCredits} credits. Maximum is ${maxCredits} credits per semester.`
+      );
+    }
+
+    // 5. Check for ANY existing enrollment
     const existingEnrollment = await Enrollment.findOne({
       studentId: student._id,
       offeringId: offering._id,
-      status: "enrolled",
     });
-    if (existingEnrollment) throw new Error("Already enrolled in this course");
 
-    // 5. 🛡️ ATOMIC CAPACITY CHECK & INCREMENT
-    // We must use $expr to compare two fields in the same document!
+    if (existingEnrollment) {
+      if (existingEnrollment.status === "enrolled") {
+        throw new Error("Already enrolled in this course");
+      }
+      if (existingEnrollment.status === "completed") {
+        throw new Error("You have already completed this course");
+      }
+      // status === "dropped": reactivate
+      existingEnrollment.status = "enrolled";
+      existingEnrollment.grade = null;
+      await existingEnrollment.save({ session });
+
+      await session.commitTransaction();
+      session.endSession();
+      return existingEnrollment;
+    }
+
+    // 6. Atomic capacity check & increment
     const updatedOffering = await CourseOffering.findOneAndUpdate(
       {
         _id: offering._id,
-        $expr: { $lt: ["$enrolledCount", "$capacity"] }, // Check: count < capacity
+        $expr: { $lt: ["$enrolledCount", "$capacity"] },
       },
-      { $inc: { enrolledCount: 1 } }, // Increment count by 1
-      { new: true, session }, // Return the updated document within the transaction
+      { $inc: { enrolledCount: 1 } },
+      { returnDocument: "after", session },
     );
 
     if (!updatedOffering) {
       throw new Error("Course section is full");
     }
 
-    // 6. Create the Enrollment record
+    // 7. Create the Enrollment record
     const [enrollment] = await Enrollment.create(
       [
         {
           studentId: student._id,
           offeringId: offering._id,
-          courseId: courseId,
+          courseId: offering.courseId._id,
           status: "enrolled",
         },
       ],
@@ -123,4 +178,25 @@ exports.dropCourse = async (studentUserId, enrollmentId) => {
     session.endSession();
     throw error;
   }
+};
+
+// Recalculate enrolledCount on all offerings to fix data drift
+exports.recalibrateCounts = async () => {
+  const offerings = await CourseOffering.find();
+  let fixed = 0;
+
+  for (const offering of offerings) {
+    const actualCount = await Enrollment.countDocuments({
+      offeringId: offering._id,
+      status: "enrolled",
+    });
+
+    if (offering.enrolledCount !== actualCount) {
+      offering.enrolledCount = actualCount;
+      await offering.save();
+      fixed++;
+    }
+  }
+
+  return { total: offerings.length, fixed };
 };

@@ -7,8 +7,8 @@ import { Eye, Globe, Lock, Save, CheckCircle, EyeOff } from "lucide-react";
 
 const LANGUAGES = [
   { value: "en", label: "English" },
-  { value: "ar", label: "العربية" },
-  { value: "fr", label: "Français" },
+  { value: "ar", label: "\u0627\u0644\u0639\u0631\u0628\u064a\u0629" },
+  { value: "fr", label: "Fran\u00e7ais" },
 ];
 
 const defaultSettings = { showGpa: true, preferredLanguage: "en" };
@@ -70,7 +70,7 @@ const SettingsPage = () => {
   if (loading) return <LoadingSkeleton count={3} />;
 
   return (
-    <div className="flex flex-col gap-8 max-w-[960px] mx-auto">
+    <div className="flex flex-col gap-6 md:gap-8 max-w-[960px] mx-auto">
       <PageHeader title="Settings" subtitle="Manage your preferences" />
 
       {error && (
@@ -82,10 +82,10 @@ const SettingsPage = () => {
       </Section>
 
       <Section icon={Globe} title="Preferences">
-        <div className="flex justify-between items-center">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
           <div>
-            <p className="font-heading text-base text-text-primary m-0">Preferred Language</p>
-            <p className="font-heading text-sm text-text-muted m-0 mt-0.5">Choose your interface language</p>
+            <p className="font-heading text-sm sm:text-base text-text-primary m-0">Preferred Language</p>
+            <p className="font-heading text-xs sm:text-sm text-text-muted m-0 mt-0.5">Choose your interface language</p>
           </div>
           <select
             value={settings.preferredLanguage || "en"}
@@ -111,7 +111,7 @@ const SettingsPage = () => {
           )}
 
           <button type="submit" disabled={pwSaving || !currentPassword || !newPassword || !confirmPassword}
-            className="flex items-center gap-2 px-4 py-[9px] bg-primary text-white rounded-lg font-body text-base cursor-pointer self-start disabled:opacity-50">
+            className="flex items-center gap-2 px-4 py-[9px] bg-primary text-white rounded-lg font-body text-sm sm:text-base cursor-pointer self-start disabled:opacity-50">
             {pwSaving ? "Saving..." : "Change Password"}
           </button>
         </form>
@@ -121,22 +121,22 @@ const SettingsPage = () => {
 };
 
 const Section = ({ icon: Icon, title, children }) => (
-  <div className="bg-white border border-border rounded-xl p-6 shadow-sm">
-    <h3 className="font-heading font-semibold text-lg text-text-primary m-0 mb-5 flex items-center gap-2">
+  <div className="bg-white border border-border rounded-xl p-4 sm:p-6 shadow-sm">
+    <h3 className="font-heading font-semibold text-base sm:text-lg text-text-primary m-0 mb-4 sm:mb-5 flex items-center gap-2">
       <Icon size={20} color="#4F378A" /> {title}
     </h3>
-    <div className="flex flex-col gap-4">{children}</div>
+    <div className="flex flex-col gap-3 sm:gap-4">{children}</div>
   </div>
 );
 
 const ToggleRow = ({ label, desc, on, onToggle }) => (
-  <div className="flex justify-between items-center">
-    <div>
-      <p className="font-heading text-base text-text-primary m-0">{label}</p>
-      <p className="font-heading text-sm text-text-muted m-0 mt-0.5">{desc}</p>
+  <div className="flex justify-between items-center gap-4">
+    <div className="min-w-0">
+      <p className="font-heading text-sm sm:text-base text-text-primary m-0">{label}</p>
+      <p className="font-heading text-xs sm:text-sm text-text-muted m-0 mt-0.5">{desc}</p>
     </div>
     <button onClick={onToggle}
-      className="w-11 h-6 rounded-full border-none cursor-pointer relative transition-all duration-200"
+      className="w-11 h-6 rounded-full border-none cursor-pointer relative transition-all duration-200 shrink-0"
       style={{ background: on ? "#4F378A" : "#CBC4D2" }}>
       <div className="w-5 h-5 rounded-full bg-white absolute top-0.5 shadow-[0px_1px_3px_rgba(0,0,0,0.2)] transition-all duration-200"
         style={{ left: on ? 22 : 2 }} />
@@ -146,13 +146,13 @@ const ToggleRow = ({ label, desc, on, onToggle }) => (
 
 const PasswordField = ({ label, value, onChange, show, toggleShow }) => (
   <div>
-    <label className="font-heading text-sm text-text-primary mb-1 block">{label}</label>
+    <label className="font-heading text-xs sm:text-sm text-text-primary mb-1 block">{label}</label>
     <div className="flex items-center gap-2 px-3 py-2 border border-border-color rounded-lg bg-white">
       <input
         type={show ? "text" : "password"}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="flex-1 border-none outline-none font-heading text-base bg-transparent"
+        className="flex-1 border-none outline-none font-heading text-sm sm:text-base bg-transparent"
       />
       <button type="button" onClick={toggleShow} className="bg-transparent border-none p-0 cursor-pointer">
         {show ? <EyeOff size={18} color="#7A7582" /> : <Eye size={18} color="#7A7582" />}

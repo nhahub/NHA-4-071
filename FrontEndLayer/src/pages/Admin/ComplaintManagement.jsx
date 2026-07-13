@@ -1,17 +1,47 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   User, Lock, Send, Paperclip, CheckCircle, AlertTriangle,
   Clock, ShieldAlert, ChevronDown, Filter, Search, MessageSquare
 } from "lucide-react";
-import { complaints as initialComplaints } from "../../dummyData";
+import { getAllComplaints, updateComplaintStatus } from "../../services/adminService";
 
 const ComplaintManagement = () => {
-  const [complaints, setComplaints] = useState(initialComplaints);
-  const [selectedTicket, setSelectedTicket] = useState(initialComplaints[0]);
+  const [complaints, setComplaints] = useState([]);
+  const [selectedTicket, setSelectedTicket] = useState(null);
   const [filterTab, setFilterTab] = useState("ALL"); // ALL, OPEN, CLOSED
   const [activeComposeTab, setActiveComposeTab] = useState("REPLY"); // REPLY, NOTE
   const [composeText, setComposeText] = useState("");
-  const [agent, setAgent] = useState(initialComplaints[0]?.agent || "Unassigned");
+  const [agent, setAgent] = useState("Unassigned");
+
+  useEffect(() => {
+    getAllComplaints().then((result) => {
+      if (result.success && result.data?.complaints) {
+        const formatted = result.data.complaints.map((c) => ({
+          _id: c._id,
+          ticketNumber: c._id.slice(-6).toUpperCase(),
+          title: c.subject,
+          snippet: c.description,
+          status: c.status?.toUpperCase() || "OPEN",
+          statusBadge: c.status === "resolved" ? "bg-[#323537] text-[#C2C6D6]" : "bg-[#03B5D3] text-[#00424E]",
+          category: "COMPLAINT",
+          categoryColor: "text-[#4D8EFF]",
+          timeAgo: c.createdAt ? new Date(c.createdAt).toLocaleDateString() : "N/A",
+          dateFormatted: c.createdAt ? new Date(c.createdAt).toLocaleDateString() : "N/A",
+          student: {
+            name: typeof c.studentId === 'object' ? (c.studentId.userId?.name || "Student") : "Student",
+            avatar: "",
+            major: "",
+            previousTickets: [],
+            auditLog: [],
+          },
+          messages: [{ id: 1, sender: "Student", time: c.createdAt ? new Date(c.createdAt).toLocaleDateString() : "", text: c.description, isStudent: true }],
+          agent: "Unassigned",
+        }));
+        setComplaints(formatted);
+        if (formatted.length > 0) setSelectedTicket(formatted[0]);
+      }
+    });
+  }, []);
 
   const handleTicketSelect = (ticket) => {
     setSelectedTicket(ticket);

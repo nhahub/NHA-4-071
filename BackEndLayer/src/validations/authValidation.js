@@ -14,7 +14,7 @@ const registerSchema = z.object({
   email: z.string().email("Invalid email format"),
   universityId: z.string().min(1, "University ID is required"),
   password: z.string().min(6, "Password must be at least 6 characters"),
-  role: z.enum(["student", "professor", "advisor", "admin"], {
+  role: z.enum(["student", "professor", "advisor"], {
     required_error: "Role is required",
     invalid_type_error: "Invalid role provided",
   }),

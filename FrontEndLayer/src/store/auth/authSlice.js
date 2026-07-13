@@ -6,6 +6,7 @@ const initialState = {
   isAuthenticated: false,
   loading: false,
   error: null,
+  registrationSuccess: false,
   forgotPasswordLoading: false,
   forgotPasswordSuccess: false,
 };
@@ -21,6 +22,9 @@ const authSlice = createSlice({
       state.forgotPasswordLoading = false;
       state.forgotPasswordSuccess = false;
       state.error = null;
+    },
+    resetRegistrationSuccess: (state) => {
+      state.registrationSuccess = false;
     },
   },
   extraReducers: (builder) => {
@@ -41,11 +45,11 @@ const authSlice = createSlice({
       .addCase(register.pending, (state) => {
         state.loading = true;
         state.error = null;
+        state.registrationSuccess = false;
       })
-      .addCase(register.fulfilled, (state, action) => {
+      .addCase(register.fulfilled, (state) => {
         state.loading = false;
-        state.user = action.payload.user;
-        state.isAuthenticated = true;
+        state.registrationSuccess = true;
       })
       .addCase(register.rejected, (state, action) => {
         state.loading = false;
@@ -86,5 +90,5 @@ const authSlice = createSlice({
   },
 });
 
-export const { clearAuthError, resetForgotPasswordState } = authSlice.actions;
+export const { clearAuthError, resetForgotPasswordState, resetRegistrationSuccess } = authSlice.actions;
 export default authSlice.reducer;

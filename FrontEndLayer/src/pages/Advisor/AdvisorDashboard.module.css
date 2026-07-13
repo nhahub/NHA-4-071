@@ -1,0 +1,161 @@
+/* AdvisorDashboard.module.css */
+/* Dark theme with glassmorphism and vibrant accents */
+
+.dashboardContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  padding: 2rem;
+  background: linear-gradient(135deg, #121415, #1a1c1e);
+  min-height: 100vh;
+  color: #e2e2e3;
+}
+
+.loadingContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 80vh;
+}
+
+.metricsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+}
+
+.metricCard {
+  position: relative;
+  padding: 1rem;
+  background: rgba(30, 32, 33, 0.6);
+  border-radius: 12px;
+  backdrop-filter: blur(8px);
+  border-left: 4px solid #e7c365;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.metricHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.metricLabel {
+  font-size: 0.9rem;
+  color: #d0c5b2;
+  font-weight: 500;
+}
+
+.metricValueWrapper {
+  margin-top: 0.25rem;
+}
+
+.metricValue {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #e2e2e3;
+}
+
+.progressContainer {
+  width: 100%;
+  height: 6px;
+  background: #333536;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-top: 0.5rem;
+}
+
+.progressBar {
+  height: 100%;
+  background: #e7c365;
+  transition: width 0.3s ease;
+}
+
+.trendIndicator {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.trendValue {
+  font-size: 0.85rem;
+  color: #e7c365;
+  font-weight: 600;
+}
+
+.sectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 2rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sectionTitle {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #e2e2e3;
+}
+
+.viewAllButton {
+  background: #323537;
+  color: #c2c6d6;
+  border: none;
+  border-radius: 6px;
+  padding: 0.4rem 0.8rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.viewAllButton:hover {
+  background: #3d4144;
+}
+
+.atRiskTable {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.atRiskRow {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.5rem;
+  background: rgba(30, 32, 33, 0.4);
+  border-radius: 8px;
+  backdrop-filter: blur(6px);
+}
+
+.studentName {
+  font-weight: 500;
+  color: #e2e2e3;
+}
+
+.studentInfo {
+  font-size: 0.85rem;
+  color: #c2c6d6;
+}
+
+.sessionsList,
+.alertsList,
+.insightsContent {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+@media (max-width: 768px) {
+  .dashboardContainer {
+    padding: 1rem;
+  }
+  .sectionHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+}

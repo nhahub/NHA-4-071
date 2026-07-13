@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowUpRight } from 'react-feather';
+import { ArrowUpRight } from 'lucide-react';
 
 // Minimal Advisor card using the project's design tokens
 const AdvisorCard = ({ advisor }) => {

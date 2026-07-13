@@ -57,10 +57,5 @@ router.post(
   validate(courseOfferingSchema),
   universityController.createOffering,
 );
-router.get(
-  "/courses/:courseId/offerings",
-  protect,
-  universityController.getOfferingsByCourse,
-);
 
 module.exports = router;

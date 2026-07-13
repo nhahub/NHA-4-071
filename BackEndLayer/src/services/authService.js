@@ -24,45 +24,27 @@ exports.registerUser = async (userData) => {
     throw new Error("User with this email or University ID already exists");
   }
 
-  // 2. Start MongoDB Transaction
-  const session = await mongoose.startSession();
-  session.startTransaction();
+  // 3. Create Base User
+  console.log('Register: Creating user with email', email, 'universityId', universityId);
+  const newUser = await User.create({ name, email, universityId, password, role });
+  console.log('Register: Created user ID', newUser._id);
 
+  // 4. Create Role-Specific Profile based on the enum
   try {
-    // 3. Create Base User
-    const [newUser] = await User.create(
-      [{ name, email, universityId, password, role }],
-      { session },
-    );
-
-    // 4. Create Role-Specific Profile based on the enum
-    let roleProfile;
     if (role === "student") {
-      roleProfile = await Student.create([{ userId: newUser._id }], {
-        session,
-      });
+      await Student.create({ userId: newUser._id });
     } else if (role === "professor") {
-      roleProfile = await Professor.create([{ userId: newUser._id }], {
-        session,
-      });
+      await Professor.create({ userId: newUser._id });
     } else if (role === "advisor") {
-      roleProfile = await Advisor.create([{ userId: newUser._id }], {
-        session,
-      });
+      await Advisor.create({ userId: newUser._id });
     }
-    // Note: Admins might just exist in the User model, or you can add an Admin model later.
-
-    // 5. Commit Transaction (Save to DB permanently)
-    await session.commitTransaction();
-    session.endSession();
-
-    return { user: newUser, roleProfile: roleProfile ? roleProfile[0] : null };
-  } catch (error) {
-    // If anything fails, undo all database changes!
-    await session.abortTransaction();
-    session.endSession();
-    throw error;
+  } catch (err) {
+    // Rollback: remove the created user to avoid orphan records
+    await User.findByIdAndDelete(newUser._id);
+    throw err;
   }
+
+  return { user: newUser };
 };
 
 /**
@@ -71,15 +53,20 @@ exports.registerUser = async (userData) => {
  */
 exports.loginUser = async (universityId, password, res) => {
   // 1. Find user. We MUST use .select('+password') because we hid it in the schema!
-  const user = await User.findOne({ universityId }).select("+password");
+  console.log('Login: Looking up user with universityId', universityId);
+  const user = await User.findOne({ $or: [{ universityId }, { email: universityId }] }).select("+password");
+  console.log('Login: User found?', !!user);
 
   if (!user) {
+    console.log('Login: User not found');
     throw new Error("Invalid credentials"); // Don't say "User not found" (gives hackers info)
   }
 
   // 2. Check if password matches (using the method we created on the User model)
   const isMatch = await user.matchPassword(password);
+  console.log('Login: Password match?', isMatch);
   if (!isMatch) {
+    console.log('Login: Invalid password');
     throw new Error("Invalid credentials");
   }
 

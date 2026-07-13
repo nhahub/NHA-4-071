@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   BarChart3, Download, TrendingUp, TrendingDown,
   Calendar, Filter, Users, Award, Percent, ChevronUp, ChevronDown
@@ -6,13 +6,22 @@ import {
 import {
   ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid
 } from "recharts";
-import { reportsData } from "../../dummyData";
+import { getReports } from "../../services/adminService";
 
 const ReportsAnalytics = () => {
   const [viewMode, setViewMode] = useState("FACULTY");
   const [timeRange, setTimeRange] = useState("MULTI-YEAR");
+  const [reports, setReports] = useState({ kpis: [], enrollmentTrends: [], gpaByDepartment: [], institutionalGrowth: [] });
 
-  const { metrics, enrollmentTrends, gpaByDepartment, institutionalGrowth } = reportsData;
+  useEffect(() => {
+    getReports().then((result) => {
+      if (result.success && result.data) {
+        setReports(result.data);
+      }
+    });
+  }, []);
+
+  const { kpis: metrics, enrollmentTrends, gpaByDepartment, institutionalGrowth } = reports;
 
   return (
     <div className="space-y-6 pb-12 animate-in fade-in duration-200">

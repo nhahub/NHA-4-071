@@ -18,12 +18,20 @@ router.get(
   protect,
   authorize("student"),
   enrollmentController.getMyEnrollments,
-); // Note: Frontend doc says /students/enrollments, we will mount this accordingly
+);
 router.delete(
   "/:id",
   protect,
   authorize("student"),
   enrollmentController.dropCourse,
+);
+
+// Admin: recalibrate enrolledCounts and remove duplicate records
+router.post(
+  "/recalibrate",
+  protect,
+  authorize("admin"),
+  enrollmentController.recalibrate,
 );
 
 module.exports = router;

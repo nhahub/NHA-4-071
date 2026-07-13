@@ -1,17 +1,18 @@
 import { useSelector, useDispatch } from 'react-redux';
 import { useCallback } from 'react';
 import { login, register, forgotPasswordAction, logout, getMe } from '../store/auth/authThunks';
-import { clearAuthError, resetForgotPasswordState } from '../store/auth/authSlice';
+import { clearAuthError, resetForgotPasswordState, resetRegistrationSuccess } from '../store/auth/authSlice';
 
 export const useAuth = () => {
   const dispatch = useDispatch();
-  const { user, isAuthenticated, loading, error, forgotPasswordLoading, forgotPasswordSuccess } = useSelector((state) => state.auth);
+  const { user, isAuthenticated, loading, error, registrationSuccess, forgotPasswordLoading, forgotPasswordSuccess } = useSelector((state) => state.auth);
 
   return {
     user,
     isAuthenticated,
     loading,
     error,
+    registrationSuccess,
     forgotPasswordLoading,
     forgotPasswordSuccess,
     login: useCallback((creds) => dispatch(login(creds)), [dispatch]),
@@ -21,5 +22,6 @@ export const useAuth = () => {
     checkSession: useCallback(() => dispatch(getMe()), [dispatch]),
     clearError: useCallback(() => dispatch(clearAuthError()), [dispatch]),
     resetForgotPassword: useCallback(() => dispatch(resetForgotPasswordState()), [dispatch]),
+    resetRegistrationSuccess: useCallback(() => dispatch(resetRegistrationSuccess()), [dispatch]),
   };
 };

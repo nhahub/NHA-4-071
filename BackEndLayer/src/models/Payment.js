@@ -17,10 +17,31 @@ const paymentSchema = new mongoose.Schema(
       required: true,
       min: 0,
     },
+    description: {
+      type: String,
+      default: "Tuition Fee",
+    },
+    paymentMethod: {
+      type: String,
+      enum: ["credit_card", "debit_card", "bank_transfer", "cash", "online"],
+      default: null,
+    },
+    transactionId: {
+      type: String,
+      default: null,
+    },
     status: {
       type: String,
       enum: ["pending", "paid", "overdue"],
       default: "pending",
+    },
+    paidAt: {
+      type: Date,
+      default: null,
+    },
+    dueDate: {
+      type: Date,
+      default: null,
     },
   },
   { timestamps: true },

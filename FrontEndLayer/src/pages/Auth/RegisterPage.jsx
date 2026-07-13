@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
   GraduationCap, Presentation, ClipboardList,
-  User, Mail, Lock, Eye, EyeOff, ArrowRight,Shield
+  User, Mail, Lock, Eye, EyeOff, ArrowRight, Shield,
 } from 'lucide-react';
 import { RegisterRequestSchema } from '../../Schemas/RequestSchemas/authSchemas';
 import { useAuth } from '../../hooks/useAuth';
@@ -14,7 +14,6 @@ const ROLE_OPTIONS = [
   { value: 'student', label: 'Student', icon: GraduationCap },
   { value: 'professor', label: 'Professor', icon: Presentation },
   { value: 'advisor', label: 'Advisor', icon: ClipboardList },
-  { value: 'admin', label: 'Admin', icon: Shield },
 ];
 
 
@@ -27,7 +26,7 @@ const ROLE_DASHBOARD = {
 
 const RegisterPage = () => {
   const navigate = useNavigate();
-  const { register: registerUser, loading, error, user, isAuthenticated, clearError } = useAuth();
+  const { register: registerUser, loading, error, registrationSuccess, clearError, resetRegistrationSuccess } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
@@ -51,10 +50,11 @@ const RegisterPage = () => {
   }, [clearError]);
 
   useEffect(() => {
-    if (isAuthenticated && user) {
-      navigate(ROLE_DASHBOARD[user.role] || ROUTES.STUDENT.DASHBOARD, { replace: true });
+    if (registrationSuccess) {
+      resetRegistrationSuccess();
+      navigate(ROUTES.LOGIN, { replace: true });
     }
-  }, [isAuthenticated, user, navigate]);
+  }, [registrationSuccess, navigate, resetRegistrationSuccess]);
 
   const onSubmit = (data) => {
     registerUser(data);
