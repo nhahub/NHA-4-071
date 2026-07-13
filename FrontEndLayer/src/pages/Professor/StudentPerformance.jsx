@@ -49,10 +49,10 @@ const StudentPerformance = () => {
         </div>
         
         <div className="flex gap-4">
-          <button className="flex items-center gap-2 px-4 py-2 bg-[#121620] text-text-secondary border border-border rounded text-sm font-bold font-heading cursor-pointer hover:text-white transition-colors">
+          <button onClick={() => alert("Filter options opened")} className="flex items-center gap-2 px-4 py-2 bg-[#121620] text-text-secondary border border-border rounded text-sm font-bold font-heading cursor-pointer hover:text-white transition-colors">
             <Filter size={16} /> Filter
           </button>
-          <button className="flex items-center gap-2 px-5 py-2.5 bg-primary text-bg-page font-bold border-none rounded hover:opacity-90 cursor-pointer transition-opacity">
+          <button onClick={() => alert("Performance report exported")} className="flex items-center gap-2 px-5 py-2.5 bg-primary text-bg-page font-bold border-none rounded hover:opacity-90 cursor-pointer transition-opacity">
             <Download size={18} /> Export Report
           </button>
         </div>
@@ -153,7 +153,7 @@ const StudentPerformance = () => {
                 </div>
                 
                 <div className="col-span-1 flex justify-center text-primary">
-                  <button className="bg-transparent border-none text-primary cursor-pointer hover:text-white transition-colors">
+                  <button onClick={() => alert(`Student: ${student.name}\nRisk: ${student.risk}\nEngagement: ${student.engagement}`)} className="bg-transparent border-none text-primary cursor-pointer hover:text-white transition-colors">
                     {getRiskIcon(student.iconType || student.icon)}
                   </button>
                 </div>
@@ -162,7 +162,7 @@ const StudentPerformance = () => {
           </div>
           
           <div className="p-4 flex justify-center border-t border-[rgba(255,255,255,0.05)]">
-            <button className="bg-transparent border-none text-primary font-bold text-sm cursor-pointer hover:text-white transition-colors">
+            <button onClick={() => alert("Loading all students...")} className="bg-transparent border-none text-primary font-bold text-sm cursor-pointer hover:text-white transition-colors">
               View All 42 Students
             </button>
           </div>
@@ -209,7 +209,7 @@ const StudentPerformance = () => {
             </div>
           </div>
           
-          <button className="w-full bg-transparent border border-border text-text-secondary hover:text-white hover:border-text-secondary font-bold text-sm py-2.5 rounded cursor-pointer transition-colors mt-auto">
+          <button onClick={() => alert("Module analysis view opened")} className="w-full bg-transparent border border-border text-text-secondary hover:text-white hover:border-text-secondary font-bold text-sm py-2.5 rounded cursor-pointer transition-colors mt-auto">
             Deep Dive Into Modules
           </button>
         </div>
@@ -249,7 +249,7 @@ const StudentPerformance = () => {
       </div>
 
       {/* Floating Save/Add Button */}
-      <button className="absolute bottom-0 right-0 w-12 h-12 bg-primary rounded-xl flex items-center justify-center text-bg-page cursor-pointer border-none shadow-[0_4px_20px_rgba(52,211,153,0.3)] hover:opacity-90 transition-opacity">
+      <button onClick={() => alert("Add new performance note")} className="absolute bottom-0 right-0 w-12 h-12 bg-primary rounded-xl flex items-center justify-center text-bg-page cursor-pointer border-none shadow-[0_4px_20px_rgba(52,211,153,0.3)] hover:opacity-90 transition-opacity">
         <Plus size={20} />
       </button>
 

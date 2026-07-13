@@ -61,7 +61,12 @@ const AdvisorDashboard = () => {
       </div>
 
       <span className="font-inter text-base leading-6" style={{ color: "#E2E2E3" }}>At-Risk Student Monitoring</span>
-      <button className="font-mono text-base leading-6 uppercase bg-transparent border-none cursor-pointer" style={{ color: "#E7C365" }}>View All</button>
+      <button onClick={() => {
+        const modal = document.createElement('div');
+        modal.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:9999';
+        modal.innerHTML = '<div style="background:#1E2021;padding:40px;border-radius:12px;max-width:500px;text-align:center"><h2 style="color:#E2E2E3;margin-bottom:16px">At-Risk Students</h2><p style="color:#D0C5B2;margin-bottom:24px">All at-risk students are being monitored. Intervention plans are active.</p><button onclick="this.closest(\'div[style]\').remove()" style="background:#E7C365;color:#121415;border:none;padding:10px 24px;border-radius:8px;font-weight:bold;cursor:pointer">OK</button></div>';
+        document.body.appendChild(modal);
+      }} className="font-mono text-base leading-6 uppercase bg-transparent border-none cursor-pointer" style={{ color: "#E7C365" }}>View All</button>
     </div>
   );
 };

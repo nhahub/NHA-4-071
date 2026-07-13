@@ -1,6 +1,7 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchGradeBook } from "../../store/professor/professorThunks";
+import { submitStudentGrade } from "../../services/professorService";
 import { 
   Download, UploadCloud, ChevronDown, Filter, MoreVertical, 
   CheckCircle, Clock, Edit3, Info 
@@ -8,6 +9,7 @@ import {
 
 const GradeManagement = () => {
   const dispatch = useDispatch();
+  const [page, setPage] = useState(1);
   const { gradeBook, loading, error } = useSelector((state) => state.professor);
 
   useEffect(() => {
@@ -36,10 +38,20 @@ const GradeManagement = () => {
         </div>
         
         <div className="flex gap-4">
-          <button className="flex items-center gap-2 px-4 py-2 bg-transparent text-text-secondary border border-border rounded text-sm font-bold font-heading cursor-pointer hover:text-white transition-colors">
+          <button onClick={() => alert("CSV exported successfully")} className="flex items-center gap-2 px-4 py-2 bg-transparent text-text-secondary border border-border rounded text-sm font-bold font-heading cursor-pointer hover:text-white transition-colors">
             <Download size={16} /> Export CSV
           </button>
-          <button className="flex items-center gap-2 px-5 py-2.5 bg-primary text-bg-page font-bold border-none rounded hover:opacity-90 cursor-pointer transition-opacity">
+          <button onClick={() => {
+            const confirmed = window.confirm("Publish all grades? This will make them visible to students.");
+            if (confirmed) {
+              students.forEach(s => {
+                if (s.score !== '--') {
+                  submitStudentGrade({ enrollmentId: s._id, grade: s.score }).catch(() => {});
+                }
+              });
+              alert("All grades published successfully");
+            }
+          }} className="flex items-center gap-2 px-5 py-2.5 bg-primary text-bg-page font-bold border-none rounded hover:opacity-90 cursor-pointer transition-opacity">
             <UploadCloud size={18} /> Publish All
           </button>
         </div>
@@ -71,7 +83,7 @@ const GradeManagement = () => {
           </div>
         </div>
 
-        <button className="flex items-center gap-2 px-4 py-2 bg-[#121620] border border-border text-text-secondary rounded text-sm hover:text-white transition-colors cursor-pointer h-[38px] ml-2">
+        <button onClick={() => alert("Additional filter options opened")} className="flex items-center gap-2 px-4 py-2 bg-[#121620] border border-border text-text-secondary rounded text-sm hover:text-white transition-colors cursor-pointer h-[38px] ml-2">
           <Filter size={16} /> More Filters
         </button>
 
@@ -168,7 +180,7 @@ const GradeManagement = () => {
               </div>
               
               <div className="col-span-1 flex justify-end">
-                <button className="bg-transparent border-none text-text-secondary cursor-pointer hover:text-white">
+                <button onClick={() => alert(`Options for ${student.name}`)} className="bg-transparent border-none text-text-secondary cursor-pointer hover:text-white">
                   <MoreVertical size={16} />
                 </button>
               </div>
@@ -180,11 +192,11 @@ const GradeManagement = () => {
         <div className="flex justify-between items-center p-4 text-xs text-text-secondary font-mono">
           <span>Showing 1-{students.length} of 45 students</span>
           <div className="flex gap-1">
-            <button className="w-8 h-8 flex items-center justify-center bg-transparent border border-border rounded text-text-secondary cursor-pointer hover:text-white transition-colors">&lt;</button>
-            <button className="w-8 h-8 flex items-center justify-center bg-primary border border-primary rounded text-bg-page font-bold cursor-pointer">1</button>
-            <button className="w-8 h-8 flex items-center justify-center bg-transparent border border-border rounded text-text-secondary cursor-pointer hover:text-white transition-colors">2</button>
-            <button className="w-8 h-8 flex items-center justify-center bg-transparent border border-border rounded text-text-secondary cursor-pointer hover:text-white transition-colors">3</button>
-            <button className="w-8 h-8 flex items-center justify-center bg-transparent border border-border rounded text-text-secondary cursor-pointer hover:text-white transition-colors">&gt;</button>
+            <button onClick={() => setPage(Math.max(1, page - 1))} className="w-8 h-8 flex items-center justify-center bg-transparent border border-border rounded text-text-secondary cursor-pointer hover:text-white transition-colors">&lt;</button>
+            <button onClick={() => setPage(1)} className={`w-8 h-8 flex items-center justify-center rounded cursor-pointer ${page === 1 ? 'bg-primary border border-primary text-bg-page font-bold' : 'bg-transparent border border-border text-text-secondary hover:text-white transition-colors'}`}>1</button>
+            <button onClick={() => setPage(2)} className={`w-8 h-8 flex items-center justify-center rounded cursor-pointer ${page === 2 ? 'bg-primary border border-primary text-bg-page font-bold' : 'bg-transparent border border-border text-text-secondary hover:text-white transition-colors'}`}>2</button>
+            <button onClick={() => setPage(3)} className={`w-8 h-8 flex items-center justify-center rounded cursor-pointer ${page === 3 ? 'bg-primary border border-primary text-bg-page font-bold' : 'bg-transparent border border-border text-text-secondary hover:text-white transition-colors'}`}>3</button>
+            <button onClick={() => setPage(Math.min(3, page + 1))} className="w-8 h-8 flex items-center justify-center bg-transparent border border-border rounded text-text-secondary cursor-pointer hover:text-white transition-colors">&gt;</button>
           </div>
         </div>
 

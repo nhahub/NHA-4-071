@@ -1,10 +1,13 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import { fetchProfessorCourses } from "../../store/professor/professorThunks";
 import { Users, Clock, Filter, Plus, User, FileText, BellRing, BarChart2, MoreVertical, PlusCircle } from "lucide-react";
 
 const MyCoursesPage = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const [showFilters, setShowFilters] = useState(false);
   const { courses, loading, error } = useSelector((state) => state.professor);
 
   useEffect(() => {
@@ -31,10 +34,10 @@ const MyCoursesPage = () => {
           <p className="font-heading text-sm text-text-secondary mt-1">Managing {courses.length} active courses for Spring Semester 2024</p>
         </div>
         <div className="flex flex-row gap-3">
-          <button className="flex items-center gap-2 px-4 py-2 bg-transparent border border-border rounded text-sm font-heading hover:bg-[rgba(255,255,255,0.05)] cursor-pointer text-white transition-colors">
+          <button onClick={() => setShowFilters(!showFilters)} className="flex items-center gap-2 px-4 py-2 bg-transparent border border-border rounded text-sm font-heading hover:bg-[rgba(255,255,255,0.05)] cursor-pointer text-white transition-colors">
             <Filter size={16} /> Filter
           </button>
-          <button className="flex items-center gap-2 px-4 py-2 bg-primary text-bg-page font-bold border-none rounded text-sm font-heading hover:opacity-90 cursor-pointer transition-opacity">
+          <button onClick={() => alert("New Course creation form coming soon")} className="flex items-center gap-2 px-4 py-2 bg-primary text-bg-page font-bold border-none rounded text-sm font-heading hover:opacity-90 cursor-pointer transition-opacity">
             <Plus size={16} /> New Course
           </button>
         </div>
@@ -82,10 +85,10 @@ const MyCoursesPage = () => {
             </div>
 
             <div className="flex justify-end gap-4 mt-auto">
-              <button className="bg-transparent text-text-secondary font-bold text-sm border-none cursor-pointer hover:text-white transition-colors">
+              <button onClick={() => navigate('/professor/courses')} className="bg-transparent text-text-secondary font-bold text-sm border-none cursor-pointer hover:text-white transition-colors">
                 View Student Roster
               </button>
-              <button className="bg-primary text-bg-page font-bold text-sm px-6 py-2.5 rounded cursor-pointer border-none hover:opacity-90 transition-opacity">
+              <button onClick={() => navigate('/professor/grades')} className="bg-primary text-bg-page font-bold text-sm px-6 py-2.5 rounded cursor-pointer border-none hover:opacity-90 transition-opacity">
                 Grade Assignments
               </button>
             </div>
@@ -97,7 +100,7 @@ const MyCoursesPage = () => {
           <div key={course.id} className="col-span-1 bg-bg-light rounded-xl border border-border p-6 flex flex-col justify-between">
             <div className="flex justify-between items-start mb-4">
               <div className="px-2 py-1 bg-border text-text-primary rounded text-xs font-mono font-bold">{course.id}</div>
-              <button className="bg-transparent border-none text-text-secondary cursor-pointer hover:text-white"><MoreVertical size={16} /></button>
+              <button onClick={() => alert(`Options for ${course.name}`)} className="bg-transparent border-none text-text-secondary cursor-pointer hover:text-white"><MoreVertical size={16} /></button>
             </div>
             
             <h3 className="font-heading font-bold text-lg text-white m-0 mb-4">{course.name}</h3>
@@ -123,7 +126,7 @@ const MyCoursesPage = () => {
               </div>
             </div>
 
-            <button className="w-full bg-transparent border border-border text-text-secondary hover:text-white hover:border-text-secondary font-bold text-sm py-2.5 rounded cursor-pointer transition-colors">
+            <button onClick={() => navigate('/professor/dashboard')} className="w-full bg-transparent border border-border text-text-secondary hover:text-white hover:border-text-secondary font-bold text-sm py-2.5 rounded cursor-pointer transition-colors">
               Open Dashboard
             </button>
           </div>

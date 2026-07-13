@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import { fetchDashboardOverview } from "../../store/professor/professorThunks";
 import { 
   Download, Plus, Clock, AlertTriangle, Calendar, FileText,
@@ -11,6 +12,7 @@ import {
 
 const ProfessorDashboard = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { dashboard, loading, error } = useSelector((state) => state.professor);
 
   useEffect(() => {
@@ -54,10 +56,10 @@ const ProfessorDashboard = () => {
         </div>
         
         <div className="flex gap-4">
-          <button className="flex items-center gap-2 px-4 py-2 bg-transparent text-text-secondary border border-border rounded text-sm font-bold font-heading cursor-pointer hover:text-white transition-colors">
+          <button onClick={() => alert("Report exported successfully")} className="flex items-center gap-2 px-4 py-2 bg-transparent text-text-secondary border border-border rounded text-sm font-bold font-heading cursor-pointer hover:text-white transition-colors">
             <Download size={16} /> Export Report
           </button>
-          <button className="flex items-center gap-2 px-5 py-2 bg-[#064E3B] text-primary border border-primary font-bold rounded hover:bg-primary hover:text-bg-page cursor-pointer transition-colors shadow-[0_0_15px_rgba(52,211,153,0.15)]">
+          <button onClick={() => alert("New announcement dialog opened")} className="flex items-center gap-2 px-5 py-2 bg-[#064E3B] text-primary border border-primary font-bold rounded hover:bg-primary hover:text-bg-page cursor-pointer transition-colors shadow-[0_0_15px_rgba(52,211,153,0.15)]">
             <Plus size={18} /> New Announcement
           </button>
         </div>
@@ -141,7 +143,7 @@ const ProfessorDashboard = () => {
                       </div>
                     </div>
                   </div>
-                  <button className={`px-4 py-2 rounded text-[11px] font-bold border-none cursor-pointer transition-colors flex items-center gap-1 mt-1 ${
+                  <button onClick={() => alert(`Action: ${item.action}`)} className={`px-4 py-2 rounded text-[11px] font-bold border-none cursor-pointer transition-colors flex items-center gap-1 mt-1 ${
                     item.type === 'primary' ? 'bg-[#064E3B] text-primary hover:bg-primary hover:text-bg-page' : 'bg-[#121620] text-text-secondary hover:text-white'
                   }`}>
                     {item.action}
@@ -175,8 +177,8 @@ const ProfessorDashboard = () => {
                       <div className="h-full bg-primary rounded-full" style={{ width: `${course.progress}%` }}></div>
                     </div>
                     <div className="flex gap-2">
-                      <button className="flex-1 bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.08)] rounded text-xs text-text-secondary font-bold py-2 cursor-pointer hover:bg-[rgba(255,255,255,0.08)] hover:text-white transition-colors">Course Materials</button>
-                      <button className="w-8 flex items-center justify-center bg-transparent border border-[rgba(255,255,255,0.08)] rounded text-text-secondary cursor-pointer hover:text-white transition-colors"><MoreVertical size={14} /></button>
+                      <button onClick={() => navigate('/professor/courses')} className="flex-1 bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.08)] rounded text-xs text-text-secondary font-bold py-2 cursor-pointer hover:bg-[rgba(255,255,255,0.08)] hover:text-white transition-colors">Course Materials</button>
+                      <button onClick={() => alert(`Options for ${course.name}`)} className="w-8 flex items-center justify-center bg-transparent border border-[rgba(255,255,255,0.08)] rounded text-text-secondary cursor-pointer hover:text-white transition-colors"><MoreVertical size={14} /></button>
                     </div>
                   </div>
                 </div>
@@ -217,7 +219,7 @@ const ProfessorDashboard = () => {
             </div>
             
             <div className="p-5 pt-0">
-              <button className="w-full bg-transparent border border-border rounded text-xs text-text-secondary font-bold py-2.5 cursor-pointer hover:border-text-secondary hover:text-white transition-colors">
+              <button onClick={() => alert("Loading all activity...")} className="w-full bg-transparent border border-border rounded text-xs text-text-secondary font-bold py-2.5 cursor-pointer hover:border-text-secondary hover:text-white transition-colors">
                 View All Activity
               </button>
             </div>

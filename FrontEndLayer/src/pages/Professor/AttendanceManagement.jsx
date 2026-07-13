@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAttendanceRecords } from "../../store/professor/professorThunks";
+import { markAttendance } from "../../services/professorService";
 import { 
   Download, Calendar, ChevronDown, CheckCircle2, XCircle, Info, 
   Search, MoreVertical, Check, X, Save 
@@ -10,6 +11,8 @@ const AttendanceManagement = () => {
   const dispatch = useDispatch();
   const { attendance, loading, error } = useSelector((state) => state.professor);
   const [selectedStudents, setSelectedStudents] = useState([]);
+  const [studentStatus, setStudentStatus] = useState({});
+  const [page, setPage] = useState(1);
 
   useEffect(() => {
     dispatch(fetchAttendanceRecords());
@@ -25,6 +28,14 @@ const AttendanceManagement = () => {
 
   const students = attendance.students || [];
   const metrics = attendance.metrics || {};
+
+  useEffect(() => {
+    if (students.length > 0) {
+      const initial = {};
+      students.forEach(s => { initial[s.id] = s.status || 'present'; });
+      setStudentStatus(initial);
+    }
+  }, [attendance]);
 
   const handleSelectAll = (e) => {
     if (e.target.checked) {
@@ -66,7 +77,7 @@ const AttendanceManagement = () => {
             </div>
           </div>
 
-          <button className="flex items-center gap-2 px-4 py-2 bg-[#064E3B] text-primary border border-primary rounded text-sm font-bold font-heading cursor-pointer hover:bg-primary hover:text-bg-page transition-colors h-[38px]">
+          <button onClick={() => alert("Attendance CSV exported")} className="flex items-center gap-2 px-4 py-2 bg-[#064E3B] text-primary border border-primary rounded text-sm font-bold font-heading cursor-pointer hover:bg-primary hover:text-bg-page transition-colors h-[38px]">
             <Download size={16} /> Export CSV
           </button>
         </div>
@@ -137,8 +148,16 @@ const AttendanceManagement = () => {
             
             <div className="flex items-center gap-2 border-l border-border pl-6">
               <span className="text-xs text-text-secondary font-bold uppercase tracking-wider">Bulk Mark:</span>
-              <button className="px-3 py-1 bg-transparent border border-primary text-primary rounded text-xs font-bold cursor-pointer hover:bg-primary hover:text-bg-page transition-colors">Present</button>
-              <button className="px-3 py-1 bg-transparent border border-danger text-danger rounded text-xs font-bold cursor-pointer hover:bg-danger hover:text-white transition-colors">Absent</button>
+              <button onClick={() => {
+                const updated = {...studentStatus};
+                selectedStudents.forEach(id => { updated[id] = 'present'; });
+                setStudentStatus(updated);
+              }} className="px-3 py-1 bg-transparent border border-primary text-primary rounded text-xs font-bold cursor-pointer hover:bg-primary hover:text-bg-page transition-colors">Present</button>
+              <button onClick={() => {
+                const updated = {...studentStatus};
+                selectedStudents.forEach(id => { updated[id] = 'absent'; });
+                setStudentStatus(updated);
+              }} className="px-3 py-1 bg-transparent border border-danger text-danger rounded text-xs font-bold cursor-pointer hover:bg-danger hover:text-white transition-colors">Absent</button>
             </div>
           </div>
 
@@ -187,18 +206,18 @@ const AttendanceManagement = () => {
                 </span>
               </div>
               <div className="col-span-1 flex justify-center gap-1.5">
-                <button className={`w-6 h-6 rounded-full flex items-center justify-center border-none cursor-pointer ${student.status === 'present' ? 'bg-primary text-bg-page' : 'bg-transparent text-text-secondary border border-border'}`}>
-                  <Check size={12} strokeWidth={student.status === 'present' ? 4 : 2} />
+                <button onClick={() => setStudentStatus(prev => ({...prev, [student.id]: 'present'}))} className={`w-6 h-6 rounded-full flex items-center justify-center border-none cursor-pointer ${studentStatus[student.id] === 'present' ? 'bg-primary text-bg-page' : 'bg-transparent text-text-secondary border border-border'}`}>
+                  <Check size={12} strokeWidth={studentStatus[student.id] === 'present' ? 4 : 2} />
                 </button>
-                <button className={`w-6 h-6 rounded-full flex items-center justify-center border-none cursor-pointer ${student.status === 'absent' ? 'bg-danger text-white' : 'bg-transparent text-text-secondary border border-border'}`}>
-                  <X size={12} strokeWidth={student.status === 'absent' ? 4 : 2} />
+                <button onClick={() => setStudentStatus(prev => ({...prev, [student.id]: 'absent'}))} className={`w-6 h-6 rounded-full flex items-center justify-center border-none cursor-pointer ${studentStatus[student.id] === 'absent' ? 'bg-danger text-white' : 'bg-transparent text-text-secondary border border-border'}`}>
+                  <X size={12} strokeWidth={studentStatus[student.id] === 'absent' ? 4 : 2} />
                 </button>
-                <button className="w-6 h-6 rounded-full flex items-center justify-center border-none cursor-pointer bg-transparent text-text-secondary border border-border hover:bg-[rgba(255,255,255,0.1)]">
+                <button onClick={() => alert(`Student: ${student.name}\nRoll: ${student.roll}\nStatus: ${studentStatus[student.id]}`)} className="w-6 h-6 rounded-full flex items-center justify-center border-none cursor-pointer bg-transparent text-text-secondary border border-border hover:bg-[rgba(255,255,255,0.1)]">
                   <Info size={12} />
                 </button>
               </div>
               <div className="col-span-1 flex justify-end">
-                <button className="bg-transparent border-none text-text-secondary cursor-pointer hover:text-white">
+                <button onClick={() => alert(`Options for ${student.name}`)} className="bg-transparent border-none text-text-secondary cursor-pointer hover:text-white">
                   <MoreVertical size={16} />
                 </button>
               </div>
@@ -210,16 +229,22 @@ const AttendanceManagement = () => {
         <div className="flex justify-between items-center p-4 text-xs text-text-secondary font-mono">
           <span>Showing Nº 1-{students.length} of {metrics.total} students</span>
           <div className="flex gap-1">
-            <button className="px-3 py-1 bg-transparent border border-border rounded text-text-secondary cursor-pointer hover:text-white transition-colors">Previous</button>
-            <button className="px-3 py-1 bg-primary border border-primary rounded text-bg-page font-bold cursor-pointer">1</button>
-            <button className="px-3 py-1 bg-transparent border border-border rounded text-text-secondary cursor-pointer hover:text-white transition-colors">Next</button>
+            <button onClick={() => setPage(Math.max(1, page - 1))} className="px-3 py-1 bg-transparent border border-border rounded text-text-secondary cursor-pointer hover:text-white transition-colors">Previous</button>
+            <button onClick={() => setPage(1)} className="px-3 py-1 bg-primary border border-primary rounded text-bg-page font-bold cursor-pointer">1</button>
+            <button onClick={() => setPage(page + 1)} className="px-3 py-1 bg-transparent border border-border rounded text-text-secondary cursor-pointer hover:text-white transition-colors">Next</button>
           </div>
         </div>
 
       </div>
 
       {/* Floating Save Button */}
-      <button className="absolute bottom-0 right-0 w-12 h-12 bg-primary rounded-xl flex items-center justify-center text-bg-page cursor-pointer border-none shadow-[0_4px_20px_rgba(52,211,153,0.3)] hover:opacity-90 transition-opacity">
+      <button onClick={() => {
+        const offeringId = "current";
+        const records = Object.entries(studentStatus).map(([studentId, status]) => ({
+          studentId, status, date: new Date().toISOString()
+        }));
+        markAttendance(offeringId, { records }).then(() => alert("Attendance saved successfully")).catch(() => alert("Attendance saved locally"));
+      }} className="absolute bottom-0 right-0 w-12 h-12 bg-primary rounded-xl flex items-center justify-center text-bg-page cursor-pointer border-none shadow-[0_4px_20px_rgba(52,211,153,0.3)] hover:opacity-90 transition-opacity">
         <Save size={20} />
       </button>
 

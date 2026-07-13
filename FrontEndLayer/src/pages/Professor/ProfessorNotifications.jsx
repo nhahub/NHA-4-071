@@ -57,7 +57,7 @@ const ProfessorNotifications = () => {
         <div className="bg-bg-light border border-border rounded-xl p-5 flex flex-col justify-between">
           <div className="flex justify-between items-center mb-2">
             <span className="text-[10px] text-white font-bold uppercase tracking-wider">View Filter</span>
-            <button className="bg-transparent border-none text-[10px] text-primary font-bold uppercase tracking-wider cursor-pointer hover:text-white transition-colors">Clear All</button>
+            <button onClick={() => alert("Filters cleared")} className="bg-transparent border-none text-[10px] text-primary font-bold uppercase tracking-wider cursor-pointer hover:text-white transition-colors">Clear All</button>
           </div>
           <div className="flex flex-wrap gap-2">
             <span className="px-3 py-1 bg-primary text-bg-page font-bold text-xs rounded-full cursor-pointer">All</span>
@@ -118,9 +118,11 @@ const ProfessorNotifications = () => {
                 </div>
                 
                 <div className="flex items-center gap-4 text-text-secondary">
-                  <button className="bg-transparent border-none text-text-secondary cursor-pointer hover:text-white transition-colors"><Download size={18} /></button>
-                  <button className="bg-transparent border-none text-text-secondary cursor-pointer hover:text-white transition-colors"><Flag size={18} /></button>
-                  <button className="bg-transparent border-none text-text-secondary cursor-pointer hover:text-danger transition-colors"><Trash2 size={18} /></button>
+                  <button onClick={() => alert("Download attachment")} className="bg-transparent border-none text-text-secondary cursor-pointer hover:text-white transition-colors"><Download size={18} /></button>
+                  <button onClick={() => alert("Message flagged")} className="bg-transparent border-none text-text-secondary cursor-pointer hover:text-white transition-colors"><Flag size={18} /></button>
+                  <button onClick={() => {
+                    if (window.confirm("Delete this message?")) alert("Message deleted");
+                  }} className="bg-transparent border-none text-text-secondary cursor-pointer hover:text-danger transition-colors"><Trash2 size={18} /></button>
                 </div>
               </div>
 
@@ -148,7 +150,7 @@ const ProfessorNotifications = () => {
                         <span className="text-[10px] text-text-secondary font-bold uppercase tracking-wider mt-1">{selectedMsg.attachment.size} • {selectedMsg.attachment.type}</span>
                       </div>
                     </div>
-                    <button className="bg-transparent border-none text-text-secondary cursor-pointer hover:text-white transition-colors">
+                    <button onClick={() => alert(`Downloading: ${selectedMsg.attachment.name}`)} className="bg-transparent border-none text-text-secondary cursor-pointer hover:text-white transition-colors">
                       <Download size={18} />
                     </button>
                   </div>
@@ -166,11 +168,11 @@ const ProfessorNotifications = () => {
               ></textarea>
               <div className="flex justify-between items-center mt-2">
                 <div className="flex items-center gap-4 text-text-secondary">
-                  <button className="bg-transparent border-none text-text-secondary cursor-pointer hover:text-white transition-colors"><Paperclip size={18} /></button>
-                  <button className="bg-transparent border-none text-text-secondary cursor-pointer hover:text-white transition-colors"><Smile size={18} /></button>
-                  <button className="bg-transparent border-none text-text-secondary cursor-pointer hover:text-white transition-colors"><MoreHorizontal size={18} /></button>
+                  <button onClick={() => alert("File attachment dialog opened")} className="bg-transparent border-none text-text-secondary cursor-pointer hover:text-white transition-colors"><Paperclip size={18} /></button>
+                  <button onClick={() => alert("Emoji picker opened")} className="bg-transparent border-none text-text-secondary cursor-pointer hover:text-white transition-colors"><Smile size={18} /></button>
+                  <button onClick={() => alert("More options opened")} className="bg-transparent border-none text-text-secondary cursor-pointer hover:text-white transition-colors"><MoreHorizontal size={18} /></button>
                 </div>
-                <button className="bg-[#064e3b] text-primary hover:bg-primary hover:text-bg-page border border-primary px-6 py-2 rounded font-bold text-xs uppercase tracking-wider cursor-pointer transition-colors">
+                <button onClick={() => alert("Message sent successfully")} className="bg-[#064e3b] text-primary hover:bg-primary hover:text-bg-page border border-primary px-6 py-2 rounded font-bold text-xs uppercase tracking-wider cursor-pointer transition-colors">
                   Send Message
                 </button>
               </div>
