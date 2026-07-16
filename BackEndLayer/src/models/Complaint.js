@@ -9,7 +9,7 @@ const complaintSchema = new mongoose.Schema(
     },
     adminId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Admin", // Or User with role admin
+      ref: "User",
       default: null, // Initially unassigned
     },
     subject: {

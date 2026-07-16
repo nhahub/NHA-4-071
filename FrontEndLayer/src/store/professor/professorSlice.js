@@ -4,11 +4,13 @@ import {
   fetchDashboardOverview, fetchNotifications,
   fetchGradeBook, fetchPerformanceAnalytics, fetchSchedule,
   fetchOfferingStudents, addAssignment,
+  fetchProfessorCourses, fetchGlobalAssignments, fetchAttendanceRecords,
 } from './professorThunks';
 
 const initialState = {
   profile: null,
   offerings: [],
+  courses: null,
   students: [],
   assignments: null,
   gradeBook: null,
@@ -16,6 +18,7 @@ const initialState = {
   notifications: null,
   dashboard: null,
   schedule: [],
+  attendance: null,
   loading: false,
   error: null,
 };
@@ -69,7 +72,19 @@ const professorSlice = createSlice({
 
       .addCase(addAssignment.pending, handlePending)
       .addCase(addAssignment.fulfilled, (state) => { state.loading = false; })
-      .addCase(addAssignment.rejected, handleRejected);
+      .addCase(addAssignment.rejected, handleRejected)
+
+      .addCase(fetchProfessorCourses.pending, handlePending)
+      .addCase(fetchProfessorCourses.fulfilled, (state, action) => { state.loading = false; state.courses = action.payload; })
+      .addCase(fetchProfessorCourses.rejected, handleRejected)
+
+      .addCase(fetchGlobalAssignments.pending, handlePending)
+      .addCase(fetchGlobalAssignments.fulfilled, (state, action) => { state.loading = false; state.assignments = action.payload; })
+      .addCase(fetchGlobalAssignments.rejected, handleRejected)
+
+      .addCase(fetchAttendanceRecords.pending, handlePending)
+      .addCase(fetchAttendanceRecords.fulfilled, (state, action) => { state.loading = false; state.attendance = action.payload; })
+      .addCase(fetchAttendanceRecords.rejected, handleRejected);
   },
 });
 

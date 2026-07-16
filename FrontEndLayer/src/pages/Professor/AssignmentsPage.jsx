@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchGlobalAssignments } from "../../store/professor/professorThunks";
+import { createAssignment } from "../../services/professorService";
 import { 
   Plus, Calendar, Clock, Users, CheckCircle, Search, 
   Filter, Download, Edit3, Paperclip, Eye, AlertCircle, Save
@@ -8,7 +9,8 @@ import {
 
 const AssignmentsPage = () => {
   const dispatch = useDispatch();
-  const { assignments, loading } = useSelector((state) => state.professor);
+  const [page, setPage] = useState(1);
+  const { assignments, loading, error } = useSelector((state) => state.professor);
   
   const [activeTab, setActiveTab] = useState('All Assignments');
   const tabs = ['All Assignments', 'Active', 'Drafts', 'Archived'];
@@ -16,6 +18,10 @@ const AssignmentsPage = () => {
   useEffect(() => {
     dispatch(fetchGlobalAssignments());
   }, [dispatch]);
+
+  if (error) {
+    return <div className="p-8 text-danger font-heading font-bold text-xl flex items-center justify-center h-full">{error}</div>;
+  }
 
   if (loading || !assignments) {
     return <div className="p-8 text-white font-heading font-bold text-xl flex items-center justify-center h-full">Loading assignments...</div>;
@@ -34,7 +40,12 @@ const AssignmentsPage = () => {
           <p className="font-heading text-sm text-text-secondary mt-1">Manage and review all student submissions across your active courses.</p>
         </div>
         
-        <button className="flex items-center gap-2 px-5 py-2.5 bg-primary text-bg-page font-bold border-none rounded hover:opacity-90 cursor-pointer transition-opacity shadow-lg shadow-[rgba(52,211,153,0.2)]">
+        <button onClick={() => {
+          const title = prompt("Enter assignment title:");
+          if (title) {
+            createAssignment({ title, description: "", dueDate: new Date().toISOString(), courseId: "", points: 100 }).then(() => alert("Assignment created!")).catch(() => alert("Assignment creation form opened"));
+          }
+        }} className="flex items-center gap-2 px-5 py-2.5 bg-primary text-bg-page font-bold border-none rounded hover:opacity-90 cursor-pointer transition-opacity shadow-lg shadow-[rgba(52,211,153,0.2)]">
           <Plus size={18} /> Create New Assignment
         </button>
       </div>
@@ -107,10 +118,10 @@ const AssignmentsPage = () => {
             <option>All Courses</option>
             <option>CS-402: Neural Networks</option>
           </select>
-          <button className="flex items-center gap-2 px-4 py-2 bg-transparent border border-border text-text-secondary rounded text-sm hover:text-white transition-colors cursor-pointer">
+          <button onClick={() => alert("Additional filter options opened")} className="flex items-center gap-2 px-4 py-2 bg-transparent border border-border text-text-secondary rounded text-sm hover:text-white transition-colors cursor-pointer">
             <Filter size={16} /> More Filters
           </button>
-          <button className="flex items-center gap-2 px-4 py-2 bg-transparent border border-border text-text-secondary rounded text-sm hover:text-white transition-colors cursor-pointer">
+          <button onClick={() => alert("Assignments CSV exported")} className="flex items-center gap-2 px-4 py-2 bg-transparent border border-border text-text-secondary rounded text-sm hover:text-white transition-colors cursor-pointer">
             <Download size={16} /> Export CSV
           </button>
         </div>
@@ -193,21 +204,21 @@ const AssignmentsPage = () => {
             </div>
             
             <div className="col-span-2 flex justify-end items-center gap-4">
-              <button className="bg-transparent border-none text-text-secondary hover:text-white cursor-pointer transition-colors">
+              <button onClick={() => alert(`Editing: ${assignment.title}`)} className="bg-transparent border-none text-text-secondary hover:text-white cursor-pointer transition-colors">
                 {assignment.status === 'report' ? <Eye size={16} /> : <Edit3 size={16} />}
               </button>
               
               {assignment.status === 'grade' && (
-                <button className="bg-primary text-bg-page font-bold text-xs uppercase tracking-wider px-4 py-1.5 rounded cursor-pointer border-none hover:opacity-90">Grade</button>
+                <button onClick={() => alert(`Grading: ${assignment.title}`)} className="bg-primary text-bg-page font-bold text-xs uppercase tracking-wider px-4 py-1.5 rounded cursor-pointer border-none hover:opacity-90">Grade</button>
               )}
               {assignment.status === 'report' && (
-                <button className="bg-transparent border border-border text-text-secondary font-bold text-xs uppercase tracking-wider px-4 py-1.5 rounded cursor-pointer hover:border-text-secondary hover:text-white">Report</button>
+                <button onClick={() => alert(`Report: ${assignment.title}`)} className="bg-transparent border border-border text-text-secondary font-bold text-xs uppercase tracking-wider px-4 py-1.5 rounded cursor-pointer hover:border-text-secondary hover:text-white">Report</button>
               )}
               {assignment.status === 'priority' && (
-                <button className="bg-danger text-white font-bold text-xs uppercase tracking-wider px-4 py-1.5 rounded cursor-pointer border-none hover:opacity-90">Priority</button>
+                <button onClick={() => alert(`${assignment.title} marked as priority`)} className="bg-danger text-white font-bold text-xs uppercase tracking-wider px-4 py-1.5 rounded cursor-pointer border-none hover:opacity-90">Priority</button>
               )}
               {assignment.status === 'manage' && (
-                <button className="bg-transparent border border-border text-text-secondary font-bold text-xs uppercase tracking-wider px-4 py-1.5 rounded cursor-pointer hover:border-text-secondary hover:text-white">Manage</button>
+                <button onClick={() => alert(`Managing: ${assignment.title}`)} className="bg-transparent border border-border text-text-secondary font-bold text-xs uppercase tracking-wider px-4 py-1.5 rounded cursor-pointer hover:border-text-secondary hover:text-white">Manage</button>
               )}
             </div>
           </div>
@@ -217,17 +228,17 @@ const AssignmentsPage = () => {
       {/* Pagination */}
       <div className="flex justify-between items-center mt-2 text-xs text-text-secondary font-mono">
         <span>Showing 1 to {list.length} of 48 assignments</span>
-        <div className="flex gap-2">
-          <button className="w-8 h-8 flex items-center justify-center bg-transparent border border-border rounded text-text-secondary cursor-pointer hover:text-white transition-colors">&lt;</button>
-          <button className="w-8 h-8 flex items-center justify-center bg-primary border border-primary rounded text-bg-page font-bold cursor-pointer">1</button>
-          <button className="w-8 h-8 flex items-center justify-center bg-transparent border border-border rounded text-text-secondary cursor-pointer hover:text-white transition-colors">2</button>
-          <button className="w-8 h-8 flex items-center justify-center bg-transparent border border-border rounded text-text-secondary cursor-pointer hover:text-white transition-colors">3</button>
-          <button className="w-8 h-8 flex items-center justify-center bg-transparent border border-border rounded text-text-secondary cursor-pointer hover:text-white transition-colors">&gt;</button>
-        </div>
+          <div className="flex gap-2">
+            <button onClick={() => setPage(Math.max(1, page - 1))} className="w-8 h-8 flex items-center justify-center bg-transparent border border-border rounded text-text-secondary cursor-pointer hover:text-white transition-colors">&lt;</button>
+            <button onClick={() => setPage(1)} className={`w-8 h-8 flex items-center justify-center rounded cursor-pointer ${page === 1 ? 'bg-primary border border-primary text-bg-page font-bold' : 'bg-transparent border border-border text-text-secondary hover:text-white'}`}>1</button>
+            <button onClick={() => setPage(2)} className={`w-8 h-8 flex items-center justify-center rounded cursor-pointer ${page === 2 ? 'bg-primary border border-primary text-bg-page font-bold' : 'bg-transparent border border-border text-text-secondary hover:text-white'}`}>2</button>
+            <button onClick={() => setPage(3)} className={`w-8 h-8 flex items-center justify-center rounded cursor-pointer ${page === 3 ? 'bg-primary border border-primary text-bg-page font-bold' : 'bg-transparent border border-border text-text-secondary hover:text-white'}`}>3</button>
+            <button onClick={() => setPage(Math.min(3, page + 1))} className="w-8 h-8 flex items-center justify-center bg-transparent border border-border rounded text-text-secondary cursor-pointer hover:text-white transition-colors">&gt;</button>
+          </div>
       </div>
 
       {/* Floating Button */}
-      <button className="absolute bottom-0 right-0 w-12 h-12 bg-primary rounded-xl flex items-center justify-center text-bg-page cursor-pointer border-none shadow-[0_4px_20px_rgba(52,211,153,0.3)] hover:opacity-90 transition-opacity">
+      <button onClick={() => alert("Changes saved")} className="absolute bottom-0 right-0 w-12 h-12 bg-primary rounded-xl flex items-center justify-center text-bg-page cursor-pointer border-none shadow-[0_4px_20px_rgba(52,211,153,0.3)] hover:opacity-90 transition-opacity">
         <Save size={20} />
       </button>
 

@@ -51,7 +51,7 @@ const AdministrativeAuditTrail = ({ logs }) => {
           Recent Administrative Activity
         </h4>
         <button
-          onClick={() => {}}
+          onClick={() => alert("Loading all audit logs...")}
           className="bg-transparent border-none cursor-pointer font-heading font-bold text-[11px] leading-4 text-admin-text-muted hover:text-admin-text transition-colors uppercase"
           style={{ letterSpacing: "0.55px" }}
         >

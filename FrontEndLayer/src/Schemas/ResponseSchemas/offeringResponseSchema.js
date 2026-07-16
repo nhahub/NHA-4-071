@@ -1,10 +1,12 @@
 import { z } from 'zod';
 
+const PopulatedRef = z.union([z.string(), z.object({}).passthrough()]).optional();
+
 export const CourseOfferingSchema = z.object({
   _id: z.string(),
-  courseId: z.string().optional(),
+  courseId: PopulatedRef,
   professorId: z.string().optional(),
-  semesterId: z.string().optional(),
+  semesterId: PopulatedRef,
   schedule: z.string().optional(),
   classroom: z.string().optional(),
   capacity: z.number().optional(),

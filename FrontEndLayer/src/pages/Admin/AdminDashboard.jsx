@@ -20,7 +20,14 @@ const AdminDashboard = () => {
     );
   }
 
-  const kpis = dashboardData?.kpis;
+  const kpis = dashboardData
+    ? [
+        { label: "Total Users", value: dashboardData.totalUsers ?? 0, trend: "Active accounts" },
+        { label: "Students", value: dashboardData.usersByRole?.students ?? 0, trend: "Enrolled" },
+        { label: "Professors", value: dashboardData.usersByRole?.professors ?? 0, trend: "Faculty" },
+        { label: "Open Complaints", value: dashboardData.openComplaints ?? 0, trend: "Pending" },
+      ]
+    : undefined;
   const enrollmentTrends = dashboardData?.enrollmentTrends;
   const quickManagement = dashboardData?.quickManagement;
   const auditTrail = dashboardData?.auditTrail;

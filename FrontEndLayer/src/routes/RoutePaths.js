@@ -41,6 +41,10 @@ export const ROUTES = {
     GRADUATION: '/advisor/graduation',
     ISSUES: '/advisor/issues',
     STUDENT_PROGRESS: '/advisor/student-progress/:id',
+    AT_RISK: '/advisor/at-risk',
+    TODAY_SESSIONS: '/advisor/todays-sessions',
+    ALERTS: '/advisor/alerts',
+    INSIGHTS: '/advisor/insights',
   },
 
   ADMIN: {

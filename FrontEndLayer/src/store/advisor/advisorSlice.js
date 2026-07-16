@@ -3,7 +3,7 @@ import {
   fetchAdvisorProfile, fetchAssignedStudents, fetchDashboardStats,
   fetchSessions, addSession, modifySession,
   fetchStudentProgress, fetchGraduationAudit,
-  fetchIssues, modifyIssueStatus,
+  fetchIssues, modifyIssueStatus, fetchSemesters,
 } from './advisorThunks';
 
 const initialState = {
@@ -11,6 +11,7 @@ const initialState = {
   assignedStudents: [],
   dashboardStats: null,
   sessions: [],
+  semesters: [],
   studentProgress: null,
   graduationAudit: null,
   issues: null,
@@ -65,7 +66,9 @@ const advisorSlice = createSlice({
 
       .addCase(modifyIssueStatus.pending, (state) => { state.loading = true; })
       .addCase(modifyIssueStatus.fulfilled, (state) => { state.loading = false; })
-      .addCase(modifyIssueStatus.rejected, (state, action) => { state.loading = false; state.error = action.payload; });
+      .addCase(modifyIssueStatus.rejected, (state, action) => { state.loading = false; state.error = action.payload; })
+
+      .addCase(fetchSemesters.fulfilled, (state, action) => { state.semesters = action.payload; });
   },
 });
 

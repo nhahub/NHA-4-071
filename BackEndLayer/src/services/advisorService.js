@@ -48,9 +48,20 @@ exports.getDashboard = async (advisorUserId) => {
     GPA: { $lt: 2.0 },
   });
 
+  // Return keys that match the front‑end expectations
+  // Front‑end expects `totalAdvisees` and `atRiskCount`
+  // We'll map the backend fields accordingly.
   return {
-    totalAdvisees,
-    atRiskAdvisees,
+    metrics: {
+      totalAdvisees,
+      atRiskCount: atRiskAdvisees,
+      auditCompletionPercent: 0,
+      avgResponseHours: 0,
+    },
+    atRiskStudents: [],
+    todaysSessions: [],
+    alerts: [],
+    insights: [],
   };
 };
 
@@ -108,7 +119,7 @@ exports.getSessions = async (advisorUserId, query = {}) => {
   }
 
   const sessions = await AdvisingSession.find(filter)
-    .populate("studentId", "userId")
+    .populate({ path: "studentId", populate: { path: "userId", select: "name universityId" } })
     .populate("semesterId", "name code")
     .sort({ createdAt: -1 });
 

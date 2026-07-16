@@ -20,7 +20,10 @@ const TranscriptPage = () => {
 
   const semesters = transcript?.semesters || [];
   const totalCredits = semesters.reduce((sum, s) => sum + (s.courses || []).reduce((cs, c) => cs + (c.credits || 0), 0), 0);
-  const cumulativeGpa = semesters.length > 0 ? (semesters.reduce((sum, s) => sum + (s.gpa || 0) * (s.totalCredits || 0), 0) / semesters.reduce((sum, s) => sum + (s.totalCredits || 0), 0)).toFixed(2) : "0.00";
+  const completedCredits = semesters.reduce((sum, s) => sum + (s.totalCredits || 0), 0);
+  const cumulativeGpa = semesters.length > 0 && completedCredits > 0
+    ? (semesters.reduce((sum, s) => sum + (s.gpa || 0) * (s.totalCredits || 0), 0) / completedCredits).toFixed(2)
+    : "0.00";
 
   return (
     <div className="flex flex-col gap-6 md:gap-8 max-w-[960px] mx-auto">
@@ -38,7 +41,7 @@ const TranscriptPage = () => {
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
         <KPICard label="CUMULATIVE GPA" value={cumulativeGpa} subtitle={cumulativeGpa >= 3.5 ? "Outstanding" : cumulativeGpa >= 3.0 ? "Good" : cumulativeGpa >= 2.0 ? "Satisfactory" : "—"} borderColor="#4F378A" />
-        <KPICard label="TOTAL CREDITS" value={totalCredits} subtitle="earned" borderColor="#63597C" />
+        <KPICard label="TOTAL CREDITS" value={completedCredits} subtitle={`of ${totalCredits} enrolled`} borderColor="#63597C" />
         <KPICard label="PROGRAM" value={profile?.program || transcript?.program || transcript?.degree || "—"} subtitle={profile?.departmentName || transcript?.department || "—"} borderColor="#CFBCFF" />
       </div>
 
@@ -52,7 +55,7 @@ const TranscriptPage = () => {
                   GPA: {(sem.gpa || 0).toFixed(2)}
                 </span>
                 <span className="font-heading font-semibold text-[10px] sm:text-xs tracking-wider uppercase text-text-secondary">
-                  Credits: {(sem.courses || []).reduce((s, c) => s + (c.credits || 0), 0)}
+                  Credits: {(sem.courses || []).reduce((s, c) => s + (c.credits || 0), 0)}{sem.totalCredits !== (sem.courses || []).reduce((s, c) => s + (c.credits || 0), 0) ? ` (${sem.totalCredits} earned)` : ""}
                 </span>
               </div>
             </div>
@@ -68,14 +71,19 @@ const TranscriptPage = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {(sem.courses || []).map((course, ci) => (
-                    <tr key={course.code} className={ci > 0 ? "border-t border-border-color" : ""}>
-                      <td className="px-4 sm:px-8 py-3 sm:py-[18.5px] font-body text-sm sm:text-base text-primary">{course.code}</td>
-                      <td className="px-4 sm:px-8 py-3 sm:py-4 font-heading text-sm sm:text-base text-text-primary">{course.name}</td>
-                      <td className="px-4 sm:px-8 py-3 sm:py-4 font-heading text-sm sm:text-base text-text-primary">{course.credits}</td>
-                      <td className="px-4 sm:px-8 py-3 sm:py-[18.5px] font-heading font-bold text-sm sm:text-base text-warning text-right">{course.grade}</td>
-                    </tr>
-                  ))}
+                  {(sem.courses || []).map((course, ci) => {
+                    const isInProgress = course.status === "enrolled" || course.grade === "In Progress";
+                    return (
+                      <tr key={course.code} className={ci > 0 ? "border-t border-border-color" : ""}>
+                        <td className="px-4 sm:px-8 py-3 sm:py-[18.5px] font-body text-sm sm:text-base text-primary">{course.code}</td>
+                        <td className="px-4 sm:px-8 py-3 sm:py-4 font-heading text-sm sm:text-base text-text-primary">{course.name}</td>
+                        <td className="px-4 sm:px-8 py-3 sm:py-4 font-heading text-sm sm:text-base text-text-primary">{course.credits}</td>
+                        <td className={`px-4 sm:px-8 py-3 sm:py-[18.5px] font-heading font-bold text-sm sm:text-base text-right ${isInProgress ? "text-text-muted italic" : "text-warning"}`}>
+                          {course.grade}
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>

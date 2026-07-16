@@ -180,6 +180,15 @@ exports.submitSemesterRegistration = async (req, res) => {
   }
 };
 
+exports.getSemesterRegistrationInfo = async (req, res) => {
+  try {
+    const info = await studentService.getSemesterRegistrationInfo(req.user.id);
+    res.status(200).json({ success: true, data: info });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 exports.saveGpaCalculation = async (req, res) => {
   try {
     const result = await studentService.saveGpaCalculation(req.user.id, req.body);
