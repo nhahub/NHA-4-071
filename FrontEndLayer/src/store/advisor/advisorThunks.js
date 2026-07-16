@@ -79,8 +79,8 @@ export const fetchIssues = createAsyncThunk(
 );
 
 export const modifyIssueStatus = createAsyncThunk(
-  'advisor/modifyIssueStatus', async ({ issueId, status }, { rejectWithValue }) => {
-    const result = await updateIssueStatus(issueId, status);
+  'advisor/modifyIssueStatus', async ({ issueId, status, resolutionNote }, { rejectWithValue }) => {
+    const result = await updateIssueStatus(issueId, status, resolutionNote);
     if (!result.success) return rejectWithValue(result.error);
     return result.data;
   }

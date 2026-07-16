@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAttendanceRecords } from "../../store/professor/professorThunks";
 import { markAttendance } from "../../services/professorService";
@@ -18,6 +18,14 @@ const AttendanceManagement = () => {
     dispatch(fetchAttendanceRecords());
   }, [dispatch]);
 
+  useEffect(() => {
+    if (attendance?.students?.length > 0) {
+      const initial = {};
+      attendance.students.forEach(s => { initial[s.id] = s.status || 'present'; });
+      setStudentStatus(initial);
+    }
+  }, [attendance]);
+
   if (error) {
     return <div className="p-8 text-danger font-heading font-bold text-xl flex items-center justify-center h-full">{error}</div>;
   }
@@ -28,14 +36,6 @@ const AttendanceManagement = () => {
 
   const students = attendance.students || [];
   const metrics = attendance.metrics || {};
-
-  useEffect(() => {
-    if (students.length > 0) {
-      const initial = {};
-      students.forEach(s => { initial[s.id] = s.status || 'present'; });
-      setStudentStatus(initial);
-    }
-  }, [attendance]);
 
   const handleSelectAll = (e) => {
     if (e.target.checked) {

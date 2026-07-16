@@ -11,27 +11,9 @@ const QuickManagementGrid = ({ actions }) => {
   const navigate = useNavigate();
 
   const list = actions || [
-    {
-      title: "User Management",
-      subtitle: "Manage all platform users",
-      iconColor: "#ADC6FF",
-      iconBg: "rgba(173, 198, 255, 0.1)",
-      route: "/admin/users",
-    },
-    {
-      title: "Course Management",
-      subtitle: "Configure course offerings",
-      iconColor: "#4CD7F6",
-      iconBg: "rgba(76, 215, 246, 0.1)",
-      route: "/admin/courses",
-    },
-    {
-      title: "Semester Config",
-      subtitle: "Spring 2025 active",
-      iconColor: "#BCC7DE",
-      iconBg: "rgba(188, 199, 222, 0.1)",
-      route: "/admin/semesters",
-    },
+    { title: "User Management", subtitle: "Manage all platform users", iconColor: "#ADC6FF", iconBg: "rgba(173, 198, 255, 0.1)", route: "/admin/users" },
+    { title: "Course Management", subtitle: "Configure course offerings", iconColor: "#4CD7F6", iconBg: "rgba(76, 215, 246, 0.1)", route: "/admin/courses" },
+    { title: "Semester Config", subtitle: "Manage semester setup", iconColor: "#BCC7DE", iconBg: "rgba(188, 199, 222, 0.1)", route: "/admin/semesters" },
   ];
 
   return (

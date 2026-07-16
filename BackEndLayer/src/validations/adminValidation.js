@@ -10,6 +10,7 @@ const updateComplaintSchema = z.object({
     .enum(["pending", "in_progress", "resolved", "rejected"])
     .optional(),
   adminId: z.string().optional(),
+  resolutionNote: z.string().max(2000).optional(),
 });
 
 const updateSemesterSchema = z.object({

@@ -6,7 +6,7 @@ import {
   Mail, Calendar, Eye, Lightbulb, Plus
 } from "lucide-react";
 import { 
-  LineChart, Line, ResponsiveContainer, Tooltip, YAxis, XAxis 
+  LineChart, Line, ResponsiveContainer 
 } from "recharts";
 
 const StudentPerformance = () => {

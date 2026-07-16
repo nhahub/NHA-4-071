@@ -5,21 +5,35 @@ const Complaint = require("../models/Complaint");
 const Semester = require("../models/Semester");
 const Enrollment = require("../models/Enrollment");
 const Setting = require("../models/Setting");
+const notificationService = require("./notificationService");
 
 exports.getDashboard = async () => {
-  const [students, professors, advisors, admins, openComplaints] =
+  const [students, professors, advisors, admins, openComplaints, enrollments] =
     await Promise.all([
       User.countDocuments({ role: "student" }),
       User.countDocuments({ role: "professor" }),
       User.countDocuments({ role: "advisor" }),
       User.countDocuments({ role: "admin" }),
       Complaint.countDocuments({ status: { $in: ["pending", "in_progress"] } }),
+      Enrollment.find().populate({
+        path: "offeringId",
+        populate: { path: "semesterId", select: "name" },
+      }),
     ]);
+
+  const semesterMap = {};
+  enrollments.forEach((e) => {
+    const semName = e.offeringId?.semesterId?.name || "Unknown";
+    semesterMap[semName] = (semesterMap[semName] || 0) + 1;
+  });
+  const enrollmentTrends = Object.entries(semesterMap)
+    .map(([month, count]) => ({ month, count }));
 
   return {
     totalUsers: students + professors + advisors + admins,
     usersByRole: { students, professors, advisors, admins },
     openComplaints,
+    enrollmentTrends,
   };
 };
 
@@ -65,6 +79,7 @@ exports.getComplaints = async (page = 1, limit = 20) => {
   const [complaints, total] = await Promise.all([
     Complaint.find()
       .populate("studentId", "userId")
+      .populate("adminId", "name email")
       .skip(skip)
       .limit(limit)
       .sort({ createdAt: -1 }),
@@ -78,18 +93,82 @@ exports.getComplaints = async (page = 1, limit = 20) => {
 };
 
 exports.updateComplaint = async (complaintId, updateData) => {
-  const complaint = await Complaint.findById(complaintId);
+  const complaint = await Complaint.findById(complaintId).populate("studentId");
   if (!complaint) throw new Error("Complaint not found");
+
+  const oldStatus = complaint.status;
 
   if (updateData.status) {
     complaint.status = updateData.status;
   }
+  if (updateData.resolutionNote !== undefined) {
+    complaint.resolutionNote = updateData.resolutionNote || null;
+  }
+
   if (updateData.adminId) {
+    const wasUnassigned = !complaint.adminId;
     complaint.adminId = updateData.adminId;
+
+    const advisor = await User.findById(updateData.adminId);
+    if (advisor) {
+      await notificationService.createNotification(
+        updateData.adminId,
+        "urgent",
+        "Complaint Assigned to You",
+        `Complaint "${complaint.subject}" has been assigned to you for resolution.`,
+      );
+    }
+
+    const studentUser = await Student.findById(complaint.studentId).populate("userId", "name");
+    if (studentUser?.userId?._id) {
+      await notificationService.createNotification(
+        studentUser.userId._id,
+        "academic",
+        "Complaint Under Review",
+        `Your complaint "${complaint.subject}" has been assigned to ${advisor?.name || "an advisor"} and is now under review.`,
+      );
+    }
   }
 
   await complaint.save();
-  return complaint;
+
+  if (updateData.status && updateData.status !== oldStatus) {
+    const studentUser = await Student.findById(complaint.studentId).populate("userId", "name");
+    if (studentUser?.userId?._id) {
+      if (updateData.status === "resolved" && complaint.resolutionNote) {
+        await notificationService.createNotification(
+          studentUser.userId._id,
+          "academic",
+          "Complaint Resolved",
+          `Your complaint "${complaint.subject}" has been resolved.\nResolution: ${complaint.resolutionNote}`,
+        );
+      } else {
+        await notificationService.createNotification(
+          studentUser.userId._id,
+          "academic",
+          "Complaint Status Updated",
+          `Your complaint "${complaint.subject}" status changed to "${updateData.status}".`,
+        );
+      }
+    }
+
+    if (updateData.status === "resolved") {
+      const admins = await User.find({ role: "admin" }).select("_id name");
+      for (const admin of admins) {
+        await notificationService.createNotification(
+          admin._id,
+          "info",
+          "Complaint Resolved",
+          `Complaint "${complaint.subject}" has been resolved.`,
+        );
+      }
+    }
+  }
+
+  const updated = await Complaint.findById(complaint._id)
+    .populate("studentId", "userId")
+    .populate("adminId", "name email");
+  return updated;
 };
 
 exports.updateSemester = async (semesterId, updateData) => {

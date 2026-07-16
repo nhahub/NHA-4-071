@@ -68,6 +68,18 @@ exports.getAssignments = async (req, res) => {
   }
 };
 
+exports.getAnnouncements = async (req, res) => {
+  try {
+    const announcements = await professorService.getAnnouncements(
+      req.user.id,
+      req.params.offeringId,
+    );
+    res.status(200).json({ success: true, data: announcements });
+  } catch (error) {
+    res.status(403).json({ success: false, message: error.message });
+  }
+};
+
 exports.markAttendance = async (req, res) => {
   try {
     const attendance = await professorService.markAttendance(
@@ -129,10 +141,34 @@ exports.getNotifications = async (req, res) => {
   }
 };
 
+exports.markNotificationRead = async (req, res) => {
+  try {
+    const notification = await professorService.markNotificationRead(
+      req.user.id,
+      req.params.notificationId,
+    );
+    res.status(200).json({ success: true, data: notification });
+  } catch (error) {
+    res.status(404).json({ success: false, message: error.message });
+  }
+};
+
 exports.updateProfile = async (req, res) => {
   try {
     const profile = await professorService.updateProfile(req.user.id, req.body);
     res.status(200).json({ success: true, data: profile });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+};
+
+exports.createAnnouncement = async (req, res) => {
+  try {
+    const announcement = await professorService.createAnnouncement(
+      req.user.id,
+      req.body,
+    );
+    res.status(201).json({ success: true, data: announcement });
   } catch (error) {
     res.status(400).json({ success: false, message: error.message });
   }

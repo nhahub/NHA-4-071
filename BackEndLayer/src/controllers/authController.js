@@ -45,6 +45,23 @@ exports.getMe = async (req, res, next) => {
   }
 };
 
+exports.refresh = async (req, res, next) => {
+  try {
+    const refreshToken = req.cookies?.refreshToken;
+    const { accessToken, user } = await authService.refreshToken(
+      refreshToken,
+      res,
+    );
+
+    res.status(200).json({
+      success: true,
+      data: loginResponseDTO(user, accessToken),
+    });
+  } catch (error) {
+    res.status(401).json({ success: false, message: error.message });
+  }
+};
+
 exports.logout = async (req, res, next) => {
   try {
     await authService.logoutUser(req.user?._id, res);

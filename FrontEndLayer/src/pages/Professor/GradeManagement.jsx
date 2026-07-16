@@ -41,15 +41,20 @@ const GradeManagement = () => {
           <button onClick={() => alert("CSV exported successfully")} className="flex items-center gap-2 px-4 py-2 bg-transparent text-text-secondary border border-border rounded text-sm font-bold font-heading cursor-pointer hover:text-white transition-colors">
             <Download size={16} /> Export CSV
           </button>
-          <button onClick={() => {
+          <button onClick={async () => {
             const confirmed = window.confirm("Publish all grades? This will make them visible to students.");
-            if (confirmed) {
-              students.forEach(s => {
-                if (s.score !== '--') {
-                  submitStudentGrade({ enrollmentId: s._id, grade: s.score }).catch(() => {});
-                }
-              });
-              alert("All grades published successfully");
+            if (!confirmed) return;
+            const toPublish = students.filter(s => s.score !== '--');
+            let successCount = 0;
+            let failCount = 0;
+            for (const s of toPublish) {
+              const result = await submitStudentGrade({ enrollmentId: s._id, grade: s.score });
+              if (result.success) successCount++; else failCount++;
+            }
+            if (failCount === 0) {
+              alert(`All ${successCount} grades published successfully`);
+            } else {
+              alert(`${successCount} published, ${failCount} failed`);
             }
           }} className="flex items-center gap-2 px-5 py-2.5 bg-primary text-bg-page font-bold border-none rounded hover:opacity-90 cursor-pointer transition-opacity">
             <UploadCloud size={18} /> Publish All

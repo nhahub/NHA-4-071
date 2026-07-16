@@ -39,6 +39,9 @@ export const getProfessorDashboard = () =>
 export const getProfessorNotifications = () =>
   fetchService('/professors/notifications', { method: 'GET' }, NotificationResponseSchema);
 
+export const markProfessorNotificationRead = (notificationId) =>
+  fetchService(`/professors/notifications/${notificationId}/read`, { method: 'PATCH' });
+
 export const getProfessorGradesOverview = () =>
   fetchService('/professors/grades-overview', { method: 'GET' }, ProfessorGradesResponseSchema);
 

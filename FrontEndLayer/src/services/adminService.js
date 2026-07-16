@@ -10,6 +10,9 @@ import { AdminUsersResponseSchema } from '../Schemas/ResponseSchemas/adminUsersR
 export const getAllUsers = () =>
   fetchService('/admin/users', { method: 'GET' }, AdminUsersResponseSchema);
 
+export const getAdvisors = () =>
+  fetchService('/admin/users?role=advisor', { method: 'GET' }, AdminUsersResponseSchema);
+
 export const setUserRole = (userId, role) =>
   fetchService(`/admin/users/${userId}`, { method: 'PATCH', data: { role } });
 
@@ -21,6 +24,12 @@ export const getAllComplaints = () =>
 
 export const updateComplaintStatus = (complaintId, status) =>
   fetchService(`/admin/complaints/${complaintId}`, { method: 'PATCH', data: { status } });
+
+export const assignComplaint = (complaintId, adminId) =>
+  fetchService(`/admin/complaints/${complaintId}`, { method: 'PATCH', data: { adminId } });
+
+export const resolveComplaint = (complaintId, resolutionNote) =>
+  fetchService(`/admin/complaints/${complaintId}`, { method: 'PATCH', data: { status: 'resolved', resolutionNote } });
 
 export const getAllSemesters = () =>
   fetchService('/semesters', { method: 'GET' }, SemesterListResponseSchema);

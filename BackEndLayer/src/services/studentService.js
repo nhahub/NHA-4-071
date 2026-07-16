@@ -104,7 +104,7 @@ exports.getDashboard = async (studentUserId) => {
   );
   if (!student) throw new Error("Student profile not found");
   const currentSemester = await universityService.getCurrentSemester();
-  const [enrolledCoursesCount, pendingPaymentsCount, openComplaintsCount, enrollments] =
+  const [enrolledCoursesCount, pendingPaymentsCount, openComplaintsCount, enrollments, allEnrollments] =
     await Promise.all([
       Enrollment.countDocuments({ studentId: student._id, status: "enrolled" }),
       Payment.countDocuments({ studentId: student._id, status: "pending" }),
@@ -116,7 +116,48 @@ exports.getDashboard = async (studentUserId) => {
         "courseId",
         "code name credits",
       ),
+      Enrollment.find({
+        studentId: student._id,
+        status: { $in: ["completed", "enrolled"] },
+      })
+        .populate("courseId", "code name credits")
+        .populate("offeringId", "semesterId"),
     ]);
+
+  const semIds = [...new Set(allEnrollments.map((e) => e.offeringId?.semesterId?.toString()).filter(Boolean))];
+  const semDocs = await Semester.find({ _id: { $in: semIds } });
+  const semMap = {};
+  for (const s of semDocs) semMap[s._id.toString()] = s;
+
+  const semesterMap = {};
+  for (const e of allEnrollments) {
+    const semId = e.offeringId?.semesterId?.toString();
+    if (!semId) continue;
+    const sem = semMap[semId];
+    const semName = sem?.name || "Unknown";
+    if (!semesterMap[semName]) {
+      semesterMap[semName] = { name: semName, startDate: sem?.startDate || null, totalPoints: 0, totalCredits: 0 };
+    }
+    const gp = GRADE_POINTS[e.grade];
+    const cr = e.courseId?.credits || 0;
+    if (gp !== undefined && cr > 0 && e.status === "completed") {
+      semesterMap[semName].totalPoints += gp * cr;
+      semesterMap[semName].totalCredits += cr;
+    }
+  }
+  const gpaTrend = Object.values(semesterMap)
+    .filter((s) => s.totalCredits > 0)
+    .map((s) => ({
+      semester: s.name,
+      gpa: Math.round((s.totalPoints / s.totalCredits) * 100) / 100,
+    }))
+    .sort((a, b) => {
+      if (semesterMap[a.semester]?.startDate && semesterMap[b.semester]?.startDate) {
+        return new Date(semesterMap[a.semester].startDate) - new Date(semesterMap[b.semester].startDate);
+      }
+      return 0;
+    });
+
   const currentCourses = enrollments.map((e) => ({
     code: e.courseId?.code,
     name: e.courseId?.name,
@@ -143,7 +184,7 @@ exports.getDashboard = async (studentUserId) => {
     pendingPayments: pendingPaymentsCount,
     openComplaints: openComplaintsCount,
     currentCourses,
-    gpaTrend: [],
+    gpaTrend,
     courseProgress,
   };
 };

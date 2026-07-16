@@ -39,8 +39,8 @@ export const getGraduationAudit = (studentId) =>
 export const getIssues = () =>
   fetchService('/advisors/issues', { method: 'GET' }, AdvisorIssuesResponseSchema);
 
-export const updateIssueStatus = (issueId, status) => {
-  const payload = UpdateIssueStatusRequestSchema.parse({ status });
+export const updateIssueStatus = (issueId, status, resolutionNote = "") => {
+  const payload = UpdateIssueStatusRequestSchema.parse({ status, resolutionNote: resolutionNote || undefined });
   return fetchService(`/advisors/issues/${issueId}`, { method: 'PATCH', data: payload });
 };
 

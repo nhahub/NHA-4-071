@@ -27,3 +27,6 @@ export const changePassword = (data) => {
   const payload = ChangePasswordRequestSchema.parse(data);
   return fetchService('/auth/change-password', { method: 'POST', data: payload });
 };
+
+export const refreshAccessToken = () =>
+  fetchService('/auth/refresh', { method: 'POST' });

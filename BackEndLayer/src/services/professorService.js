@@ -5,6 +5,7 @@ const Enrollment = require("../models/Enrollment");
 const Assignment = require("../models/Assignment");
 const Attendance = require("../models/Attendance");
 const Semester = require("../models/Semester");
+const Announcement = require("../models/Announcement");
 const Notification = require("../models/Notification");
 const mongoose = require("mongoose");
 
@@ -100,6 +101,16 @@ exports.submitGrade = async (professorUserId, enrollmentId, grade) => {
   enrollment.grade = grade;
   await enrollment.save();
 
+  const student = await Student.findById(enrollment.studentId).populate("userId", "name");
+  if (student?.userId?._id) {
+    await notificationService.createNotification(
+      student.userId._id,
+      "academic",
+      "Grade Posted",
+      `Your grade for ${enrollment.offeringId?.courseId || "a course"} has been posted: ${grade}.`,
+    );
+  }
+
   return enrollment;
 };
 
@@ -110,7 +121,6 @@ exports.createAssignment = async (professorUserId, assignmentData) => {
   const professor = await Professor.findOne({ userId: professorUserId });
   if (!professor) throw new Error("Professor profile not found");
 
-  // Security Check: Ensure this professor owns the offering
   const offering = await CourseOffering.findOne({
     _id: offeringId,
     professorId: professor._id,
@@ -125,10 +135,62 @@ exports.createAssignment = async (professorUserId, assignmentData) => {
     maxScore,
   });
 
+  const enrolledStudents = await Enrollment.find({ offeringId, status: "enrolled" })
+    .populate("studentId", "userId");
+  const courseName = offering.courseId || "your course";
+  for (const enrollment of enrolledStudents) {
+    if (enrollment.studentId?.userId) {
+      await notificationService.createNotification(
+        enrollment.studentId.userId,
+        "academic",
+        "New Assignment Posted",
+        `A new assignment "${title}" has been posted for ${courseName}. Due: ${new Date(dueDate).toLocaleDateString()}.`,
+      );
+    }
+  }
+
   return assignment;
 };
 
-// 6. Get Assignments for an Offering
+// 6. Create Announcement
+exports.createAnnouncement = async (professorUserId, announcementData) => {
+  const { offeringId, title, content } = announcementData;
+
+  const professor = await Professor.findOne({ userId: professorUserId });
+  if (!professor) throw new Error("Professor profile not found");
+
+  const offering = await CourseOffering.findOne({
+    _id: offeringId,
+    professorId: professor._id,
+  });
+  if (!offering)
+    throw new Error("You are not authorized to create announcements for this offering");
+
+  const announcement = await Announcement.create({
+    offeringId,
+    professorId: professor._id,
+    title,
+    content,
+  });
+
+  const enrolledStudents = await Enrollment.find({ offeringId, status: "enrolled" })
+    .populate("studentId", "userId");
+  const courseName = offering.courseId || "your course";
+  for (const enrollment of enrolledStudents) {
+    if (enrollment.studentId?.userId) {
+      await notificationService.createNotification(
+        enrollment.studentId.userId,
+        "info",
+        "New Announcement",
+        `Announcement for ${courseName}: "${title}"`,
+      );
+    }
+  }
+
+  return announcement;
+};
+
+// 7. Get Assignments for an Offering
 exports.getAssignments = async (professorUserId, offeringId) => {
   const professor = await Professor.findOne({ userId: professorUserId });
   if (!professor) throw new Error("Professor profile not found");
@@ -144,6 +206,22 @@ exports.getAssignments = async (professorUserId, offeringId) => {
   const assignments = await Assignment.find({ offeringId }).sort({ dueDate: 1 });
 
   return assignments;
+};
+
+exports.getAnnouncements = async (professorUserId, offeringId) => {
+  const professor = await Professor.findOne({ userId: professorUserId });
+  if (!professor) throw new Error("Professor profile not found");
+
+  const offering = await CourseOffering.findOne({
+    _id: offeringId,
+    professorId: professor._id,
+  });
+  if (!offering)
+    throw new Error("You are not authorized to view announcements for this offering");
+
+  const announcements = await Announcement.find({ offeringId }).sort({ createdAt: -1 });
+
+  return announcements;
 };
 
 // 7. Mark Attendance (Create or Update for a specific date)
@@ -421,7 +499,8 @@ exports.getGradesOverview = async (professorUserId) => {
         ? await User.findById(enrollment.studentId.userId)
         : null;
       return {
-        _id: enrollment.studentId?._id,
+        _id: enrollment._id,
+        studentRef: enrollment.studentId?._id,
         name: studentUser?.name || "Unknown",
         studentId: studentUser?.universityId || "",
         score: enrollment.grade
@@ -469,7 +548,6 @@ exports.getGradesOverview = async (professorUserId) => {
 
 // 12. Get Notifications
 exports.getNotifications = async (professorUserId) => {
-  const Notification = require("../models/Notification");
   const notifications = await Notification.find({ userId: professorUserId })
     .sort({ createdAt: -1 });
   return notifications.map((n) => ({
@@ -481,6 +559,10 @@ exports.getNotifications = async (professorUserId) => {
     read: n.read,
     date: n.createdAt,
   }));
+};
+
+exports.markNotificationRead = async (professorUserId, notificationId) => {
+  return notificationService.markAsRead(professorUserId, notificationId);
 };
 
 // 13. Update Professor Profile

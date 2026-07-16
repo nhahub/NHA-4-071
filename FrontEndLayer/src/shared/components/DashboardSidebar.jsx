@@ -30,7 +30,7 @@ const DashboardSidebar = ({ mobileOpen, onClose }) => {
       )}
 
       <aside
-        className={`box-border flex flex-col justify-between items-start py-4 w-[240px] h-screen overflow-y-auto bg-sidebar-bg border-r border-border fixed top-0 left-0 z-30 transition-transform duration-300 ease-in-out ${
+        className={`dashboard-sidebar box-border flex flex-col justify-between items-start py-4 w-[240px] h-screen overflow-y-auto bg-sidebar-bg border-r border-border fixed top-0 left-0 z-30 transition-transform duration-300 ease-in-out ${
           mobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
         }`}
       >

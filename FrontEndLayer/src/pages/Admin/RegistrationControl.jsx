@@ -1,8 +1,7 @@
 import { useState, useEffect } from "react";
 import {
   User, Check, Info, X, Filter, Download,
-  AlertCircle, RotateCcw, ChevronLeft, ChevronRight,
-  ShieldCheck, CheckCircle2, XCircle
+  AlertCircle, RotateCcw, ChevronLeft, ChevronRight
 } from "lucide-react";
 import { getRegistrationStats } from "../../services/adminService";
 

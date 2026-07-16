@@ -2,9 +2,9 @@ import { useState, useEffect, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAllUsers } from "../../store/admin/adminThunks";
 import {
-  Search, UserPlus, Filter, Download, Printer, Edit2,
+  Search, UserPlus, Download, Printer, Edit2,
   Ban, CheckCircle, RotateCcw, ChevronLeft, ChevronRight,
-  GraduationCap, Users, Shield, UserCheck
+  GraduationCap, Users, Shield
 } from "lucide-react";
 import UserModal from "./components/UserModal";
 

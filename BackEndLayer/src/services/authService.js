@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const crypto = require("crypto");
+const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 const Student = require("../models/Student");
 const Professor = require("../models/Professor");
@@ -99,6 +100,38 @@ exports.loginUser = async (universityId, password, res) => {
   });
 
   // 6. Return Access Token and User data to frontend
+  return { accessToken, user };
+};
+
+/**
+ * REFRESH TOKEN SERVICE
+ * Validates the refresh token from the httpOnly cookie and issues a new access token.
+ * Optionally rotates the refresh token (old one is invalidated, new one issued).
+ */
+exports.refreshToken = async (refreshToken, res) => {
+  if (!refreshToken) {
+    throw new Error("No refresh token provided");
+  }
+
+  const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
+
+  const user = await User.findById(decoded.id).select("+refreshToken");
+  if (!user || user.refreshToken !== refreshToken) {
+    throw new Error("Invalid refresh token");
+  }
+
+  const accessToken = generateAccessToken(user._id, user.role);
+  const newRefreshToken = generateRefreshToken(user._id);
+
+  user.refreshToken = newRefreshToken;
+  await user.save({ validateBeforeSave: false });
+
+  res.cookie("refreshToken", newRefreshToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+  });
+
   return { accessToken, user };
 };
 
@@ -215,6 +248,7 @@ exports.changePassword = async (userId, currentPassword, newPassword) => {
 module.exports = {
   registerUser: exports.registerUser,
   loginUser: exports.loginUser,
+  refreshToken: exports.refreshToken,
   getMe: exports.getMe,
   logoutUser: exports.logoutUser,
   forgotPassword: exports.forgotPassword,

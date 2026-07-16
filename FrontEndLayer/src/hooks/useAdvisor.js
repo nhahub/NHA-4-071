@@ -23,6 +23,6 @@ export const useAdvisor = () => {
     loadStudentProgress: useCallback((studentId) => dispatch(fetchStudentProgress(studentId)), [dispatch]),
     loadGraduationAudit: useCallback((studentId) => dispatch(fetchGraduationAudit(studentId)), [dispatch]),
     loadIssues: useCallback(() => dispatch(fetchIssues()), [dispatch]),
-    updateIssue: useCallback((issueId, status) => dispatch(modifyIssueStatus({ issueId, status })), [dispatch]),
+    updateIssue: useCallback((issueId, status, resolutionNote) => dispatch(modifyIssueStatus({ issueId, status, resolutionNote })), [dispatch]),
   };
 };

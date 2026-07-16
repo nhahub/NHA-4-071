@@ -5,6 +5,8 @@ const Enrollment = require("../models/Enrollment");
 const Attendance = require("../models/Attendance");
 const Course = require("../models/Course");
 const Complaint = require("../models/Complaint");
+const User = require("../models/User");
+const notificationService = require("./notificationService");
 
 exports.updateProfile = async (advisorUserId, updateData) => {
   const advisor = await Advisor.findOneAndUpdate(
@@ -267,12 +269,17 @@ exports.updateIssue = async (advisorUserId, issueId, updateData) => {
   const advisor = await Advisor.findOne({ userId: advisorUserId });
   if (!advisor) throw new Error("Advisor profile not found");
 
+  const advisorUser = await User.findById(advisorUserId);
+  const advisorName = advisorUser?.name || "An advisor";
+
   const complaint = await Complaint.findOne({
     _id: issueId,
     adminId: advisorUserId,
   });
 
   if (!complaint) throw new Error("Issue not found or not assigned to you");
+
+  const oldStatus = complaint.status;
 
   if (updateData.status) {
     if (!["pending", "in_progress", "resolved", "rejected"].includes(updateData.status)) {
@@ -281,6 +288,44 @@ exports.updateIssue = async (advisorUserId, issueId, updateData) => {
     complaint.status = updateData.status;
   }
 
+  if (updateData.resolutionNote !== undefined) {
+    complaint.resolutionNote = updateData.resolutionNote || null;
+  }
+
   await complaint.save();
+
+  if (updateData.status && updateData.status !== oldStatus) {
+    const student = await Student.findById(complaint.studentId).populate("userId", "name");
+    if (student?.userId?._id) {
+      if (updateData.status === "resolved" && complaint.resolutionNote) {
+        await notificationService.createNotification(
+          student.userId._id,
+          "academic",
+          "Complaint Resolved",
+          `Your complaint "${complaint.subject}" has been resolved by ${advisorName}.\nResolution: ${complaint.resolutionNote}`,
+        );
+      } else {
+        await notificationService.createNotification(
+          student.userId._id,
+          "academic",
+          "Complaint Status Updated",
+          `Your complaint "${complaint.subject}" status changed to "${updateData.status}" by ${advisorName}.`,
+        );
+      }
+    }
+
+    if (updateData.status === "resolved") {
+      const admins = await User.find({ role: "admin" }).select("_id name");
+      for (const admin of admins) {
+        await notificationService.createNotification(
+          admin._id,
+          "info",
+          "Complaint Resolved by Advisor",
+          `Complaint "${complaint.subject}" has been resolved by ${advisorName}.`,
+        );
+      }
+    }
+  }
+
   return complaint;
 };

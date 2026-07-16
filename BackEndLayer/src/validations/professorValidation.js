@@ -32,8 +32,18 @@ const attendanceSchema = z.object({
     .nonempty("At least one attendance record is required"),
 });
 
+const announcementSchema = z.object({
+  offeringId: z.string({ required_error: "Offering ID is required" }),
+  title: z
+    .string({ required_error: "Title is required" })
+    .max(200, "Title must be at most 200 characters"),
+  content: z
+    .string({ required_error: "Content is required" })
+    .max(5000, "Content must be at most 5000 characters"),
+});
+
 const updateProfileSchema = z.object({
   title: z.string().optional(),
 });
 
-module.exports = { gradeSchema, assignmentSchema, attendanceSchema, updateProfileSchema };
+module.exports = { gradeSchema, assignmentSchema, attendanceSchema, announcementSchema, updateProfileSchema };

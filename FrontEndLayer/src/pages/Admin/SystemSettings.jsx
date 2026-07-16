@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import {
   Key, Shield, CheckCircle2, XCircle, Globe, Database,
   Copy, Eye, EyeOff, Upload, RefreshCw, Check, Save,
-  AlertCircle, Lock, Server, Sliders, History
+  AlertCircle, Lock, History
 } from "lucide-react";
 import { getSettings, updateSettings } from "../../services/adminService";
 

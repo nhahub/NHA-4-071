@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
-import { Bell, User, LogOut, Search, Menu } from "lucide-react";
+import { User, LogOut, Search, Menu } from "lucide-react";
 import { ROUTES } from "../../routes/RoutePaths";
+import NotificationBell from "./NotificationBell";
 
 const pageTitles = {
   "/admin/dashboard": "System Dashboard",
@@ -39,11 +40,6 @@ const DashboardHeader = ({ onMenuToggle }) => {
     : role === "professor" ? ROUTES.PROFESSOR.DASHBOARD
     : role === "advisor" ? ROUTES.ADVISOR.DASHBOARD
     : ROUTES.ADMIN.DASHBOARD;
-
-  const notificationsRoute =
-    role === "student" ? ROUTES.STUDENT.NOTIFICATIONS
-    : role === "professor" ? ROUTES.PROFESSOR.NOTIFICATIONS
-    : ROUTES.ADVISOR.DASHBOARD;
 
   useEffect(() => {
     const handleClick = (e) => {
@@ -89,9 +85,7 @@ const DashboardHeader = ({ onMenuToggle }) => {
 
         {/* Right: Bell + Divider + User Dropdown */}
         <div className="flex flex-row items-center gap-2 md:gap-4">
-          <button className="p-2 bg-transparent border-none cursor-pointer">
-            <Bell size={20} className="text-admin-accent" />
-          </button>
+          <NotificationBell />
 
           <div className="w-px h-8 hidden md:block" style={{ background: "#424754" }} />
 
@@ -155,14 +149,7 @@ const DashboardHeader = ({ onMenuToggle }) => {
 
         {/* Right: Bell + User */}
         <div className="flex flex-row items-center gap-4 md:gap-6">
-          <div className="flex items-center gap-4">
-            <button
-              onClick={() => navigate(notificationsRoute)}
-              className="relative p-2 rounded-full cursor-pointer bg-transparent border-none text-sidebar-text hover:text-white transition-colors"
-            >
-              <Bell size={20} />
-            </button>
-          </div>
+          <NotificationBell />
 
           <div className="w-px h-8 bg-border hidden md:block" />
 
@@ -227,12 +214,7 @@ const DashboardHeader = ({ onMenuToggle }) => {
       </div>
 
       <div className="flex flex-row items-center gap-3 md:gap-4">
-        <button
-          onClick={() => navigate(notificationsRoute)}
-          className="relative p-2 rounded-full cursor-pointer bg-transparent border-none"
-        >
-          <Bell size={20} color="#4F378A" />
-        </button>
+        <NotificationBell />
 
         <div className="relative" ref={dropdownRef}>
           <button

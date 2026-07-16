@@ -1,185 +1,306 @@
 import { useState, useEffect } from "react";
 import {
-  User, Lock, Send, Paperclip, CheckCircle, AlertTriangle,
-  Clock, ShieldAlert, ChevronDown, Filter, Search, MessageSquare
+  User, CheckCircle, ShieldAlert, X
 } from "lucide-react";
-import { getAllComplaints, updateComplaintStatus } from "../../services/adminService";
+import { getAllComplaints, assignComplaint, resolveComplaint, getAdvisors } from "../../services/adminService";
+
+const STATUS_STYLES = {
+  pending: "bg-[#03B5D3] text-[#00424E]",
+  in_progress: "bg-[#FFB4AB] text-[#93000A]",
+  resolved: "bg-[#323537] text-[#C2C6D6]",
+  rejected: "bg-[#93000A] text-[#FFB4AB]",
+};
 
 const ComplaintManagement = () => {
   const [complaints, setComplaints] = useState([]);
   const [selectedTicket, setSelectedTicket] = useState(null);
-  const [filterTab, setFilterTab] = useState("ALL"); // ALL, OPEN, CLOSED
-  const [activeComposeTab, setActiveComposeTab] = useState("REPLY"); // REPLY, NOTE
-  const [composeText, setComposeText] = useState("");
-  const [agent, setAgent] = useState("Unassigned");
+  const [filterTab, setFilterTab] = useState("ALL");
+  const [advisors, setAdvisors] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [actionLoading, setActionLoading] = useState(false);
+  const [toast, setToast] = useState(null);
+  const [resolutionNote, setResolutionNote] = useState("");
+
+  const [confirmModal, setConfirmModal] = useState({
+    show: false,
+    type: null,
+    complaintId: null,
+    adminId: null,
+    adminName: "",
+  });
 
   useEffect(() => {
-    getAllComplaints().then((result) => {
-      if (result.success && result.data?.complaints) {
-        const formatted = result.data.complaints.map((c) => ({
-          _id: c._id,
-          ticketNumber: c._id.slice(-6).toUpperCase(),
-          title: c.subject,
-          snippet: c.description,
-          status: c.status?.toUpperCase() || "OPEN",
-          statusBadge: c.status === "resolved" ? "bg-[#323537] text-[#C2C6D6]" : "bg-[#03B5D3] text-[#00424E]",
-          category: "COMPLAINT",
-          categoryColor: "text-[#4D8EFF]",
-          timeAgo: c.createdAt ? new Date(c.createdAt).toLocaleDateString() : "N/A",
-          dateFormatted: c.createdAt ? new Date(c.createdAt).toLocaleDateString() : "N/A",
-          student: {
-            name: typeof c.studentId === 'object' ? (c.studentId.userId?.name || "Student") : "Student",
-            avatar: "",
-            major: "",
-            previousTickets: [],
-            auditLog: [],
-          },
-          messages: [{ id: 1, sender: "Student", time: c.createdAt ? new Date(c.createdAt).toLocaleDateString() : "", text: c.description, isStudent: true }],
-          agent: "Unassigned",
-        }));
-        setComplaints(formatted);
-        if (formatted.length > 0) setSelectedTicket(formatted[0]);
+    if (toast) {
+      const timer = setTimeout(() => setToast(null), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [toast]);
+
+  useEffect(() => {
+    Promise.all([getAllComplaints(), getAdvisors()]).then(
+      ([complaintsResult, advisorsResult]) => {
+        if (complaintsResult.success && complaintsResult.data?.complaints) {
+          const formatted = complaintsResult.data.complaints.map((c) => {
+            const studentName =
+              typeof c.studentId === "object"
+                ? c.studentId?.userId?.name || "Student"
+                : "Student";
+            const assignedName =
+              typeof c.adminId === "object" && c.adminId?.name
+                ? c.adminId.name
+                : null;
+            return {
+              _id: c._id,
+              ticketNumber: c._id.slice(-6).toUpperCase(),
+              title: c.subject,
+              snippet: c.description,
+              status: c.status || "pending",
+              category: "COMPLAINT",
+              timeAgo: c.createdAt
+                ? new Date(c.createdAt).toLocaleDateString()
+                : "N/A",
+              studentName,
+              assignedTo: assignedName,
+              assignedId: typeof c.adminId === "object" ? c.adminId?._id : c.adminId || null,
+              resolutionNote: c.resolutionNote || null,
+            };
+          });
+          setComplaints(formatted);
+          if (formatted.length > 0 && !selectedTicket) {
+            setSelectedTicket(formatted[0]);
+          }
+        }
+        if (advisorsResult.success && advisorsResult.data?.users) {
+          setAdvisors(advisorsResult.data.users);
+        }
+        setLoading(false);
       }
-    });
+    );
   }, []);
+
+  const refreshComplaint = async (complaintId) => {
+    const result = await getAllComplaints();
+    if (result.success && result.data?.complaints) {
+      const updated = result.data.complaints.find((c) => c._id === complaintId);
+      if (updated) {
+        const studentName =
+          typeof updated.studentId === "object"
+            ? updated.studentId?.userId?.name || "Student"
+            : "Student";
+        const assignedName =
+          typeof updated.adminId === "object" && updated.adminId?.name
+            ? updated.adminId.name
+            : null;
+        const formatted = {
+          _id: updated._id,
+          ticketNumber: updated._id.slice(-6).toUpperCase(),
+          title: updated.subject,
+          snippet: updated.description,
+          status: updated.status || "pending",
+          category: "COMPLAINT",
+          timeAgo: updated.createdAt
+            ? new Date(updated.createdAt).toLocaleDateString()
+            : "N/A",
+          studentName,
+          assignedTo: assignedName,
+          assignedId: typeof updated.adminId === "object" ? updated.adminId?._id : updated.adminId || null,
+          resolutionNote: updated.resolutionNote || null,
+        };
+        setComplaints((prev) =>
+          prev.map((c) => (c._id === formatted._id ? formatted : c))
+        );
+        setSelectedTicket(formatted);
+      }
+    }
+  };
 
   const handleTicketSelect = (ticket) => {
     setSelectedTicket(ticket);
-    setAgent(ticket.agent || "Unassigned");
-    setComposeText("");
   };
 
-  const handleSend = () => {
-    if (!composeText.trim()) return;
+  const handleAgentSelect = (e) => {
+    const adminId = e.target.value;
+    if (!adminId) return;
+    const advisor = advisors.find((a) => a._id === adminId);
+    setConfirmModal({
+      show: true,
+      type: "assign",
+      complaintId: selectedTicket._id,
+      adminId,
+      adminName: advisor?.name || "this advisor",
+    });
+  };
 
-    if (activeComposeTab === "REPLY") {
-      const newMessage = {
-        id: Date.now(),
-        sender: "Dr. Aminul (Chief Admin)",
-        time: "Just now",
-        text: composeText,
-        isStudent: false,
-      };
-      const updated = complaints.map((c) =>
-        c._id === selectedTicket._id
-          ? { ...c, messages: [...c.messages, newMessage], status: "IN-PROGRESS", statusBadge: "bg-[#03B5D3] text-[#00424E]" }
-          : c
-      );
-      setComplaints(updated);
-      setSelectedTicket((prev) => ({
-        ...prev,
-        messages: [...prev.messages, newMessage],
-        status: "IN-PROGRESS",
-        statusBadge: "bg-[#03B5D3] text-[#00424E]",
-      }));
-    } else {
-      // Internal Note
-      const newNote = {
-        author: "Dr. Aminul (Chief Admin)",
-        note: composeText,
-      };
-      const updated = complaints.map((c) =>
-        c._id === selectedTicket._id ? { ...c, internalNote: newNote } : c
-      );
-      setComplaints(updated);
-      setSelectedTicket((prev) => ({ ...prev, internalNote: newNote }));
+  const handleResolveClick = () => {
+    setResolutionNote("");
+    setConfirmModal({
+      show: true,
+      type: "resolve",
+      complaintId: selectedTicket._id,
+      adminId: null,
+      adminName: "",
+    });
+  };
+
+  const handleConfirm = async () => {
+    setActionLoading(true);
+    setConfirmModal((prev) => ({ ...prev, show: false }));
+
+    try {
+      if (confirmModal.type === "assign") {
+        const result = await assignComplaint(
+          confirmModal.complaintId,
+          confirmModal.adminId
+        );
+        if (result.success) {
+          setToast({
+            type: "success",
+            message: `Complaint assigned to ${confirmModal.adminName} successfully.`,
+          });
+          await refreshComplaint(confirmModal.complaintId);
+        } else {
+          setToast({ type: "error", message: result.error || "Failed to assign complaint." });
+        }
+      } else if (confirmModal.type === "resolve") {
+        const result = await resolveComplaint(
+          confirmModal.complaintId,
+          resolutionNote
+        );
+        if (result.success) {
+          setToast({ type: "success", message: "Complaint resolved successfully." });
+          await refreshComplaint(confirmModal.complaintId);
+        } else {
+          setToast({ type: "error", message: result.error || "Failed to resolve complaint." });
+        }
+      }
+    } catch {
+      setToast({ type: "error", message: "An unexpected error occurred." });
+    } finally {
+      setActionLoading(false);
     }
-    setComposeText("");
   };
 
-  const handleResolve = () => {
-    const updated = complaints.map((c) =>
-      c._id === selectedTicket._id
-        ? { ...c, status: "RESOLVED", statusBadge: "bg-[#323537] text-[#C2C6D6]" }
-        : c
-    );
-    setComplaints(updated);
-    setSelectedTicket((prev) => ({
-      ...prev,
-      status: "RESOLVED",
-      statusBadge: "bg-[#323537] text-[#C2C6D6]",
-    }));
-  };
-
-  const handleAgentChange = (newAgent) => {
-    setAgent(newAgent);
-    const updated = complaints.map((c) =>
-      c._id === selectedTicket._id ? { ...c, agent: newAgent } : c
-    );
-    setComplaints(updated);
-    setSelectedTicket((prev) => ({ ...prev, agent: newAgent }));
+  const handleCancel = () => {
+    setConfirmModal((prev) => ({ ...prev, show: false }));
   };
 
   const filteredTickets = complaints.filter((t) => {
     if (filterTab === "ALL") return true;
-    if (filterTab === "OPEN") return t.status !== "RESOLVED" && t.status !== "CLOSED";
-    if (filterTab === "CLOSED") return t.status === "RESOLVED" || t.status === "CLOSED";
+    if (filterTab === "OPEN") return t.status !== "resolved" && t.status !== "rejected";
+    if (filterTab === "CLOSED") return t.status === "resolved" || t.status === "rejected";
     return true;
   });
 
   return (
     <div className="space-y-6 pb-12 animate-in fade-in duration-200">
-      {/* Page Title & Overview */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-[#424754] pb-6">
         <div>
           <h1 className="font-heading font-semibold text-2xl text-[#E0E3E5] tracking-[-0.24px] m-0">
             Complaint Management
           </h1>
           <p className="font-heading text-sm text-[#C2C6D6] mt-1 m-0">
-            Helpdesk ticketing system, student grievances, grade appeals, and resolution workflows.
+            Student grievances, grade appeals, and resolution workflows.
           </p>
         </div>
       </div>
 
-      {/* Helpdesk 3-Column Layout */}
+      {/* Toast Notification */}
+      {toast && (
+        <div
+          className={`fixed top-6 right-6 z-[200] px-6 py-4 rounded-lg shadow-xl font-heading text-sm font-semibold flex items-center gap-3 animate-in fade-in slide-in-from-top-2 ${
+            toast.type === "success"
+              ? "bg-[#064E3B] text-[#6EE7B7] border border-[#6EE7B7]/40"
+              : "bg-[#93000A] text-[#FFB4AB] border border-[#FFB4AB]/40"
+          }`}
+        >
+          {toast.type === "success" ? <CheckCircle size={18} /> : <ShieldAlert size={18} />}
+          <span>{toast.message}</span>
+          <button
+            onClick={() => setToast(null)}
+            className="ml-4 bg-transparent border-none cursor-pointer text-current opacity-60 hover:opacity-100"
+          >
+            <X size={16} />
+          </button>
+        </div>
+      )}
+
+      {/* Confirmation Modal */}
+      {confirmModal.show && (
+        <div className="fixed inset-0 z-[150] flex items-center justify-center bg-black/60">
+          <div className="bg-[#1D2022] border border-[#424754] rounded-xl shadow-2xl w-full max-w-md mx-4 overflow-hidden animate-in zoom-in-95">
+            <div className="px-6 py-5 border-b border-[#424754]">
+              <h3 className="font-heading font-semibold text-lg text-[#E0E3E5] m-0">
+                {confirmModal.type === "assign" ? "Assign Complaint" : "Resolve Complaint"}
+              </h3>
+            </div>
+            <div className="px-6 py-5 space-y-4">
+              <p className="font-heading text-sm text-[#C2C6D6] m-0 leading-relaxed">
+                {confirmModal.type === "assign"
+                  ? `Are you sure you want to assign this complaint to ${confirmModal.adminName}?`
+                  : "Provide a resolution summary for the student:"}
+              </p>
+              {confirmModal.type === "resolve" && (
+                <textarea
+                  value={resolutionNote}
+                  onChange={(e) => setResolutionNote(e.target.value)}
+                  placeholder="Describe how the complaint was resolved..."
+                  className="w-full bg-[#101415] border border-[#424754] rounded-lg p-3 text-sm text-[#E0E3E5] focus:outline-none focus:border-[#4D8EFF] resize-none h-24 placeholder:text-[#6B7280] font-heading"
+                />
+              )}
+            </div>
+            <div className="px-6 py-4 bg-[#191C1E] border-t border-[#424754] flex justify-end gap-3">
+              <button
+                onClick={handleCancel}
+                disabled={actionLoading}
+                className="px-4 py-2 rounded font-heading font-bold text-xs uppercase tracking-wider text-[#C2C6D6] bg-[#323537] hover:bg-[#424754] transition-colors cursor-pointer border-none"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleConfirm}
+                disabled={actionLoading}
+                className={`px-4 py-2 rounded font-heading font-bold text-xs uppercase tracking-wider flex items-center gap-2 transition-colors cursor-pointer border-none ${
+                  confirmModal.type === "assign"
+                    ? "bg-[#ADC6FF] text-[#002E6A] hover:bg-[#8CAEFF]"
+                    : "bg-[#064E3B] text-[#6EE7B7] hover:bg-[#065F46]"
+                }`}
+              >
+                {actionLoading ? "Processing..." : "Confirm"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 min-h-[840px]">
-        
-        {/* COLUMN 1: Ticket Inbox Panel (Col Span 3 or w-320px) */}
+
+        {/* COLUMN 1: Ticket Inbox */}
         <div className="lg:col-span-3 bg-[#191C1E] border border-[#424754] rounded-lg flex flex-col overflow-hidden shadow-xl max-h-[880px]">
-          {/* Header & Tabs */}
           <div className="p-4 border-b border-[#424754] space-y-3 bg-[#1D2022]">
             <h2 className="font-heading font-semibold text-lg text-[#E0E3E5] m-0">
               Ticket Inbox
             </h2>
-
-            {/* Filter Tabs */}
             <div className="grid grid-cols-3 gap-2 font-heading text-[10px] uppercase font-bold">
-              <button
-                onClick={() => setFilterTab("ALL")}
-                className={`py-1.5 rounded transition-colors cursor-pointer border-none ${
-                  filterTab === "ALL"
-                    ? "bg-[#ADC6FF] text-[#002E6A] shadow-sm"
-                    : "bg-[#101415] text-[#C2C6D6] hover:text-[#E0E3E5] border border-[#424754]"
-                }`}
-              >
-                All
-              </button>
-              <button
-                onClick={() => setFilterTab("OPEN")}
-                className={`py-1.5 rounded transition-colors cursor-pointer border-none ${
-                  filterTab === "OPEN"
-                    ? "bg-[#ADC6FF] text-[#002E6A] shadow-sm"
-                    : "bg-[#101415] text-[#C2C6D6] hover:text-[#E0E3E5] border border-[#424754]"
-                }`}
-              >
-                Open
-              </button>
-              <button
-                onClick={() => setFilterTab("CLOSED")}
-                className={`py-1.5 rounded transition-colors cursor-pointer border-none ${
-                  filterTab === "CLOSED"
-                    ? "bg-[#ADC6FF] text-[#002E6A] shadow-sm"
-                    : "bg-[#101415] text-[#C2C6D6] hover:text-[#E0E3E5] border border-[#424754]"
-                }`}
-              >
-                Closed
-              </button>
+              {["ALL", "OPEN", "CLOSED"].map((tab) => (
+                <button
+                  key={tab}
+                  onClick={() => setFilterTab(tab)}
+                  className={`py-1.5 rounded transition-colors cursor-pointer border-none ${
+                    filterTab === tab
+                      ? "bg-[#ADC6FF] text-[#002E6A] shadow-sm"
+                      : "bg-[#101415] text-[#C2C6D6] hover:text-[#E0E3E5] border border-[#424754]"
+                  }`}
+                >
+                  {tab}
+                </button>
+              ))}
             </div>
           </div>
 
-          {/* Ticket List */}
           <div className="overflow-y-auto divide-y divide-[#424754]/60 flex-1 font-heading">
-            {filteredTickets.length === 0 ? (
+            {loading ? (
+              <div className="p-8 text-center text-[#C2C6D6] text-xs">Loading tickets...</div>
+            ) : filteredTickets.length === 0 ? (
               <div className="p-8 text-center text-[#C2C6D6] text-xs">
                 No tickets matching current filter.
               </div>
@@ -196,34 +317,27 @@ const ComplaintManagement = () => {
                         : "hover:bg-[#272A2C]/40 border-l-4 border-l-transparent"
                     }`}
                   >
-                    {/* Top row: Category & Ticket # */}
                     <div className="flex justify-between items-center text-[10px]">
-                      <span className={`font-bold uppercase tracking-wider ${ticket.categoryColor}`}>
+                      <span className="font-bold uppercase tracking-wider text-[#4D8EFF]">
                         {ticket.category}
                       </span>
-                      <span className="font-mono text-[#C2C6D6]">
-                        {ticket.ticketNumber}
-                      </span>
+                      <span className="font-mono text-[#C2C6D6]">{ticket.ticketNumber}</span>
                     </div>
-
-                    {/* Title */}
                     <div className="font-semibold text-sm text-[#E0E3E5] leading-snug">
                       {ticket.title}
                     </div>
-
-                    {/* Snippet */}
                     <p className="text-xs text-[#C2C6D6] line-clamp-2 leading-relaxed m-0">
                       {ticket.snippet}
                     </p>
-
-                    {/* Bottom row: Status & Time */}
                     <div className="flex justify-between items-center pt-1 text-[10px]">
-                      <span className={`px-2 py-0.5 rounded-full font-bold uppercase tracking-wider ${ticket.statusBadge}`}>
-                        {ticket.status}
+                      <span
+                        className={`px-2 py-0.5 rounded-full font-bold uppercase tracking-wider ${
+                          STATUS_STYLES[ticket.status] || STATUS_STYLES.pending
+                        }`}
+                      >
+                        {ticket.status.replace(/_/g, " ")}
                       </span>
-                      <span className="text-[#C2C6D6] font-mono">
-                        {ticket.timeAgo}
-                      </span>
+                      <span className="text-[#C2C6D6] font-mono">{ticket.timeAgo}</span>
                     </div>
                   </div>
                 );
@@ -232,11 +346,10 @@ const ComplaintManagement = () => {
           </div>
         </div>
 
-        {/* COLUMN 2: Ticket Details & Communication Log (Col Span 6) */}
+        {/* COLUMN 2: Ticket Details */}
         <div className="lg:col-span-6 bg-[#101415] border border-[#424754] rounded-lg flex flex-col overflow-hidden shadow-xl max-h-[880px]">
           {selectedTicket ? (
             <>
-              {/* Header Actions Bar */}
               <div className="bg-[#191C1E] border-b border-[#424754] p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
                   <div className="flex items-center gap-3">
@@ -244,189 +357,99 @@ const ComplaintManagement = () => {
                       {selectedTicket.title}
                     </h2>
                     <span className="bg-[#03B5D3] text-[#00424E] font-heading font-bold text-[11px] uppercase tracking-wider px-2.5 py-0.5 rounded">
-                      Ticket {selectedTicket.ticketNumber}
+                      {selectedTicket.ticketNumber}
                     </span>
                   </div>
                   <div className="font-heading text-xs text-[#C2C6D6] mt-1.5 flex items-center gap-2">
-                    <span className="font-semibold text-[#E0E3E5]">{selectedTicket.student.name}</span>
+                    <span className="font-semibold text-[#E0E3E5]">{selectedTicket.studentName}</span>
                     <span>•</span>
-                    <span className="font-mono">{selectedTicket.dateFormatted}</span>
+                    <span className="font-mono">{selectedTicket.timeAgo}</span>
+                    <span>•</span>
+                    <span
+                      className={`px-2 py-0.5 rounded-full font-bold uppercase tracking-wider text-[10px] ${
+                        STATUS_STYLES[selectedTicket.status] || STATUS_STYLES.pending
+                      }`}
+                    >
+                      {selectedTicket.status.replace(/_/g, " ")}
+                    </span>
                   </div>
                 </div>
 
-                {/* Agent Assign & Resolve */}
                 <div className="flex items-center gap-3 self-stretch sm:self-auto justify-end">
                   <div className="text-right">
                     <label className="block font-heading text-[10px] uppercase font-bold text-[#C2C6D6] tracking-wider mb-1">
-                      Assign to Agent
+                      Assign to Advisor
                     </label>
                     <select
-                      value={agent}
-                      onChange={(e) => handleAgentChange(e.target.value)}
-                      className="bg-[#1D2022] border border-[#424754] rounded px-3 py-1.5 text-xs text-[#E0E3E5] focus:outline-none focus:border-[#4D8EFF] cursor-pointer"
+                      value={selectedTicket.assignedId || ""}
+                      onChange={handleAgentSelect}
+                      className="bg-[#1D2022] border border-[#424754] rounded px-3 py-1.5 text-xs text-[#E0E3E5] focus:outline-none focus:border-[#4D8EFF] cursor-pointer min-w-[140px]"
                     >
-                      <option value="Unassigned">Unassigned</option>
-                      <option value="Dr. Aminul (Chief Admin)">Dr. Aminul (Chief Admin)</option>
-                      <option value="IT Support">IT Support</option>
-                      <option value="Registrar">Registrar</option>
-                      <option value="Academic Dean">Academic Dean</option>
+                      <option value="">Unassigned</option>
+                      {advisors.map((a) => (
+                        <option key={a._id} value={a._id}>
+                          {a.name || a.universityId}
+                        </option>
+                      ))}
                     </select>
                   </div>
 
-                  <button
-                    onClick={handleResolve}
-                    disabled={selectedTicket.status === "RESOLVED"}
-                    className={`px-4 py-2.5 rounded font-heading font-bold text-xs uppercase tracking-wider flex items-center gap-2 transition-all cursor-pointer border-none shadow-md ${
-                      selectedTicket.status === "RESOLVED"
-                        ? "bg-[#323537] text-[#C2C6D6] cursor-not-allowed"
-                        : "bg-[#ADC6FF] hover:bg-[#8CAEFF] text-[#002E6A] active:scale-95"
-                    }`}
-                  >
-                    <CheckCircle size={15} strokeWidth={2.5} />
-                    <span>{selectedTicket.status === "RESOLVED" ? "Resolved" : "Resolve Ticket"}</span>
-                  </button>
+                  {selectedTicket.status !== "resolved" && selectedTicket.status !== "rejected" && (
+                    <button
+                      onClick={handleResolveClick}
+                      className="px-4 py-2.5 rounded font-heading font-bold text-xs uppercase tracking-wider flex items-center gap-2 transition-all cursor-pointer border-none shadow-md bg-[#ADC6FF] hover:bg-[#8CAEFF] text-[#002E6A] active:scale-95"
+                    >
+                      <CheckCircle size={15} strokeWidth={2.5} />
+                      <span>Resolve</span>
+                    </button>
+                  )}
                 </div>
               </div>
 
-              {/* Communication Log Area */}
               <div className="p-6 space-y-6 overflow-y-auto flex-1 font-heading">
-                {/* System Banner */}
                 <div className="text-center">
                   <span className="px-4 py-1.5 bg-[#1D2022] border border-[#424754] rounded-full text-[11px] text-[#C2C6D6] uppercase tracking-wider inline-block">
-                    Ticket created by {selectedTicket.student.name} via Student Portal
+                    Submitted by {selectedTicket.studentName} via Student Portal
                   </span>
                 </div>
 
-                {/* Messages Loop */}
-                {selectedTicket.messages.map((msg) => (
-                  <div key={msg.id} className={`flex gap-4 items-start ${!msg.isStudent ? "flex-row-reverse" : ""}`}>
-                    {/* Avatar Icon */}
-                    <div
-                      className={`w-10 h-10 rounded shrink-0 flex items-center justify-center font-bold text-sm border ${
-                        msg.isStudent
-                          ? "bg-[#1D2022] border-[#424754] text-[#ADC6FF]"
-                          : "bg-[#4D8EFF] border-[#4D8EFF] text-[#002E6A]"
-                      }`}
-                    >
-                      {msg.isStudent ? <User size={18} /> : "AD"}
+                <div className="bg-[#191C1E] border border-[#424754] rounded-lg p-5">
+                  <div className="flex items-start gap-4">
+                    <div className="w-10 h-10 rounded shrink-0 flex items-center justify-center bg-[#1D2022] border border-[#424754] text-[#ADC6FF]">
+                      <User size={18} />
                     </div>
-
-                    {/* Message Bubble */}
-                    <div
-                      className={`rounded-lg p-5 flex-1 border ${
-                        msg.isStudent
-                          ? "bg-[#191C1E] border-[#424754]"
-                          : "bg-[#1D2022] border-[#4D8EFF]/40"
-                      }`}
-                    >
+                    <div className="flex-1">
                       <div className="flex justify-between items-center mb-2">
-                        <span className="font-bold text-sm text-[#E0E3E5]">
-                          {msg.sender}
-                        </span>
-                        <span className="font-mono text-xs text-[#C2C6D6]">
-                          {msg.time}
-                        </span>
+                        <span className="font-bold text-sm text-[#E0E3E5]">{selectedTicket.studentName}</span>
+                        <span className="font-mono text-xs text-[#C2C6D6]">{selectedTicket.timeAgo}</span>
                       </div>
                       <p className="text-sm text-[#C2C6D6] leading-relaxed m-0 whitespace-pre-wrap">
-                        {msg.text}
+                        {selectedTicket.snippet}
                       </p>
                     </div>
                   </div>
-                ))}
+                </div>
 
-                {/* Internal Note (if present) */}
-                {selectedTicket.internalNote && (
-                  <div className="bg-[#191C1E] border border-[#424754] rounded-lg p-5 border-l-4 border-l-[#4CD7F6] space-y-2 animate-in fade-in">
-                    <div className="flex justify-between items-center text-xs uppercase font-bold text-[#4CD7F6] tracking-wider">
-                      <span className="flex items-center gap-1.5">
-                        <Lock size={14} />
-                        <span>Internal Note</span>
-                      </span>
-                      <span className="text-[#C2C6D6] font-mono lowercase font-normal">
-                        by {selectedTicket.internalNote.author}
-                      </span>
+                {selectedTicket.assignedTo && (
+                  <div className="bg-[#1D2022] border border-[#424754] rounded-lg p-4 flex items-center gap-3">
+                    <User size={16} className="text-[#4D8EFF]" />
+                    <span className="text-sm text-[#C2C6D6]">
+                      Assigned to: <strong className="text-[#E0E3E5]">{selectedTicket.assignedTo}</strong>
+                    </span>
+                  </div>
+                )}
+
+                {selectedTicket.resolutionNote && (
+                  <div className="bg-[#064E3B]/20 border border-[#6EE7B7]/30 rounded-lg p-5">
+                    <div className="flex items-center gap-2 mb-2">
+                      <CheckCircle size={16} className="text-[#6EE7B7]" />
+                      <span className="font-heading font-bold text-sm text-[#6EE7B7]">Resolution Note</span>
                     </div>
-                    <p className="italic text-sm text-[#C2C6D6] leading-relaxed m-0">
-                      "{selectedTicket.internalNote.note}"
+                    <p className="text-sm text-[#C2C6D6] leading-relaxed m-0 whitespace-pre-wrap">
+                      {selectedTicket.resolutionNote}
                     </p>
                   </div>
                 )}
-              </div>
-
-              {/* Compose Footer Bar */}
-              <div className="bg-[#191C1E] border-t border-[#424754] p-6 font-heading">
-                {/* Compose Tabs */}
-                <div className="flex gap-2 mb-3">
-                  <button
-                    type="button"
-                    onClick={() => setActiveComposeTab("REPLY")}
-                    className={`px-3.5 py-1.5 rounded text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer border-none ${
-                      activeComposeTab === "REPLY"
-                        ? "bg-[#323537] text-[#E0E3E5]"
-                        : "bg-transparent text-[#C2C6D6] hover:text-[#E0E3E5]"
-                    }`}
-                  >
-                    Reply to Student
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setActiveComposeTab("NOTE")}
-                    className={`px-3.5 py-1.5 rounded text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer border-none flex items-center gap-1.5 ${
-                      activeComposeTab === "NOTE"
-                        ? "bg-[#323537] text-[#4CD7F6]"
-                        : "bg-transparent text-[#C2C6D6] hover:text-[#E0E3E5]"
-                    }`}
-                  >
-                    <Lock size={12} />
-                    <span>Add Internal Note</span>
-                  </button>
-                </div>
-
-                {/* Textarea Input Card */}
-                <div className="bg-[#101415] border border-[#424754] rounded-lg p-3.5 flex items-end gap-3 focus-within:border-[#4D8EFF] transition-colors">
-                  <textarea
-                    value={composeText}
-                    onChange={(e) => setComposeText(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" && !e.shiftKey) {
-                        e.preventDefault();
-                        handleSend();
-                      }
-                    }}
-                    placeholder={
-                      activeComposeTab === "REPLY"
-                        ? "Type your response to student here (press Enter to send)..."
-                        : "Type an internal note for staff members only..."
-                    }
-                    className="bg-transparent border-none w-full text-sm text-[#E0E3E5] focus:outline-none resize-none h-20 placeholder:text-[#6B7280]"
-                  />
-
-                  <div className="flex items-center gap-2 shrink-0">
-                    <button
-                      type="button"
-                      title="Attach file or screenshot"
-                      onClick={() => alert("File attachment dialog opened...")}
-                      className="p-2 text-[#C2C6D6] hover:text-[#E0E3E5] hover:bg-[#1D2022] rounded transition-colors cursor-pointer border-none bg-transparent"
-                    >
-                      <Paperclip size={18} />
-                    </button>
-                    <button
-                      type="button"
-                      title="Send Message"
-                      onClick={handleSend}
-                      disabled={!composeText.trim()}
-                      className={`p-2.5 rounded transition-all border-none cursor-pointer flex items-center justify-center shadow-md ${
-                        composeText.trim()
-                          ? activeComposeTab === "REPLY"
-                            ? "bg-[#ADC6FF] hover:bg-[#8CAEFF] text-[#002E6A] active:scale-95"
-                            : "bg-[#4CD7F6] hover:bg-[#72E1F8] text-[#003640] active:scale-95"
-                          : "bg-[#323537] text-[#6B7280] cursor-not-allowed"
-                      }`}
-                    >
-                      <Send size={18} />
-                    </button>
-                  </div>
-                </div>
               </div>
             </>
           ) : (
@@ -436,58 +459,50 @@ const ComplaintManagement = () => {
           )}
         </div>
 
-        {/* COLUMN 3: Student Profile & Audit Log Panel (Col Span 3) */}
+        {/* COLUMN 3: Student Profile */}
         <div className="lg:col-span-3 bg-[#191C1E] border border-[#424754] rounded-lg p-6 flex flex-col justify-between space-y-6 overflow-y-auto shadow-xl max-h-[880px] font-heading">
           {selectedTicket ? (
             <div className="space-y-6">
-              {/* Student Profile Card */}
               <div>
                 <div className="text-[11px] uppercase font-bold text-[#C2C6D6] tracking-wider mb-4">
                   Student Profile
                 </div>
                 <div className="flex flex-col items-center text-center pb-6 border-b border-[#424754]/60">
-                  <img
-                    src={selectedTicket.student.avatar}
-                    alt={selectedTicket.student.name}
-                    className="w-20 h-20 rounded-lg object-cover border-2 border-[#4D8EFF] mb-3 shadow-md bg-[#1D2022]"
-                  />
-                  <div className="font-bold text-lg text-[#E0E3E5]">
-                    {selectedTicket.student.name}
+                  <div className="w-20 h-20 rounded-lg flex items-center justify-center border-2 border-[#4D8EFF] mb-3 shadow-md bg-[#1D2022]">
+                    <span className="text-2xl font-bold text-[#ADC6FF]">
+                      {selectedTicket.studentName?.charAt(0)?.toUpperCase() || "S"}
+                    </span>
                   </div>
-                  <div className="text-xs text-[#C2C6D6] mt-0.5">
-                    {selectedTicket.student.major}
+                  <div className="font-bold text-lg text-[#E0E3E5]">
+                    {selectedTicket.studentName}
                   </div>
                 </div>
               </div>
 
-              {/* Previous Tickets */}
               <div className="bg-[#1D2022] border border-[#424754] rounded p-4 space-y-2.5 text-xs">
                 <div className="text-[10px] uppercase font-bold text-[#C2C6D6] tracking-wider mb-3 block">
-                  Previous Tickets
+                  Complaint Details
                 </div>
-                {selectedTicket.student.previousTickets.length === 0 ? (
-                  <div className="text-[#C2C6D6] italic text-[11px]">No previous tickets recorded.</div>
-                ) : (
-                  selectedTicket.student.previousTickets.map((t, i) => (
-                    <div key={i} className="flex justify-between items-center border-b border-[#424754]/40 pb-2 last:border-0 last:pb-0">
-                      <span className="text-[#E0E3E5] font-medium truncate pr-2">{t.title}</span>
-                      <span className="font-mono text-[10px] font-bold text-[#4D8EFF]">{t.status}</span>
-                    </div>
-                  ))
-                )}
-              </div>
-
-              {/* Audit Log */}
-              <div className="bg-[#1D2022] border border-[#424754] rounded p-4 font-mono text-xs text-[#C2C6D6] space-y-2">
-                <div className="text-[10px] uppercase font-bold font-heading text-[#C2C6D6] tracking-wider mb-2 block">
-                  Audit Log
+                <div className="flex justify-between items-center text-[11px]">
+                  <span className="text-[#C2C6D6]">Status</span>
+                  <span
+                    className={`px-2 py-0.5 rounded-full font-bold uppercase tracking-wider text-[10px] ${
+                      STATUS_STYLES[selectedTicket.status] || STATUS_STYLES.pending
+                    }`}
+                  >
+                    {selectedTicket.status.replace(/_/g, " ")}
+                  </span>
                 </div>
-                {selectedTicket.student.auditLog.map((log, i) => (
-                  <div key={i} className="flex items-start gap-2 text-[11px]">
-                    <span className="text-[#4CD7F6] font-semibold shrink-0">{log.time}</span>
-                    <span className="text-[#E0E3E5]">{log.event}</span>
-                  </div>
-                ))}
+                <div className="flex justify-between items-center text-[11px]">
+                  <span className="text-[#C2C6D6]">Assigned To</span>
+                  <span className="text-[#E0E3E5] font-medium">
+                    {selectedTicket.assignedTo || "Unassigned"}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center text-[11px]">
+                  <span className="text-[#C2C6D6]">Submitted</span>
+                  <span className="text-[#E0E3E5]">{selectedTicket.timeAgo}</span>
+                </div>
               </div>
             </div>
           ) : (
@@ -496,13 +511,11 @@ const ComplaintManagement = () => {
             </div>
           )}
 
-          {/* Bottom Flag Button */}
           <div className="pt-4 border-t border-[#424754]/60">
             <button
-              type="button"
               onClick={() => {
-                if (confirm(`Flag ticket #${selectedTicket?.ticketNumber} as fraudulent or spam?`)) {
-                  alert("Ticket flagged for security audit.");
+                if (confirm(`Flag ticket #${selectedTicket?.ticketNumber} as fraudulent?`)) {
+                  setToast({ type: "success", message: "Ticket flagged for security audit." });
                 }
               }}
               className="w-full py-2.5 bg-[#1D2022] hover:bg-[#93000A]/20 border border-[#93000A]/60 rounded text-[#FFB4AB] font-heading font-bold text-xs uppercase tracking-wider transition-colors cursor-pointer text-center flex items-center justify-center gap-2"

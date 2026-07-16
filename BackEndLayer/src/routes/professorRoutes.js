@@ -6,6 +6,7 @@ const {
   gradeSchema,
   assignmentSchema,
   attendanceSchema,
+  announcementSchema,
   updateProfileSchema,
 } = require("../validations/professorValidation");
 const professorController = require("../controllers/professorController");
@@ -19,6 +20,10 @@ router.get("/performance", professorController.getPerformance);
 router.get("/profile", professorController.getProfile);
 router.patch("/profile", validate(updateProfileSchema), professorController.updateProfile);
 router.get("/notifications", professorController.getNotifications);
+router.patch(
+  "/notifications/:notificationId/read",
+  professorController.markNotificationRead,
+);
 router.get("/schedule", professorController.getSchedule); // My Schedule
 router.get("/offerings", professorController.getMyOfferings); // My Courses
 router.get(
@@ -34,6 +39,15 @@ router.post(
   validate(assignmentSchema),
   professorController.createAssignment,
 ); // Create Assignment
+router.get(
+  "/offerings/:offeringId/announcements",
+  professorController.getAnnouncements,
+); // View Announcements
+router.post(
+  "/announcements",
+  validate(announcementSchema),
+  professorController.createAnnouncement,
+); // Create Announcement
 router.post(
   "/offerings/:offeringId/attendance",
   validate(attendanceSchema),
