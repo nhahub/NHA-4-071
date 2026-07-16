@@ -7,7 +7,8 @@ export const ScheduleItemSchema = z.object({
   code: z.string(),
   name: z.string(),
   room: z.string(),
-  professor: z.string(),
+  professor: z.string().optional(),
+  semester: z.string().optional(),
 }).passthrough();
 
 export const ScheduleResponseSchema = z.array(ScheduleItemSchema);

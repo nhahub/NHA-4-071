@@ -5,6 +5,7 @@ const Enrollment = require("../models/Enrollment");
 const Assignment = require("../models/Assignment");
 const Attendance = require("../models/Attendance");
 const Semester = require("../models/Semester");
+const Notification = require("../models/Notification");
 const mongoose = require("mongoose");
 
 // 1. Get Professor Profile (Aggregating User + Professor data)

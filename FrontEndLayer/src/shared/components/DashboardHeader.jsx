@@ -87,7 +87,7 @@ const DashboardHeader = ({ onMenuToggle }) => {
           </div>
         </div>
 
-        {/* Right: Bell + Divider + User + Status Badge */}
+        {/* Right: Bell + Divider + User Dropdown */}
         <div className="flex flex-row items-center gap-2 md:gap-4">
           <button className="p-2 bg-transparent border-none cursor-pointer">
             <Bell size={20} className="text-admin-accent" />
@@ -95,31 +95,37 @@ const DashboardHeader = ({ onMenuToggle }) => {
 
           <div className="w-px h-8 hidden md:block" style={{ background: "#424754" }} />
 
-          <div className="flex flex-row items-center gap-2 hidden md:flex">
-            <span
-              className="font-heading font-bold text-[11px] leading-4 text-sidebar-text"
-              style={{ letterSpacing: "0.55px" }}
+          <div className="flex flex-row items-center gap-3 relative" ref={dropdownRef}>
+            <button
+              onClick={() => setDropdownOpen((p) => !p)}
+              className="flex flex-row items-center gap-3 cursor-pointer bg-transparent border-none"
             >
-              System Status:
-            </span>
-            <div
-              className="flex flex-row items-center px-2 py-0.5 gap-1.5 rounded-xl"
-              style={{
-                background: "rgba(20, 83, 45, 0.3)",
-                border: "1px solid rgba(34, 197, 94, 0.5)",
-              }}
-            >
-              <div
-                className="w-2 h-2 rounded-full"
-                style={{ background: "#22C55E" }}
-              />
-              <span
-                className="font-heading font-bold text-[10px] leading-[15px] uppercase"
-                style={{ letterSpacing: "0.5px", color: "#4ADE80" }}
-              >
-                Active
-              </span>
-            </div>
+              <div className="flex-col items-end text-right hidden md:flex">
+                <span className="font-heading font-bold text-sm leading-5 text-white">
+                  {user?.name || "Admin"}
+                </span>
+                <span className="font-heading font-normal text-[11px] leading-4 text-sidebar-text">
+                  System Administrator
+                </span>
+              </div>
+              <div className="w-9 h-9 rounded-md bg-bg-light border border-border flex items-center justify-center overflow-hidden">
+                <span className="text-white font-heading font-bold text-sm">
+                  {user?.name?.charAt(0)?.toUpperCase() || "A"}
+                </span>
+              </div>
+            </button>
+
+            {dropdownOpen && (
+              <div className="absolute right-0 top-full mt-2 w-48 bg-bg-light rounded-xl shadow-lg border border-border overflow-hidden z-50">
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center gap-3 w-full px-4 py-3 text-sm font-heading text-danger hover:bg-[rgba(255,255,255,0.05)] transition-colors bg-transparent border-none cursor-pointer text-left"
+                >
+                  <LogOut size={16} className="text-danger" />
+                  Logout
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </header>

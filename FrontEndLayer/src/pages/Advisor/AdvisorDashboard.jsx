@@ -2,11 +2,14 @@ import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAdvisor } from "../../hooks/useAdvisor";
 import LoadingSkeleton from "../../shared/components/LoadingSkeleton";
+<<<<<<< HEAD
 import StatusBadge from "../../shared/components/StatusBadge";
 import SessionCard from "../../shared/components/SessionCard";
 import AlertItem from "../../shared/components/AlertItem";
 import AdvisorCard from "../../shared/components/AdvisorCard";
 import styles from "./AdvisorDashboard.module.css";
+=======
+>>>>>>> 4f067de2df75df7cdbd9d5ef1948e2f884dc60e7
 
 // Metric Card Component
 const MetricCard = ({ label, value, borderColor, children, progress }) => (
@@ -42,6 +45,7 @@ const MetricCard = ({ label, value, borderColor, children, progress }) => (
   </div>
 );
 
+<<<<<<< HEAD
 // Trend Indicator Component
 const TrendIndicator = ({ positive, value }) => (
   <div className={styles.trendIndicator} style={{ padding: "0 0 4px" }}>
@@ -56,6 +60,8 @@ const TrendIndicator = ({ positive, value }) => (
   </div>
 );
 
+=======
+>>>>>>> 4f067de2df75df7cdbd9d5ef1948e2f884dc60e7
 const AdvisorDashboard = () => {
   const { dashboardStats, statsLoading, loadDashboardStats } = useAdvisor();
   const navigate = useNavigate();
@@ -72,6 +78,7 @@ const AdvisorDashboard = () => {
     );
   }
 
+<<<<<<< HEAD
   // Ensure metrics and other arrays have default values to avoid undefined errors
   const {
     metrics = { totalAdvisees: 0, atRiskCount: 0, auditCompletionPercent: 0, avgResponseHours: 0 },
@@ -85,11 +92,26 @@ const AdvisorDashboard = () => {
     <div className={styles.dashboardContainer}>
       <div className={styles.metricsGrid}>
         <MetricCard label="TOTAL ADVISEES" value={metrics.totalAdvisees} borderColor="#E7C365">
+=======
+
+  const { totalAdvisees, atRiskAdvisees } = dashboardStats;
+
+  return (
+    <div className="flex flex-col gap-10" style={{
+      background: "linear-gradient(0deg, #121415, #121415), #FFFFFF",
+      minHeight: "calc(100vh - 64px)",
+      padding: 32,
+      overflow: "auto",
+    }}>
+      <div className="flex flex-row justify-center items-start gap-6 self-stretch">
+        <MetricCard label="TOTAL ADVISEES" value={totalAdvisees ?? 0} borderColor="#E7C365">
+>>>>>>> 4f067de2df75df7cdbd9d5ef1948e2f884dc60e7
           <div style={{ width: 22, height: 16, background: "rgba(231, 195, 101, 0.5)" }} />
         </MetricCard>
-        <MetricCard label="AT-RISK STUDENTS" value={metrics.atRiskCount} borderColor="#FFB4AB">
+        <MetricCard label="AT-RISK STUDENTS" value={atRiskAdvisees ?? 0} borderColor="#FFB4AB">
           <div style={{ width: 22, height: 19, background: "rgba(255, 180, 171, 0.5)" }} />
         </MetricCard>
+<<<<<<< HEAD
         <MetricCard
           label="AUDIT COMPLETION"
           value={`${metrics.auditCompletionPercent}%`}
@@ -154,6 +176,17 @@ const AdvisorDashboard = () => {
           <AdvisorCard key={insight.id} title={insight.title} description={insight.description} />
         ))}
       </div>
+=======
+      </div>
+
+      <span className="font-inter text-base leading-6" style={{ color: "#E2E2E3" }}>At-Risk Student Monitoring</span>
+      <button onClick={() => {
+        const modal = document.createElement('div');
+        modal.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:9999';
+        modal.innerHTML = '<div style="background:#1E2021;padding:40px;border-radius:12px;max-width:500px;text-align:center"><h2 style="color:#E2E2E3;margin-bottom:16px">At-Risk Students</h2><p style="color:#D0C5B2;margin-bottom:24px">All at-risk students are being monitored. Intervention plans are active.</p><button onclick="this.closest(\'div[style]\').remove()" style="background:#E7C365;color:#121415;border:none;padding:10px 24px;border-radius:8px;font-weight:bold;cursor:pointer">OK</button></div>';
+        document.body.appendChild(modal);
+      }} className="font-mono text-base leading-6 uppercase bg-transparent border-none cursor-pointer" style={{ color: "#E7C365" }}>View All</button>
+>>>>>>> 4f067de2df75df7cdbd9d5ef1948e2f884dc60e7
     </div>
   );
 };

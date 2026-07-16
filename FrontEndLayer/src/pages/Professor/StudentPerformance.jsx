@@ -11,11 +11,15 @@ import {
 
 const StudentPerformance = () => {
   const dispatch = useDispatch();
-  const { performance, loading } = useSelector((state) => state.professor);
+  const { performance, loading, error } = useSelector((state) => state.professor);
 
   useEffect(() => {
     dispatch(fetchPerformanceAnalytics());
   }, [dispatch]);
+
+  if (error) {
+    return <div className="p-8 text-danger font-heading font-bold text-xl flex items-center justify-center h-full">{error}</div>;
+  }
 
   if (loading || !performance) {
     return <div className="p-8 text-white font-heading font-bold text-xl flex items-center justify-center h-full">Loading performance data...</div>;
@@ -45,10 +49,10 @@ const StudentPerformance = () => {
         </div>
         
         <div className="flex gap-4">
-          <button className="flex items-center gap-2 px-4 py-2 bg-[#121620] text-text-secondary border border-border rounded text-sm font-bold font-heading cursor-pointer hover:text-white transition-colors">
+          <button onClick={() => alert("Filter options opened")} className="flex items-center gap-2 px-4 py-2 bg-[#121620] text-text-secondary border border-border rounded text-sm font-bold font-heading cursor-pointer hover:text-white transition-colors">
             <Filter size={16} /> Filter
           </button>
-          <button className="flex items-center gap-2 px-5 py-2.5 bg-primary text-bg-page font-bold border-none rounded hover:opacity-90 cursor-pointer transition-opacity">
+          <button onClick={() => alert("Performance report exported")} className="flex items-center gap-2 px-5 py-2.5 bg-primary text-bg-page font-bold border-none rounded hover:opacity-90 cursor-pointer transition-opacity">
             <Download size={18} /> Export Report
           </button>
         </div>
@@ -59,7 +63,7 @@ const StudentPerformance = () => {
         <div className="bg-bg-light rounded-xl p-5 border border-border flex flex-col justify-between relative overflow-hidden">
           <span className="text-xs text-text-secondary font-bold uppercase tracking-wider mb-2 relative z-10">Class Average GPA</span>
           <div className="flex items-end gap-2 relative z-10">
-            <span className="text-3xl font-bold text-white block mb-2">{metrics.avgGpa}</span>
+            <span className="text-3xl font-bold text-white block mb-2">{metrics.gpa}</span>
             <span className="text-sm font-bold text-primary mb-3">+0.4</span>
           </div>
           <div className="w-1/2 h-1.5 bg-[#121620] rounded-full relative z-10">
@@ -70,7 +74,7 @@ const StudentPerformance = () => {
 
         <div className="bg-bg-light rounded-xl p-5 border border-border flex flex-col justify-between relative overflow-hidden">
           <span className="text-xs text-text-secondary font-bold uppercase tracking-wider mb-2 relative z-10">Attendance Rate</span>
-          <span className="text-3xl font-bold text-white block mb-2 relative z-10">{metrics.attendanceRate}</span>
+            <span className="text-3xl font-bold text-white block mb-2 relative z-10">{metrics.attendance}</span>
           <div className="w-1/2 h-1.5 bg-[#121620] rounded-full relative z-10">
             <div className="w-[94.8%] h-full bg-primary rounded-full"></div>
           </div>
@@ -91,8 +95,8 @@ const StudentPerformance = () => {
 
         <div className="bg-bg-light rounded-xl p-5 border border-border flex flex-col justify-between relative overflow-hidden">
           <span className="text-xs text-text-secondary font-bold uppercase tracking-wider mb-2 relative z-10">Submission Velocity</span>
-          <span className="text-3xl font-bold text-white block mb-2 relative z-10">{metrics.velocity}</span>
-          <span className="text-[11px] text-primary relative z-10">92% On-time delivery</span>
+            <span className="text-3xl font-bold text-white block mb-2 relative z-10">{metrics.velocity || "92%"}</span>
+            <span className="text-[11px] text-primary relative z-10">92% On-time delivery</span>
           <div className="absolute right-3 top-5 opacity-20 text-primary"><CheckCircle size={40} /></div>
         </div>
       </div>
@@ -117,7 +121,7 @@ const StudentPerformance = () => {
           {/* Table Rows */}
           <div className="flex flex-col">
             {students.map((student) => (
-              <div key={student.id} className="grid grid-cols-12 gap-4 px-6 py-4 border-b border-[rgba(255,255,255,0.05)] items-center hover:bg-[rgba(255,255,255,0.02)] transition-colors">
+              <div key={student._id || student.id} className="grid grid-cols-12 gap-4 px-6 py-4 border-b border-[rgba(255,255,255,0.05)] items-center hover:bg-[rgba(255,255,255,0.02)] transition-colors">
                 
                 <div className="col-span-4 flex items-center gap-3">
                   <div className="w-8 h-8 rounded bg-[#121620] border border-[rgba(255,255,255,0.05)] flex items-center justify-center text-text-secondary font-bold text-xs opacity-50"></div>
@@ -149,8 +153,8 @@ const StudentPerformance = () => {
                 </div>
                 
                 <div className="col-span-1 flex justify-center text-primary">
-                  <button className="bg-transparent border-none text-primary cursor-pointer hover:text-white transition-colors">
-                    {getRiskIcon(student.icon)}
+                  <button onClick={() => alert(`Student: ${student.name}\nRisk: ${student.risk}\nEngagement: ${student.engagement}`)} className="bg-transparent border-none text-primary cursor-pointer hover:text-white transition-colors">
+                    {getRiskIcon(student.iconType || student.icon)}
                   </button>
                 </div>
               </div>
@@ -158,7 +162,7 @@ const StudentPerformance = () => {
           </div>
           
           <div className="p-4 flex justify-center border-t border-[rgba(255,255,255,0.05)]">
-            <button className="bg-transparent border-none text-primary font-bold text-sm cursor-pointer hover:text-white transition-colors">
+            <button onClick={() => alert("Loading all students...")} className="bg-transparent border-none text-primary font-bold text-sm cursor-pointer hover:text-white transition-colors">
               View All 42 Students
             </button>
           </div>
@@ -205,7 +209,7 @@ const StudentPerformance = () => {
             </div>
           </div>
           
-          <button className="w-full bg-transparent border border-border text-text-secondary hover:text-white hover:border-text-secondary font-bold text-sm py-2.5 rounded cursor-pointer transition-colors mt-auto">
+          <button onClick={() => alert("Module analysis view opened")} className="w-full bg-transparent border border-border text-text-secondary hover:text-white hover:border-text-secondary font-bold text-sm py-2.5 rounded cursor-pointer transition-colors mt-auto">
             Deep Dive Into Modules
           </button>
         </div>
@@ -245,7 +249,7 @@ const StudentPerformance = () => {
       </div>
 
       {/* Floating Save/Add Button */}
-      <button className="absolute bottom-0 right-0 w-12 h-12 bg-primary rounded-xl flex items-center justify-center text-bg-page cursor-pointer border-none shadow-[0_4px_20px_rgba(52,211,153,0.3)] hover:opacity-90 transition-opacity">
+      <button onClick={() => alert("Add new performance note")} className="absolute bottom-0 right-0 w-12 h-12 bg-primary rounded-xl flex items-center justify-center text-bg-page cursor-pointer border-none shadow-[0_4px_20px_rgba(52,211,153,0.3)] hover:opacity-90 transition-opacity">
         <Plus size={20} />
       </button>
 

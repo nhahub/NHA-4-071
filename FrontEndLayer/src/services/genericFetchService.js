@@ -35,19 +35,20 @@ export const fetchService = async (endpoint, options, schema = null) => {
   try {
     const response = await apiClient(endpoint, options);
 
+    const envelope = response.data;
+    const hasEnvelope =
+      envelope &&
+      typeof envelope === 'object' &&
+      'success' in envelope &&
+      'data' in envelope;
+    const payload = hasEnvelope ? envelope.data : envelope;
+
     if (schema) {
-      const envelope = response.data;
-      const hasEnvelope =
-        envelope &&
-        typeof envelope === 'object' &&
-        'success' in envelope &&
-        'data' in envelope;
-      const payload = hasEnvelope ? envelope.data : envelope;
       const validatedData = schema.parse(payload);
       return { success: true, data: validatedData };
     }
 
-    return { success: true, data: response.data };
+    return { success: true, data: payload };
   } catch (error) {
     if (error instanceof ZodError) {
       console.error('Data Validation Failed:', error.issues);
